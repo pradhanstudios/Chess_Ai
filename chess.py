@@ -9,7 +9,7 @@ from board import Board
 pygame.init()
 
 # window
-window = pygame.display.set_mode((WIDTH, HEIGHT))  # 1280 x 720
+window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Chess")
 
 # clock
@@ -23,13 +23,11 @@ clock = pygame.time.Clock()
 # game objects #
 ################
 window_bg = pygame.image.load(BG_IMG)
-board = Board(WIDTH, HEIGHT)
+board = Board()
 piece_sprites = {}
 for piece in pieces:
     piece_sprites[piece] = pygame.image.load("assets/sprites/" + pieces[piece])
     piece_sprites[piece] = pygame.transform.scale(piece_sprites[piece], PIECE_SIZE)
-
-print(piece_sprites)
 
 #############
 # game loop #
@@ -45,7 +43,8 @@ while running:
                 running = False
 
     # clear last frame
-    # window.fill(BG_COLOR)
+    # window.fill(BG_COLOR)(
+    window_bg = pygame.transform.scale(window_bg, (WIDTH, HEIGHT))
     window.blit(window_bg, (0, 0))
 
     # update
