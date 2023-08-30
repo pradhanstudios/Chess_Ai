@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from consts import *
+from vars import *
 from board import Board
 
 #########
@@ -24,6 +24,12 @@ clock = pygame.time.Clock()
 ################
 window_bg = pygame.image.load(BG_IMG)
 board = Board(WIDTH, HEIGHT)
+piece_sprites = {}
+for piece in pieces:
+    piece_sprites[piece] = pygame.image.load("assets/sprites/" + pieces[piece])
+    piece_sprites[piece] = pygame.transform.scale(piece_sprites[piece], PIECE_SIZE)
+
+print(piece_sprites)
 
 #############
 # game loop #

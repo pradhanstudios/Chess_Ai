@@ -1,10 +1,10 @@
 import pygame
-from consts import *
+from vars import *
 
 
 class Board:
     def __init__(self, w, h):
-        self.side_len = 700
+        self.side_len = BOARD_SIZE
         self.surface = pygame.surface.Surface((self.side_len, self.side_len))
         self.rect = self.surface.get_rect(
             x=(w // 120), y=((h // 2) - (self.side_len // 2))
