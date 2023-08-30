@@ -24,10 +24,6 @@ clock = pygame.time.Clock()
 ################
 window_bg = pygame.image.load(BG_IMG)
 board = Board()
-piece_sprites = {}
-for piece in pieces:
-    piece_sprites[piece] = pygame.image.load("assets/sprites/" + pieces[piece])
-    piece_sprites[piece] = pygame.transform.scale(piece_sprites[piece], PIECE_SIZE)
 
 #############
 # game loop #
@@ -43,7 +39,6 @@ while running:
                 running = False
 
     # clear last frame
-    # window.fill(BG_COLOR)(
     window_bg = pygame.transform.scale(window_bg, (WIDTH, HEIGHT))
     window.blit(window_bg, (0, 0))
 
