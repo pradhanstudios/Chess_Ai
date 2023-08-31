@@ -43,6 +43,7 @@ while running:
     window.blit(window_bg, (0, 0))
 
     # update
+    board.update()
 
     # render
     board.draw(window)

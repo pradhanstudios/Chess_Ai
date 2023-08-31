@@ -13,7 +13,7 @@ START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 PIECE_SIZE = BOARD_SIZE // 8
 
-BLANK = "    "
+BLANK = "   "
 
 
 pieces = {}

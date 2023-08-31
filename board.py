@@ -1,20 +1,24 @@
 import pygame
 from vars import *
-from LegalMoves import isLegalMove
+
+# from legal_moves import legal_moves
 
 
 class Board:
     def __init__(self):
+        # surface
         self.surface = pygame.surface.Surface((BOARD_SIZE, BOARD_SIZE))
         self.rect = self.surface.get_rect(
             x=(WIDTH // 120), y=((HEIGHT // 2) - (BOARD_SIZE // 2))
         )
 
+        # board
         self.board_img = pygame.image.load(BOARD_IMG)
         self.board_img = pygame.transform.scale(
             self.board_img, (BOARD_SIZE, BOARD_SIZE)
         )
 
+        # pieces
         self.piece_sprites = {}
         for piece in pieces:
             self.piece_sprites[piece] = pygame.image.load(
@@ -24,13 +28,15 @@ class Board:
                 self.piece_sprites[piece], (PIECE_SIZE * 0.75, PIECE_SIZE * 0.75)
             )
 
-        print(self.piece_sprites)
+        # vars to move pieces
+        self.start = (-1, -1)
+        self.dest = (-1, -1)
 
         self.board = [[BLANK for _ in range(8)] for _ in range(8)]
 
         self.parse_FEN(START_FEN)
 
-        self.print_board()
+        # self.print_board()
 
     def draw(self, screen):
         # draw game surface onto window
@@ -44,10 +50,7 @@ class Board:
         for r in range(len(self.board)):
             for c in range(len(self.board[r])):
                 piece = self.board[r][c]
-                if piece != "   ":
-                    # print(
-                    #     f"({r}, {c}) -- {piece} : ({r * PIECE_SIZE}, {c * PIECE_SIZE})"
-                    # )
+                if piece != BLANK:
                     self.surface.blit(
                         self.piece_sprites[piece],
                         self.piece_sprites[piece].get_rect(
@@ -57,6 +60,48 @@ class Board:
                             )
                         ),
                     )
+
+    def update(self):
+        if pygame.mouse.get_pressed()[0]:
+            hit = pygame.mouse.get_pos()
+            if self.rect.collidepoint(hit):
+                hitx = hit[0] - self.rect.x
+                hity = hit[1] - self.rect.y
+
+                i = hitx // PIECE_SIZE
+                j = hity // PIECE_SIZE
+
+                # print(f"{pygame.mouse.get_pos()} --> ({hitx}, {hity}) --> [{i}][{j}]")
+
+                if self.start == (-1, -1):
+                    if self.board[j][i] != BLANK:
+                        self.start = (i, j)
+
+                if (
+                    (i, j) != self.start
+                    and self.start != (-1, -1)
+                    and self.dest == (-1, -1)
+                ):
+                    self.dest = (i, j)
+
+                    print(
+                        f"{self.start}: {self.board[self.start[1]][self.start[0]]}\t-->\t{self.dest}: {self.board[j][i]}"
+                    )
+
+                    self.move_piece(self.start, self.dest)
+
+                    self.start = (-1, -1)
+                    self.dest = (-1, -1)
+
+    def move_piece(self, start, dest):
+        start_y, start_x = start
+        dest_y, dest_x = dest
+
+        piece = self.board[start_x][start_y]
+
+        if self.board[dest_x][dest_y] == BLANK:
+            self.board[dest_x][dest_y] = piece
+            self.board[start_x][start_y] = BLANK
 
     def print_board(self):
         for row in self.board:
@@ -86,6 +131,6 @@ class Board:
                     break
 
 
-if __name__ == "__main__":
-    board = Board()
-    print(isLegalMove(board.board, (6, 0), (5, 0)))
+# if __name__ == "__main__":
+#     board = Board()
+#     print(legal_moves(board.board, (6, 0)))
