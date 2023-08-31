@@ -1,7 +1,7 @@
 import pygame
 from vars import *
 
-# from legal_moves import legal_moves
+from legal_moves import get_possible_piece
 
 
 class Board:
@@ -131,6 +131,6 @@ class Board:
                     break
 
 
-# if __name__ == "__main__":
-#     board = Board()
-#     print(legal_moves(board.board, (6, 0)))
+if __name__ == "__main__":
+    board = Board()
+    print(get_possible_piece(board.board, (7, 6)))
