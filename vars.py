@@ -13,6 +13,9 @@ START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 PIECE_SIZE = BOARD_SIZE // 8
 
+BLANK = "    "
+
+
 pieces = {}
 for fname in os.listdir("assets/sprites"):
     str_parts = fname.split("_")

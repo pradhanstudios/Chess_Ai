@@ -1,5 +1,6 @@
 import pygame
 from vars import *
+from LegalMoves import isLegalMove
 
 
 class Board:
@@ -25,7 +26,7 @@ class Board:
 
         print(self.piece_sprites)
 
-        self.board = [["   " for _ in range(8)] for _ in range(8)]
+        self.board = [[BLANK for _ in range(8)] for _ in range(8)]
 
         self.parse_FEN(START_FEN)
 
@@ -83,3 +84,8 @@ class Board:
 
                 if col_ptr > 8:
                     break
+
+
+if __name__ == "__main__":
+    board = Board()
+    print(isLegalMove(board.board, (6, 0), (5, 0)))
