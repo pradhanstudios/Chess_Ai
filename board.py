@@ -133,4 +133,4 @@ class Board:
 
 if __name__ == "__main__":
     board = Board()
-    print(get_possible_piece(board.board,(3, 3)))
+    print(get_possible_piece(board.board,(3, 4)))

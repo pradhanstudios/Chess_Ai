@@ -13,6 +13,8 @@ START_FEN = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1"
 
 PIECE_SIZE = BOARD_SIZE // 8
 
+PAWN_MOVES = {"w": -1, "b": 1}
+
 BLANK = "   "
 
 
