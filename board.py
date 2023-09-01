@@ -99,9 +99,11 @@ class Board:
 
         piece = self.board[start_x][start_y]
 
-        if self.board[dest_x][dest_y] == BLANK:
+        if (dest_x, dest_y) in get_possible_piece(self.board, (start_x, start_y)):
             self.board[dest_x][dest_y] = piece
             self.board[start_x][start_y] = BLANK
+        # else:
+        #     print("ILLEGAL MOVE")
 
     def print_board(self):
         for row in self.board:

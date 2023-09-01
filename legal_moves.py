@@ -76,6 +76,7 @@ def get_possible_piece(board, cur_pos):
                 piece_position.extend(_get_moves(board, cur_pos, i, j))
         for i, j in zip((1, -1, 0, 0), (0, 0, 1, -1)):
             piece_position.extend(_get_moves(board, cur_pos, i, j))
+        # print(piece_position)
 
     if piece.lower() == "n": # knight
         # (2, 1) (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2) (-1, 2), (-1, -2)
