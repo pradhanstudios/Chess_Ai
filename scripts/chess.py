@@ -1,10 +1,10 @@
 import pygame
-from vars import *
 
-from legal_moves import get_possible_piece
+from scripts.vars import *
+from scripts.legal_moves import get_possible_piece
 
 
-class Board:
+class Chess:
     def __init__(self):
         # surface
         self.surface = pygame.surface.Surface((BOARD_SIZE, BOARD_SIZE))
@@ -134,5 +134,5 @@ class Board:
 
 
 if __name__ == "__main__":
-    board = Board()
-    print(get_possible_piece(board.board,(3, 4)))
+    chess = Chess()
+    print(get_possible_piece(chess.board, (3, 4)))
