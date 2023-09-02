@@ -15,6 +15,10 @@ PIECE_SIZE = BOARD_SIZE // 8
 
 PAWN_MOVES = {"w": -1, "b": 1}
 
+LETTERS = "abcdefgh"
+
+NUMS_TO_LETTERS = {i+1:LETTERS[i] for i in range(8)}
+
 BLANK = "   "
 
 

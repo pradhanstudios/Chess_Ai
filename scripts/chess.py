@@ -1,7 +1,9 @@
 import pygame
 
-from scripts.vars import *
-from scripts.legal_moves import get_possible_piece
+# from scripts.vars import *
+# from scripts.legal_moves import get_possible_piece, get_algebraic_notation
+from legal_moves import get_possible_piece, get_algebraic_notation
+from vars import *
 
 
 class Chess:
@@ -136,3 +138,4 @@ class Chess:
 if __name__ == "__main__":
     chess = Chess()
     print(get_possible_piece(chess.board, (3, 4)))
+    print(get_algebraic_notation(chess.board, (3, 3), (5, 2)))

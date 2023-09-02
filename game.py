@@ -1,8 +1,11 @@
 import pygame, sys
+sys.path.append("scripts/")
+
 from pygame.locals import *
 
-from scripts.vars import *
-from scripts.chess import Chess
+
+from vars import *
+from chess import Chess
 
 
 class Game:

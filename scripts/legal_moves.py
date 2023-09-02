@@ -1,4 +1,5 @@
-from scripts.vars import *
+# from scripts.vars import *
+from vars import *
 
 
 def _get_moves(board, cur_pos, dirx, diry, rng=8):
@@ -49,23 +50,28 @@ def _pawn_moves(board, cur_pos):
     if board[cur_pos[0] + move][cur_pos[1]] == BLANK:
         output.append((cur_pos[0] + move, cur_pos[1]))
 
-    if color == "b" and cur_pos[1] == 1 and cur_pos[0] + move * 2 == BLANK:
-        output.append((cur_pos[0] + move * 2, cur_pos[1]))
+    if color == "b" and cur_pos[1] == 1 and cur_pos[1] + move * 2 == BLANK:
+        print("THIS")
+        output.append((cur_pos[0], cur_pos[1] + move*2))
 
-    if color == "w" and cur_pos[1] == 6 and cur_pos[0] + move * 2 == BLANK:
-        output.append((cur_pos[0] + move * 2, cur_pos[1]))
+    # if color == "b" and cur_pos[0] == 1 and cur_pos[1] + move * 2 == BLANK:
+    #     output.append((cur_pos[0], cur_pos[1] + move*2))
 
-    if (
-        board[cur_pos[0] + move][cur_pos[1] + move] != BLANK
-        and board[cur_pos[0] + move][cur_pos[1] + move].split("_")[0] != color
-    ):
-        output.append((cur_pos[0] + move, cur_pos[1] + move))
+    if (0 < cur_pos[0] + move < 7) and (0 < cur_pos[1] + move < 7):
 
-    if (
-        board[cur_pos[0] + move][cur_pos[1] - move] != BLANK
-        and board[cur_pos[0] + move][cur_pos[1] - move].split("_")[0] != color
-    ):
-        output.append((cur_pos[0] + move, cur_pos[1] - move))
+        if (
+            board[cur_pos[0] + move][cur_pos[1] + move] != BLANK
+            and board[cur_pos[0] + move][cur_pos[1] + move].split("_")[0] != color
+        ):
+            output.append((cur_pos[0] + move, cur_pos[1] + move))
+
+    if (0 < cur_pos[0] + move < 7) and (0 < cur_pos[1] - move < 7):
+
+        if (
+            board[cur_pos[0] + move][cur_pos[1] - move] != BLANK
+            and board[cur_pos[0] + move][cur_pos[1] - move].split("_")[0] != color
+        ):
+            output.append((cur_pos[0] + move, cur_pos[1] - move))
 
     return output
 
@@ -102,3 +108,22 @@ def get_possible_piece(board, cur_pos):
         piece_position.extend(_pawn_moves(board, cur_pos))
 
     return piece_position
+
+def get_algebraic_notation(board, start_pos, end_pos):
+    ex = False
+    color, _, piece = board[start_pos[0]][start_pos[1]]
+    for c in range(len(board)):
+        for r in range(len(board[c])):
+            if board[r][c] == "{color}_{piece}":
+                if end_pos in get_possible_piece(board, start_pos):
+                    ex = True
+
+    output = ""
+    if piece.lower() != "p":
+        output += piece.lower()
+    if ex:
+        output += NUMS_TO_LETTERS[start_pos[1]+1]
+    output += NUMS_TO_LETTERS[end_pos[1]+1] + str(end_pos[0])
+
+    return output
+    
