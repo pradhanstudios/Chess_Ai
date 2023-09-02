@@ -87,7 +87,7 @@ class Chess:
                     self.dest = (i, j)
 
                     print(
-                        f"{self.start}: {self.board[self.start[1]][self.start[0]]}\t-->\t{self.dest}: {self.board[j][i]}"
+                        f"{self.start}: {self.board[self.start[1]][self.start[0]]}\t-->\t{self.dest}: {self.board[j][i]}\n{get_algebraic_notation(self.board, self.start, self.dest)}"
                     )
 
                     self.move_piece(self.start, self.dest)

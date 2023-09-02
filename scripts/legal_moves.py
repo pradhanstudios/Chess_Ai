@@ -111,7 +111,7 @@ def get_possible_piece(board, cur_pos):
 
 def get_algebraic_notation(board, start_pos, end_pos):
     ex = False
-    color, _, piece = board[start_pos[0]][start_pos[1]]
+    color, _, piece = board[start_pos[1]][start_pos[0]]
     for c in range(len(board)):
         for r in range(len(board[c])):
             if board[r][c] == "{color}_{piece}":
@@ -122,8 +122,8 @@ def get_algebraic_notation(board, start_pos, end_pos):
     if piece.lower() != "p":
         output += piece.lower()
     if ex:
-        output += NUMS_TO_LETTERS[start_pos[1]+1]
-    output += NUMS_TO_LETTERS[end_pos[1]+1] + str(end_pos[0])
+        output += NUMS_TO_LETTERS[start_pos[0]]
+    output += NUMS_TO_LETTERS[end_pos[0]+1] + str(end_pos[1]+1)
 
     return output
     
