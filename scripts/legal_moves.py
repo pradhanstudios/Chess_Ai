@@ -123,7 +123,16 @@ def get_algebraic_notation(board, start_pos, end_pos):
         output += piece.lower()
     if ex:
         output += NUMS_TO_LETTERS[start_pos[0]]
+    # psuedo code
+    # if toook piece:
+    #     output += 'x'
     output += NUMS_TO_LETTERS[end_pos[0]+1] + str(end_pos[1]+1)
+    # psuedo code
+    # if check:
+    #     output += '+'
+    # psuedo code
+    # if check mate:
+    #     output += '#'
 
     return output
     
