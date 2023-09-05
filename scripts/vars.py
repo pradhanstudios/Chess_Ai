@@ -9,11 +9,14 @@ BG_IMG = "assets/backgrounds/bg_wood.jpg"
 BOARD_IMG = "assets/backgrounds/chess_board.png"
 BOARD_SIZE = (HEIGHT // 100) * 100 if HEIGHT <= WIDTH else (WIDTH // 100) * 100
 
-START_FEN = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1"
+START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+# "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1"
 
 PIECE_SIZE = BOARD_SIZE // 8
 
 PAWN_MOVES = {"w": -1, "b": 1}
+
+OPPOSITE_COLORS = {"w": "black", "b": "white"}
 
 LETTERS = "abcdefgh"
 

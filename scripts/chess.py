@@ -2,7 +2,7 @@ import pygame
 
 # from scripts.vars import *
 # from scripts.legal_moves import get_possible_piece, get_algebraic_notation
-from legal_moves import get_possible_piece, get_algebraic_notation
+from legal_moves import *
 from vars import *
 
 
@@ -98,14 +98,28 @@ class Chess:
     def move_piece(self, start, dest):
         start_y, start_x = start
         dest_y, dest_x = dest
+        # cboard = self.board
+
+        cboard = []
+        for r in range(8):
+            new_row = []
+            for c in range(8):
+                new_row.append(self.board[r][c])
+            cboard.append(new_row)
 
         piece = self.board[start_x][start_y]
 
-        if (dest_x, dest_y) in get_possible_piece(self.board, (start_x, start_y)):
-            self.board[dest_x][dest_y] = piece
-            self.board[start_x][start_y] = BLANK
-        # else:
-        #     print("ILLEGAL MOVE")
+        if ("q" in piece or "Q" in piece):
+            print(get_possible_piece(cboard, (start_x, start_y)))
+
+        if (dest_x, dest_y) in get_possible_piece(cboard, (start_x, start_y)):
+            cboard[dest_x][dest_y] = piece
+            cboard[start_x][start_y] = BLANK
+            # print(f"flag: {cboard == self.board}")
+
+        if not is_check(cboard, find_king(cboard, (cboard[dest_x][dest_y]).split("_")[0])):
+            # print("this")
+            self.board = cboard
 
     def print_board(self):
         for row in self.board:
@@ -137,5 +151,4 @@ class Chess:
 
 if __name__ == "__main__":
     chess = Chess()
-    print(get_possible_piece(chess.board, (3, 4)))
-    print(get_algebraic_notation(chess.board, (3, 3), (5, 2)))
+    print(get_all_possible(chess.board))

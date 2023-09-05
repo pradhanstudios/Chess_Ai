@@ -1,6 +1,18 @@
 # from scripts.vars import *
 from vars import *
 
+_rev_tuple = lambda t: (t[1], t[0])
+
+
+def _find_all_2D(l, f):
+    output = []
+    for idxr, r in enumerate(l):
+        for idxc, c in enumerate(r):
+            if c == f:
+                output.append((idxr, idxc))
+
+    return output
+
 
 def _get_moves(board, cur_pos, dirx, diry, rng=8):
     # ccur_pos = cur_pos
@@ -32,9 +44,13 @@ def _get_moves(board, cur_pos, dirx, diry, rng=8):
 
             # print(cur_pos[0] + dirx*i, cur_pos[1] + diry*i, board[cur_pos[0] + dirx*i][cur_pos[1] + diry*i].split("_")[0] == color, cur_pos)
             hit_piece = (
-                board[cur_pos[0] + dirx * i][cur_pos[1] + diry * i].split("_")[0]
-                == color
-                and (cur_pos[0] + dirx * i, cur_pos[1] + diry * i) != cur_pos
+                (
+                    board[cur_pos[0] + dirx * i][cur_pos[1] + diry * i].split("_")[0]
+                    == color
+                    and (cur_pos[0] + dirx * i, cur_pos[1] + diry * i) != cur_pos
+                )
+                if not hit_piece
+                else True
             )
         else:
             break
@@ -50,15 +66,22 @@ def _pawn_moves(board, cur_pos):
     if board[cur_pos[0] + move][cur_pos[1]] == BLANK:
         output.append((cur_pos[0] + move, cur_pos[1]))
 
-    if color == "b" and cur_pos[1] == 1 and cur_pos[1] + move * 2 == BLANK:
-        print("THIS")
-        output.append((cur_pos[0], cur_pos[1] + move*2))
+    # print(color == "b", cur_pos[1] == 1, board[cur_pos[0]][3])
+
+    if color == "b" and cur_pos[1] == 1 and board[3][cur_pos[0]] == BLANK:
+        print("HERE", 3, cur_pos[1])
+        output.append((cur_pos[0], 3))
+        print(output)
+
+    if color == "w" and cur_pos[1] == 6 and board[4][cur_pos[0]] == BLANK:
+        print("HERE", board[4][cur_pos[0]] == BLANK)
+        output.append(((4, cur_pos[0])))
+        print(output)
 
     # if color == "b" and cur_pos[0] == 1 and cur_pos[1] + move * 2 == BLANK:
     #     output.append((cur_pos[0], cur_pos[1] + move*2))
 
     if (0 < cur_pos[0] + move < 7) and (0 < cur_pos[1] + move < 7):
-
         if (
             board[cur_pos[0] + move][cur_pos[1] + move] != BLANK
             and board[cur_pos[0] + move][cur_pos[1] + move].split("_")[0] != color
@@ -66,7 +89,6 @@ def _pawn_moves(board, cur_pos):
             output.append((cur_pos[0] + move, cur_pos[1] + move))
 
     if (0 < cur_pos[0] + move < 7) and (0 < cur_pos[1] - move < 7):
-
         if (
             board[cur_pos[0] + move][cur_pos[1] - move] != BLANK
             and board[cur_pos[0] + move][cur_pos[1] - move].split("_")[0] != color
@@ -76,10 +98,13 @@ def _pawn_moves(board, cur_pos):
     return output
 
 
-def get_possible_piece(board, cur_pos):
+def get_possible_piece(board, cur_pos, check=False):
     color, _, piece = board[cur_pos[0]][cur_pos[1]].partition("_")
     # print(piece)
     piece_position = []
+
+    if check:
+        """"""
 
     if piece.lower() == "b":  # bishop
         for i in (-1, 1):
@@ -109,24 +134,52 @@ def get_possible_piece(board, cur_pos):
 
     return piece_position
 
+
+def get_all_possible(board):
+    output_w = []
+    output_b = []
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            if board[i][j] != BLANK and board[i][j].startswith("b"):
+                output_b.extend(get_possible_piece(board, (i, j)))
+            if board[i][j] != BLANK and board[i][j].startswith("w"):
+                output_w.extend(get_possible_piece(board, (i, j)))
+
+    return {"white": output_w, "black": output_b}
+
+
+def is_check(board, king_pos, all_possible=None):
+    if not king_pos:
+        print("is_check: no king_pos provided")
+        return False
+    if not all_possible:
+        all_possible = get_all_possible(board)
+
+    # print(king_pos, all_possible)
+    color = board[king_pos[0]][king_pos[1]].split("_")[0]
+    # print(king_pos in all_possible[OPPOSITE_COLORS[color]])
+
+    return king_pos in all_possible[OPPOSITE_COLORS[color]]
+
+
 def get_algebraic_notation(board, start_pos, end_pos):
-    ex = False
+    # ex = False
     color, _, piece = board[start_pos[1]][start_pos[0]]
-    for c in range(len(board)):
-        for r in range(len(board[c])):
-            if board[r][c] == "{color}_{piece}":
-                if end_pos in get_possible_piece(board, start_pos):
-                    ex = True
+
+    # print(all_same)
+
+    # if _find_all_2D(all_same, end_pos):
+    #     ex = True
 
     output = ""
     if piece.lower() != "p":
         output += piece.lower()
-    if ex:
-        output += NUMS_TO_LETTERS[start_pos[0]]
+    # if ex:
+    output += NUMS_TO_LETTERS[start_pos[0] + 1]
     # psuedo code
     # if toook piece:
     #     output += 'x'
-    output += NUMS_TO_LETTERS[end_pos[0]+1] + str(end_pos[1]+1)
+    output += NUMS_TO_LETTERS[end_pos[0] + 1] + str(end_pos[1] + 1)
     # psuedo code
     # if check:
     #     output += '+'
@@ -135,4 +188,19 @@ def get_algebraic_notation(board, start_pos, end_pos):
     #     output += '#'
 
     return output
-    
+
+
+def find_king(board, color):
+    if color not in "bw":
+        return tuple()
+    for i in range(len(board)):
+        for j in range(len(board)):
+            if board[i][j].lower() == f"{color}_k":
+                return (i, j)
+
+
+if __name__ == "__main__":
+    # _test_list = [[1, 2, 3, 3, 4, 4, 5], [1, 3, 2, 4, 2, 5, 2]]
+    # for indxs in _find_all_2D(_test_list, 4):
+    #     print(_test_list[indxs[0]][indxs[1]])
+    print(_rev_tuple((2, 3)))
