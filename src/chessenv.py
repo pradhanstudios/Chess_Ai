@@ -1,0 +1,132 @@
+# the chess environment for our ai
+from typing import Any
+import chess
+import pygame
+from vars import *
+from helpers import *
+
+
+class ChessEnv:
+    def __init__(self, start_fen: str = ""):
+        # pygame stuff
+        # surface
+        self.surface = pygame.surface.Surface((BOARD_SIZE, BOARD_SIZE))
+        self.rect = self.surface.get_rect(
+            x=(WIDTH // 120), y=((HEIGHT // 2) - (BOARD_SIZE // 2))
+        )
+        # board
+        self.board_img = pygame.image.load(BOARD_IMG)
+        self.board_img = pygame.transform.scale(
+            self.board_img, (BOARD_SIZE, BOARD_SIZE)
+        )
+        self.piece_sprites = {}
+        for k, piece_file in FILE_NAMES.items():
+            self.piece_sprites[k] = pygame.image.load(
+                ASSET_FILENAME + piece_file + ASSET_ENDNAME
+            )
+            self.piece_sprites[k] = pygame.transform.scale(
+                self.piece_sprites[k], (PIECE_SIZE * 0.75, PIECE_SIZE * 0.75)
+            )
+        # print(self.piece_sprites)
+
+        self.start = (-1, -1)
+        self.dest = (-1, -1)
+        # self.turn = 0
+        # actual board
+        if not start_fen:
+            self.board = chess.Board()
+        else:
+            self.board = chess.Board(start_fen)
+        self.legal_moves = self.board.legal_moves
+
+        self.pieces = self.get_all_pieces_2D()
+
+    def __call__(self):
+        print(self.board)
+
+    def update_legal_moves(self):
+        self.legal_moves = self.board.legal_moves
+
+    def move_piece(self, start_cell, end_cell):
+        uci = t_to_uci(start_cell, end_cell)
+        move = chess.Move.from_uci(uci)
+        self.board.push(move)
+
+    def get_all_pieces_2D(self):
+        piece_map = self.board.piece_map()
+        output = [BLANK for _ in range(64)]
+        # print(output)
+        for i in range(64):
+            if i in piece_map:
+                inserting = str(piece_map[i])
+                if inserting != "":
+                    output[i] = inserting
+
+        return list_split(output, 8)
+
+    # def is_legal(self):
+
+    def draw(self, screen):
+        screen.blit(self.surface, self.rect)
+        self.surface.fill(BG_COLOR)
+
+        # draw board
+        self.surface.blit(self.board_img, (0, 0))
+
+        # draw pieces based on self.board
+        for r in range(len(self.pieces)):
+            for c in range(len(self.pieces[r])):
+                piece = self.pieces[r][c]
+                if piece != BLANK:
+                    self.surface.blit(
+                        self.piece_sprites[piece],
+                        self.piece_sprites[piece].get_rect(
+                            center=(
+                                c * PIECE_SIZE + PIECE_SIZE / 2,
+                                r * PIECE_SIZE + PIECE_SIZE / 2,
+                            )
+                        ),
+                    )
+
+    def update(self):
+        if pygame.mouse.get_pressed()[0]:
+            hit = pygame.mouse.get_pos()
+            if self.rect.collidepoint(hit):
+                hitx = hit[0] - self.rect.x
+                hity = hit[1] - self.rect.y
+
+                i = hitx // PIECE_SIZE
+                j = hity // PIECE_SIZE
+
+                # print(f"{pygame.mouse.get_pos()} --> ({hitx}, {hity}) --> [{i}][{j}]")
+
+                if self.start == (-1, -1):
+                    if self.pieces[i][j] != BLANK:
+                        self.start = (i, j)
+
+                if (
+                    (i, j) != self.start
+                    and self.start != (-1, -1)
+                    and self.dest == (-1, -1)
+                ):
+                    self.dest = (i, j)
+
+                    # print(
+                    #     f"{self.start}: {self.board[self.start[1]][self.start[0]]}\t-->\t{self.dest}: {self.board[j][i]}\n{get_algebraic_notation(self.board, self.start, self.dest)}"
+                    # )
+
+                    self.move_piece(self.start, self.dest)
+
+                    self.start = (-1, -1)
+                    self.dest = (-1, -1)
+                    # updating
+                    self.legal_moves = self.board.legal_moves
+                    self.pieces = self.get_all_pieces_2D()
+                    # turn = (turn + 1) %
+
+    # def draw_board(self)
+
+
+if __name__ == "__main__":
+    envchess = ChessEnv()
+    envchess()

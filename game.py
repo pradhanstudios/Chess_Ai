@@ -1,11 +1,9 @@
 import pygame, sys
-sys.path.append("scripts/")
-
 from pygame.locals import *
 
-
+sys.path.append("src/")
+from chessenv import ChessEnv
 from vars import *
-from chess import Chess
 
 
 class Game:
@@ -31,7 +29,7 @@ class Game:
         ################
         self.window_bg = pygame.image.load(BG_IMG).convert()
         self.window_bg = pygame.transform.scale(self.window_bg, (WIDTH, HEIGHT))
-        self.chess = Chess()
+        self.chess = ChessEnv()
 
     def run(self):
         #############

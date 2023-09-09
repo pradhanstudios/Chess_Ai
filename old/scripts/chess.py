@@ -77,6 +77,7 @@ class Chess:
 
                 if self.start == (-1, -1):
                     if self.board[j][i] != BLANK:
+                        print("HERE")
                         self.start = (i, j)
 
                 if (
@@ -109,7 +110,7 @@ class Chess:
 
         piece = self.board[start_x][start_y]
 
-        if ("q" in piece or "Q" in piece):
+        if "q" in piece or "Q" in piece:
             print(get_possible_piece(cboard, (start_x, start_y)))
 
         if (dest_x, dest_y) in get_possible_piece(cboard, (start_x, start_y)):
@@ -117,7 +118,9 @@ class Chess:
             cboard[start_x][start_y] = BLANK
             # print(f"flag: {cboard == self.board}")
 
-        if not is_check(cboard, find_king(cboard, (cboard[dest_x][dest_y]).split("_")[0])):
+        if not is_check(
+            cboard, find_king(cboard, (cboard[dest_x][dest_y]).split("_")[0])
+        ):
             # print("this")
             self.board = cboard
 
