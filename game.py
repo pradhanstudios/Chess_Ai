@@ -5,7 +5,6 @@ sys.path.append("src/")
 from chessenv import ChessEnv
 from vars import *
 from interface import *
-from clock import *
 
 
 class Game:
