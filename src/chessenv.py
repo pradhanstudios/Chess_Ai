@@ -46,15 +46,24 @@ class ChessEnv:
     def update_legal_moves(self):
         self.legal_moves = self.board.legal_moves
 
+    def get_move(self):
+        return not len(self.board.move_stack) % 2
+
     def move_piece(self, start_cell, end_cell):
         uci = t_to_uci(start_cell, end_cell)
 
         move = chess.Move.from_uci(uci)
 
+        if self.is_promotion(uci, self.get_move()):
+            print("PROMOTION")
+            return True, uci
+
         if move in self.board.legal_moves:
             self.board.push(move)
         else:
             print("Illegal move")
+
+        return False
 
     def outcome(self):
         return self.board.outcome()
@@ -118,8 +127,7 @@ class ChessEnv:
                 # print(
                 #     f"{self.start} -> {self.dest} -> {t_to_uci(self.start, self.dest)}"
                 # )
-
-                self.move_piece(self.start, self.dest)
+                log = self.move_piece(self.start, self.dest)
 
                 # print(self.board)
 
@@ -128,11 +136,14 @@ class ChessEnv:
                 # updating
                 self.legal_moves = self.update_legal_moves()
                 self.pieces = self.get_all_pieces_2D()
+                if log:
+                    return True, log[1]
             else:
                 self.start = (i, j)
                 self.dest = (-1, -1)
 
             print(f"END:\t{self.start} and {self.dest}")
+            return False
 
     def game_over(self) -> bool:
         return (
@@ -179,6 +190,9 @@ class ChessEnv:
                     self.legal_moves = self.update_legal_moves()
                     self.pieces = self.get_all_pieces_2D()
                     # turn = (turn + 1) %
+
+    def is_promotion(self, uci, color):
+        return uci[3:] == PAWN_END[color]
 
     # def draw_board(self)
 

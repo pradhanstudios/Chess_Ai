@@ -37,3 +37,6 @@ PIECE_SIZE = BOARD_SIZE // 8
 COLORS = {True: "white", False: "black"}
 
 FONT_SIZE = 24
+
+PIECE_POS = {"q": 10, "r": 110, "b": 210, "n": 310, "p": 1000, "k": 1000}
+PAWN_END = {True: "8", False: "1"}

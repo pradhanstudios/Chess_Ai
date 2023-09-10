@@ -12,7 +12,8 @@ class Button:
         self.preloaded_content = preloaded_content
 
     def draw(self, screen):
-        screen.blit(self.preloaded_content, (self.x, self.y))
+        if self.active:
+            screen.blit(self.preloaded_content, (self.x, self.y))
 
     def is_clicked(self, mouse_pos):
         if self.rect.collidepoint(mouse_pos) and self.active:
@@ -33,3 +34,14 @@ class TextButton(Button):
         self.text = text
         self.button_text = self.font.render(self.text, True, color)
         super().__init__(self.button_text, x, y, w, h, active)
+
+
+def is_active(obj):
+    return obj.active
+
+
+def is_active_dict(obj):
+    output = []
+    for k, v in obj:
+        output.append(is_active(v))
+    return not all(not i for i in output)

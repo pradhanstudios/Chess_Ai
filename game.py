@@ -25,15 +25,25 @@ class Game:
         self.font = pygame.font.SysFont("arial", FONT_SIZE)
 
         # buttons
-        self.knight_button = ImageButton(
-            f"{ASSET_FILENAME}b_knight{ASSET_ENDNAME}", 1000, 350, 100, 100
-        )
+        self.buttons = {}
+        print(FILE_NAMES.items())
+        for key, value in FILE_NAMES.items():
+            self.buttons[key] = ImageButton(
+                f"{ASSET_FILENAME}{value}{ASSET_ENDNAME}",
+                HEIGHT,
+                PIECE_POS[key.lower()],
+                PIECE_SIZE,
+                PIECE_SIZE,
+                active=False,
+            )
+
         ################
         # game objects #
         ################
         self.window_bg = pygame.image.load(BG_IMG).convert()
         self.window_bg = pygame.transform.scale(self.window_bg, (WIDTH, HEIGHT))
         self.chess = ChessEnv()
+        self.cur_uci = None
 
     def run(self):
         #############
@@ -49,16 +59,42 @@ class Game:
                     if event.key == K_ESCAPE:
                         running = False
                 if event.type == MOUSEBUTTONDOWN:
-                    if event.button == 1:
+                    if event.button == 1 and not self.cur_uci:
                         hit = pygame.mouse.get_pos()
                         # print(hit)
-                        self.chess.update_squares(hit)
-                    if self.knight_button.is_clicked(pygame.mouse.get_pos()):
-                        print("NOICE")
+                        l = self.chess.update_squares(hit)
+                        if l:
+                            self.cur_uci = l[1]
+                            if self.chess.get_move():  # white
+                                for k, v in self.buttons.items():
+                                    if k.isupper():
+                                        v.active = True
+                            else:
+                                for k, v in self.buttons.items():
+                                    if k.islower():
+                                        v.active = True
+                    else:
+                        mouse_pos = pygame.mouse.get_pos()
+                        for k, v in self.buttons.items():
+                            if v.is_clicked(mouse_pos):
+                                flag = True
+                                print(self.cur_uci, k.lower())
+                                self.cur_uci += k.lower()
+                                move = chess.Move.from_uci(self.cur_uci)
+                                self.chess.board.push(move)
+                                self.cur_uci = None
+                                self.chess.update_legal_moves()
+                                self.chess.pieces = self.chess.get_all_pieces_2D()
+                        if flag:
+                            for k, v in self.buttons.items():
+                                v.active = False
 
             # clear last frame
             self.window.blit(self.window_bg, (0, 0))
-            self.knight_button.draw(self.window)
+            # print(self.buttons.items())
+            for k, v in self.buttons.items():
+                if v.active:
+                    v.draw(self.window)
 
             # update
             if self.chess.game_over():
