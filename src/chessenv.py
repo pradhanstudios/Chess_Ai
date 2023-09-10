@@ -192,7 +192,14 @@ class ChessEnv:
                     # turn = (turn + 1) %
 
     def is_promotion(self, uci, color):
-        return int(uci[1]) + PAWN_MOVES[color] == PAWN_END[color]
+        # print(self.legal_moves)
+        self.update_legal_moves()
+        return (
+            chess.Move.from_uci(uci + "q") in self.legal_moves
+            or chess.Move.from_uci(uci + "r") in self.legal_moves
+            or chess.Move.from_uci(uci + "b") in self.legal_moves
+            or chess.Move.from_uci(uci + "n") in self.legal_moves
+        )
 
     # def draw_board(self)
 
