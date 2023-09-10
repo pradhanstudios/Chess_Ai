@@ -97,7 +97,7 @@ class Game:
                     v.draw(self.window)
 
             # update
-            if self.chess.game_over():
+            if end := self.chess.game_over():
                 running = False
 
             # render
@@ -106,9 +106,8 @@ class Game:
             # draw
             pygame.display.flip()
             self.clock.tick(FPS)
-        outcome = self.chess.outcome()
-        if outcome:
-            print(f"The game ends due to: {str(outcome.termination)[12:]}!")
+        print("#############################")
+        print("the game ends due to: " + end)
 
         pygame.quit()
         sys.exit()
