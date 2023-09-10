@@ -1,5 +1,4 @@
 # the chess environment for our ai
-from typing import Any
 import chess
 import pygame
 from vars import *
