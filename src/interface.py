@@ -2,14 +2,25 @@ import pygame
 
 
 class Button:
-    def __init__(self, content_fname: str, x, y, w, h):
-        self.content = pygame.image.load(content_fname)
-        self.content = pygame.transform.scale(self.content, (w, h))
+    def __init__(self, x, y, w, h, active=True):
         self.x = x
         self.y = y
-        self.rect = self.content.get_rect()
+        self.rect = pygame.rect.Rect(x, y, w, h)
         self.rect.x = self.x
         self.rect.y = self.y
+        self.active = active
+
+    def is_clicked(self, mouse_pos):
+        if self.rect.collidepoint(mouse_pos) and self.active:
+            return True
+        return False
+
+
+class ImageButton(Button):
+    def __init__(self, content_fname: str, x, y, w, h, active=True):
+        super().__init__(x, y, w, h, active)
+        self.content = pygame.image.load(content_fname)
+        self.content = pygame.transform.scale(self.content, (w, h))
 
     def draw(self, screen):
         screen.blit(self.content, (self.x, self.y))

@@ -24,7 +24,7 @@ class Game:
         # fonts
 
         # buttons
-        self.knight_button = Button(
+        self.knight_button = ImageButton(
             f"{ASSET_FILENAME}w_knight{ASSET_ENDNAME}", 1000, 350, 100, 100
         )
         ################
@@ -52,7 +52,7 @@ class Game:
                         hit = pygame.mouse.get_pos()
                         # print(hit)
                         self.chess.update_squares(hit)
-                    if self.knight_button.rect.collidepoint(pygame.mouse.get_pos()):
+                    if self.knight_button.is_clicked(pygame.mouse.get_pos()):
                         print("NOICE")
 
             # clear last frame
