@@ -132,8 +132,12 @@ class ChessEnv:
 
             print(f"END:\t{self.start} and {self.dest}")
 
-    def game_over(self):
-        ...
+    def game_over(self) -> bool:
+        return (
+            self.board.is_checkmate()
+            or self.board.is_stalemate()
+            or self.board.is_insufficient_material()
+        )
 
     def update(self):
         if pygame.mouse.get_pressed()[0]:
