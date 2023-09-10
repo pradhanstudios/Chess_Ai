@@ -44,12 +44,18 @@ class Game:
                 if event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         running = False
+                if event.type == MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        hit = pygame.mouse.get_pos()
+                        # print(hit)
+                        self.chess.update_squares(hit)
 
             # clear last frame
             self.window.blit(self.window_bg, (0, 0))
 
             # update
-            self.chess.update()
+            if self.chess.game_over():
+                running = False
 
             # render
             self.chess.draw(self.window)

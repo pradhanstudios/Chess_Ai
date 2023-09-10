@@ -49,8 +49,13 @@ class ChessEnv:
 
     def move_piece(self, start_cell, end_cell):
         uci = t_to_uci(start_cell, end_cell)
+
         move = chess.Move.from_uci(uci)
-        self.board.push(move)
+
+        if move in self.board.legal_moves:
+            self.board.push(move)
+        else:
+            print("Illegal move")
 
     def get_all_pieces_2D(self):
         piece_map = self.board.piece_map()
@@ -63,9 +68,6 @@ class ChessEnv:
                     output[i] = inserting
 
         return list_split(output, 8)
-
-    def is_legal(self, uci):
-        return chess.Move.from_uci(uci) in self.legal_moves
 
     def draw(self, screen):
         screen.blit(self.surface, self.rect)
@@ -89,9 +91,54 @@ class ChessEnv:
                         ),
                     )
 
+    def update_squares(self, tup):
+        if self.rect.collidepoint(tup):
+            tupx = tup[0] - self.rect.x
+            tupy = tup[1] - self.rect.y
+
+            i = tupx // PIECE_SIZE
+            j = tupy // PIECE_SIZE
+
+            # print(f"{tup} -> ({tupx}, {tupy}) -> ({i}, {j})")
+
+            print(f"\n=== MOVE: ({i}, {j}) ===")
+
+            print(f"START:\t{self.start} and {self.dest}")
+
+            if self.start == (-1, -1):
+                print("start update")
+                if self.pieces[j][i] != BLANK:
+                    self.start = (i, j)
+            elif self.dest == (-1, -1) and self.start != (i, j):
+                print("dest update")
+                self.dest = (i, j)
+
+                # print(
+                #     f"{self.start} -> {self.dest} -> {t_to_uci(self.start, self.dest)}"
+                # )
+
+                self.move_piece(self.start, self.dest)
+
+                # print(self.board)
+
+                self.start = (-1, -1)
+                self.dest = (-1, -1)
+                # updating
+                self.legal_moves = self.update_legal_moves()
+                self.pieces = self.get_all_pieces_2D()
+            else:
+                self.start = (i, j)
+                self.dest = (-1, -1)
+
+            print(f"END:\t{self.start} and {self.dest}")
+
+    def game_over(self):
+        ...
+
     def update(self):
         if pygame.mouse.get_pressed()[0]:
             hit = pygame.mouse.get_pos()
+            # print(hit)
             if self.rect.collidepoint(hit):
                 hitx = hit[0] - self.rect.x
                 hity = hit[1] - self.rect.y
