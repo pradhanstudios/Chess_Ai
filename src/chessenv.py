@@ -136,9 +136,11 @@ class ChessEnv:
 
     def game_over(self) -> bool:
         return (
-            self.board.is_checkmate()
-            or self.board.is_stalemate()
-            or self.board.is_insufficient_material()
+            self.board.is_checkmate()  # checkmate
+            or self.board.is_stalemate()  # stalemate
+            or self.board.is_insufficient_material()  # insufficient matierial
+            or self.board.can_claim_threefold_repetition()  # if the same moves have been repeated 3 times in a row
+            or self.board.can_claim_fifty_moves()  # fifty moves after a pawn has movesd
         )
 
     def update(self):
