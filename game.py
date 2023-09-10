@@ -5,6 +5,7 @@ sys.path.append("src/")
 from chessenv import ChessEnv
 from vars import *
 from interface import *
+from clock import *
 
 
 class Game:
@@ -44,6 +45,22 @@ class Game:
         self.window_bg = pygame.transform.scale(self.window_bg, (WIDTH, HEIGHT))
         self.chess = ChessEnv()
         self.cur_uci = None
+        self.player_1_clock = Clock(
+            font=self.font,
+            starting_time=600,
+            x=HEIGHT + 200,
+            y=250,
+            tick=1 / FPS,
+            color="black",
+        )
+        self.player_2_clock = Clock(
+            font=self.font,
+            starting_time=600,
+            x=HEIGHT + 200,
+            y=400,
+            tick=1 / FPS,
+            color="black",
+        )
 
     def run(self):
         #############
@@ -97,8 +114,14 @@ class Game:
                     v.draw(self.window)
 
             # update
-            if end := self.chess.game_over():
+            if end := self.chess.game_over(self.player_1_clock):
                 running = False
+            if self.chess.get_move():
+                self.player_1_clock.tick()
+            else:
+                self.player_2_clock.tick()
+            self.player_1_clock.draw(self.window)
+            self.player_2_clock.draw(self.window)
 
             # render
             self.chess.draw(self.window)

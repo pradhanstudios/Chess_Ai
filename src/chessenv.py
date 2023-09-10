@@ -145,7 +145,7 @@ class ChessEnv:
             print(f"END:\t{self.start} and {self.dest}")
             return False
 
-    def game_over(self) -> bool:
+    def game_over(self, cur_player_clock) -> bool:
         # return (
         #     self.board.is_checkmate()  # checkmate
         #     or self.board.is_stalemate()  # stalemate
@@ -163,6 +163,8 @@ class ChessEnv:
             return "threefold repetition; it is a tie."
         if self.board.can_claim_fifty_moves():
             return "fifty moves rule; it is a tie."
+        if cur_player_clock.done():
+            return f"timeout; {COLORS[not self.get_move()]} wins."
 
     def update(self):
         if pygame.mouse.get_pressed()[0]:
