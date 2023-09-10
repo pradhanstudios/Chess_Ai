@@ -20,10 +20,9 @@ OPPOSITE_COLORS = {"w": "black", "b": "white"}
 
 LETTERS = "abcdefgh"
 
-NUMS_TO_LETTERS = {i+1:LETTERS[i] for i in range(8)}
+NUMS_TO_LETTERS = {i + 1: LETTERS[i] for i in range(8)}
 
 BLANK = "   "
-
 
 pieces = {}
 for fname in os.listdir("assets/sprites"):

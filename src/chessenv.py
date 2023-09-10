@@ -57,6 +57,9 @@ class ChessEnv:
         else:
             print("Illegal move")
 
+    def outcome(self):
+        return self.board.outcome()
+
     def get_all_pieces_2D(self):
         piece_map = self.board.piece_map()
         output = [BLANK for _ in range(64)]

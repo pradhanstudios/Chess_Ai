@@ -33,3 +33,5 @@ BOARD_SIZE = (HEIGHT // 100) * 100 if HEIGHT <= WIDTH else (WIDTH // 100) * 100
 
 BLANK = "   "
 PIECE_SIZE = BOARD_SIZE // 8
+
+COLORS = {True: "white", False: "black"}
