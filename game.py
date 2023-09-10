@@ -106,8 +106,9 @@ class Game:
             # draw
             pygame.display.flip()
             self.clock.tick(FPS)
-        print("#############################")
-        print("the game ends due to: " + end)
+        if end:
+            print("#############################")
+            print("the game ends due to: " + end)
 
         pygame.quit()
         sys.exit()
