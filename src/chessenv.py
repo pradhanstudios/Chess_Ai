@@ -192,7 +192,7 @@ class ChessEnv:
                     # turn = (turn + 1) %
 
     def is_promotion(self, uci, color):
-        return uci[3:] == PAWN_END[color]
+        return int(uci[1]) + PAWN_MOVES[color] == PAWN_END[color]
 
     # def draw_board(self)
 
