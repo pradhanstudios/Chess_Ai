@@ -6,7 +6,7 @@ def list_split(l, skip=1):
     return [l[i : i + skip] for i in range(0, len(l), skip)]
 
 
-piece_indexes = list_split(PIECE_INDEXES, 8)
+piece_indexes = list_split(PIECE_INDICES, 8)
 
 
 def t_to_uci(s_t: tuple, e_t: tuple):

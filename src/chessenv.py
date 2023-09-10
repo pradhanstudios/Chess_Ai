@@ -64,7 +64,8 @@ class ChessEnv:
 
         return list_split(output, 8)
 
-    # def is_legal(self):
+    def is_legal(self, uci):
+        return chess.Move.from_uci(uci) in self.legal_moves
 
     def draw(self, screen):
         screen.blit(self.surface, self.rect)
@@ -120,7 +121,7 @@ class ChessEnv:
                     self.start = (-1, -1)
                     self.dest = (-1, -1)
                     # updating
-                    self.legal_moves = self.board.legal_moves
+                    self.legal_moves = self.update_legal_moves()
                     self.pieces = self.get_all_pieces_2D()
                     # turn = (turn + 1) %
 
