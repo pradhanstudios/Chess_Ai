@@ -24,3 +24,14 @@ class ImageButton(Button):
 
     def draw(self, screen):
         screen.blit(self.content, (self.x, self.y))
+
+
+class TextButton(Button):
+    def __init__(self, font, text, x, y, w, h, active=True, color="black"):
+        super().__init__(x, y, w, h, active)
+        self.font = font
+        self.text = text
+        self.button_text = self.font.render(self.text, True, color)
+
+    def draw(self, screen):
+        screen.blit(self.button_text, (self.x, self.y))

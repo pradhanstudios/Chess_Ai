@@ -22,11 +22,10 @@ class Game:
         self.clock = pygame.time.Clock()
 
         # fonts
+        self.font = pygame.font.SysFont("arial", FONT_SIZE)
 
         # buttons
-        self.knight_button = ImageButton(
-            f"{ASSET_FILENAME}w_knight{ASSET_ENDNAME}", 1000, 350, 100, 100
-        )
+        self.knight_button = TextButton(self.font, "text", 1000, 350, 100, 100)
         ################
         # game objects #
         ################

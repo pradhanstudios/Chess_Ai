@@ -35,3 +35,5 @@ BLANK = "   "
 PIECE_SIZE = BOARD_SIZE // 8
 
 COLORS = {True: "white", False: "black"}
+
+FONT_SIZE = 24
