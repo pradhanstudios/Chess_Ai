@@ -81,6 +81,7 @@ class ChessEnv:
         return list_split(output, 8)
 
     def draw(self, screen):
+        offset = 0
         screen.blit(self.surface, self.rect)
         self.surface.fill(BG_COLOR)
 
@@ -92,15 +93,18 @@ class ChessEnv:
             for c in range(len(self.pieces[r])):
                 piece = self.pieces[r][c]
                 if piece != BLANK:
+                    if (c, r) == self.start:
+                        offset = 5
                     self.surface.blit(
                         self.piece_sprites[piece],
                         self.piece_sprites[piece].get_rect(
                             center=(
                                 c * PIECE_SIZE + PIECE_SIZE / 2,
-                                r * PIECE_SIZE + PIECE_SIZE / 2,
+                                r * PIECE_SIZE + PIECE_SIZE / 2 - offset,
                             )
                         ),
                     )
+                    offset = 0
 
     def update_squares(self, tup):
         if self.rect.collidepoint(tup):
