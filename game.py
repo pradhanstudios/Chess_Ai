@@ -37,6 +37,16 @@ class Game:
                 active=False,
             )
 
+        self.resign_button = TextButton(
+            font=self.font,
+            text="resign",
+            x=HEIGHT,
+            y=500,
+            w=100,
+            h=100,
+            active=True,
+        )
+
         ################
         # game objects #
         ################
@@ -46,7 +56,7 @@ class Game:
         self.cur_uci = None
         self.player_1_clock = Clock(
             font=self.font,
-            starting_time=10,
+            starting_time=600,
             x=HEIGHT + 200,
             y=250,
             tick=1 / FPS,
@@ -54,7 +64,7 @@ class Game:
         )
         self.player_2_clock = Clock(
             font=self.font,
-            starting_time=10,
+            starting_time=600,
             x=HEIGHT + 200,
             y=400,
             tick=1 / FPS,
@@ -62,6 +72,7 @@ class Game:
         )
 
     def run(self):
+        flag = False
         #############
         # game loop #
         #############
@@ -75,6 +86,11 @@ class Game:
                     if event.key == K_ESCAPE:
                         running = False
                 if event.type == MOUSEBUTTONDOWN:
+                    if self.resign_button.is_clicked(pygame.mouse.get_pos()):
+                        print(
+                            f"the game ends due to: resignation; {COLORS[not self.chess.get_move()]} wins."
+                        )
+                        running = False
                     if event.button == 1 and not self.cur_uci:
                         hit = pygame.mouse.get_pos()
                         # print(hit)
@@ -111,6 +127,8 @@ class Game:
             for k, v in self.buttons.items():
                 if v.active:
                     v.draw(self.window)
+
+            self.resign_button.draw(self.window)
 
             # update
             if end := self.chess.game_over(

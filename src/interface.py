@@ -31,10 +31,21 @@ class ImageButton(Button):
 
 
 class TextButton(Button):
-    def __init__(self, font, text, x, y, w, h, active=True, color="black"):
+    def __init__(
+        self,
+        font,
+        text,
+        x,
+        y,
+        w,
+        h,
+        active=True,
+        color="black",
+        background_color="white",
+    ):
         self.font = font
         self.text = text
-        self.button_text = self.font.render(self.text, True, color)
+        self.button_text = self.font.render(self.text, True, color, background_color)
         super().__init__(self.button_text, x, y, w, h, active)
 
 
