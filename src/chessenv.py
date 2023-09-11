@@ -145,7 +145,7 @@ class ChessEnv:
             print(f"END:\t{self.start} and {self.dest}")
             return False
 
-    def game_over(self, cur_player_clock) -> bool:
+    def game_over(self, cur_player_clock) -> str:
         # return (
         #     self.board.is_checkmate()  # checkmate
         #     or self.board.is_stalemate()  # stalemate
