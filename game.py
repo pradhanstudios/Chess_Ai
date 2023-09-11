@@ -113,7 +113,9 @@ class Game:
                     v.draw(self.window)
 
             # update
-            if end := self.chess.game_over(self.player_1_clock):
+            if end := self.chess.game_over(
+                self.player_1_clock if self.chess.get_move() else self.player_2_clock
+            ):
                 running = False
             if self.chess.get_move():
                 self.player_1_clock.tick()
