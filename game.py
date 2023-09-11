@@ -46,7 +46,7 @@ class Game:
         self.cur_uci = None
         self.player_1_clock = Clock(
             font=self.font,
-            starting_time=600,
+            starting_time=10,
             x=HEIGHT + 200,
             y=250,
             tick=1 / FPS,
@@ -54,7 +54,7 @@ class Game:
         )
         self.player_2_clock = Clock(
             font=self.font,
-            starting_time=600,
+            starting_time=10,
             x=HEIGHT + 200,
             y=400,
             tick=1 / FPS,
