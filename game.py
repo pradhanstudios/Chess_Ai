@@ -106,6 +106,7 @@ class Game:
                         running = False
                 if event.type == MOUSEBUTTONDOWN:
                     if self.resign_button.is_clicked(pygame.mouse.get_pos()):
+                        print("#############################")
                         print(
                             f"Game ends due to: RESIGNATION -- {COLORS[not self.chess.get_move()].upper()} wins."
                         )
