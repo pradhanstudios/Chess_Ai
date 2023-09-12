@@ -23,7 +23,8 @@ class Game:
 
         # fonts
         self.font = pygame.font.SysFont("arial", FONT_SIZE)
-
+        # text
+        self.turn_text = Text(self.font, "WHITE", HEIGHT, 400)
         # buttons
         self.buttons = {}
         print(FILE_NAMES.items())
@@ -129,12 +130,15 @@ class Game:
                     v.draw(self.window)
 
             self.resign_button.draw(self.window)
+            self.turn_text.text = COLORS[self.chess.get_move()]
+            self.turn_text.draw(self.window)
 
             # update
             if end := self.chess.game_over(
                 self.player_1_clock if self.chess.get_move() else self.player_2_clock
             ):
                 running = False
+
             if self.chess.get_move():
                 self.player_1_clock.tick()
             else:

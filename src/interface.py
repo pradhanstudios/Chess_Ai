@@ -90,6 +90,23 @@ class Clock:
         return self.starting_time <= 0
 
 
+class Text:
+    def __init__(self, font, text, x, y, color="black", background_color="white"):
+        self.font = font
+        self.text = text
+        self.x = x
+        self.y = y
+        self.color = color
+        self.background_color = background_color
+        self.rect = self._render_text().get_rect(topleft=(x, y))
+
+    def _render_text(self):
+        return self.font.render(self.text, True, self.color, self.background_color)
+
+    def draw(self, screen):
+        screen.blit(self._render_text(), self.rect)
+
+
 def is_active(obj):
     return obj.active
 
