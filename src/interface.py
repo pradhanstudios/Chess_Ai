@@ -74,6 +74,10 @@ class Clock:
         self.paused = False
 
     def _format_time(self):
+        if self.starting_time % 60 == 0:
+            return "{:.0f}:0{:.2f}".format(
+                self.starting_time // 60, self.starting_time % 60
+            )
         return "{:.0f}:{:.2f}".format(self.starting_time // 60, self.starting_time % 60)
 
     def _render_font(self):
