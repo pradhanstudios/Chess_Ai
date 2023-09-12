@@ -27,7 +27,7 @@ class Game:
         self.turn_text = Text(self.font, "WHITE", HEIGHT, 400)
         # buttons
         self.buttons = {}
-        print(FILE_NAMES.items())
+        # print(FILE_NAMES.items())
         for key, value in FILE_NAMES.items():
             self.buttons[key] = ImageButton(
                 f"{ASSET_FILENAME}{value}{ASSET_ENDNAME}",
@@ -47,11 +47,29 @@ class Game:
             h=100,
             active=True,
         )
+        self.undo_button = TextButton(
+            font=self.font,
+            text="undo",
+            x=HEIGHT + 200,
+            y=500,
+            w=100,
+            h=100,
+            active=True,
+        )
+        self.pause_button = TextButton(
+            font=self.font,
+            text="pause/resume timers",
+            x=HEIGHT + 350,
+            y=400,
+            w=200,
+            h=100,
+            active=True,
+        )
 
         ################
         # game objects #
         ################
-        self.window_bg = pygame.image.load(BG_IMG).convert()
+        self.window_bg = pygame.image.load(BG_IMG).convert_alpha()
         self.window_bg = pygame.transform.scale(self.window_bg, (WIDTH, HEIGHT))
         self.chess = ChessEnv()
         self.cur_uci = None
@@ -89,9 +107,17 @@ class Game:
                 if event.type == MOUSEBUTTONDOWN:
                     if self.resign_button.is_clicked(pygame.mouse.get_pos()):
                         print(
-                            f"the game ends due to: resignation; {COLORS[not self.chess.get_move()]} wins."
+                            f"Game ends due to: RESIGNATION -- {COLORS[not self.chess.get_move()].upper()} wins."
                         )
                         running = False
+                    if self.undo_button.is_clicked(pygame.mouse.get_pos()):
+                        if len(self.chess.board.move_stack):
+                            self.chess.board.pop()
+                            self.chess.pieces = self.chess.get_all_pieces_2D()
+                            self.chess.update_legal_moves()
+                    if self.pause_button.is_clicked(pygame.mouse.get_pos()):
+                        self.player_1_clock.pause_or_unpause()
+                        self.player_2_clock.pause_or_unpause()
                     if event.button == 1 and not self.cur_uci:
                         hit = pygame.mouse.get_pos()
                         # print(hit)
@@ -130,6 +156,9 @@ class Game:
                     v.draw(self.window)
 
             self.resign_button.draw(self.window)
+            self.pause_button.draw(self.window)
+            if len(self.chess.board.move_stack):
+                self.undo_button.draw(self.window)
             self.turn_text.text = COLORS[self.chess.get_move()]
             self.turn_text.draw(self.window)
 

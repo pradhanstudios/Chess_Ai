@@ -25,7 +25,7 @@ class Button:
 
 class ImageButton(Button):
     def __init__(self, content_fname: str, x, y, w, h, active=True):
-        self.content = pygame.image.load(content_fname)
+        self.content = pygame.image.load(content_fname).convert_alpha()
         self.content = pygame.transform.scale(self.content, (w, h))
         super().__init__(self.content, x, y, w, h, active)
 
@@ -59,6 +59,7 @@ class Clock:
         tick=1 / FPS,
         color="black",
         background_color="white",
+        paused=False,
     ):
         self.starting_time = starting_time
         self.t = tick
@@ -70,6 +71,7 @@ class Clock:
         self.text = self._render_font()
         self.text_area = self.text.get_rect()
         self.text_area.topleft = (x, y)
+        self.paused = False
 
     def _format_time(self):
         return "{:.0f}:{:.2f}".format(self.starting_time // 60, self.starting_time % 60)
@@ -79,8 +81,12 @@ class Clock:
             self._format_time(), True, self.color, self.background_color
         )
 
+    def pause_or_unpause(self):
+        self.paused = not self.paused
+
     def tick(self):
-        self.starting_time -= self.t
+        if not self.paused:
+            self.starting_time -= self.t
 
     def draw(self, screen):
         self.text = self._render_font()

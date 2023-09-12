@@ -14,7 +14,7 @@ class ChessEnv:
             x=(WIDTH // 120), y=((HEIGHT // 2) - (BOARD_SIZE // 2))
         )
         # board
-        self.board_img = pygame.image.load(BOARD_IMG)
+        self.board_img = pygame.image.load(BOARD_IMG).convert_alpha()
         self.board_img = pygame.transform.scale(
             self.board_img, (BOARD_SIZE, BOARD_SIZE)
         )
@@ -22,7 +22,7 @@ class ChessEnv:
         for k, piece_file in FILE_NAMES.items():
             self.piece_sprites[k] = pygame.image.load(
                 ASSET_FILENAME + piece_file + ASSET_ENDNAME
-            )
+            ).convert_alpha()
             self.piece_sprites[k] = pygame.transform.scale(
                 self.piece_sprites[k], (PIECE_SIZE * 0.75, PIECE_SIZE * 0.75)
             )
