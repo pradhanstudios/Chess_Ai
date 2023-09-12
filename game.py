@@ -58,7 +58,7 @@ class Game:
         )
         self.pause_button = TextButton(
             font=self.font,
-            text="pause/resume timers",
+            text="pause/resume",
             x=HEIGHT + 350,
             y=400,
             w=200,
