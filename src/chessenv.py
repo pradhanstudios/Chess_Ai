@@ -39,6 +39,7 @@ class ChessEnv:
         self.legal_moves = self.board.legal_moves
 
         self.pieces = self.get_all_pieces_2D()
+        self.evaluation = 0.0
 
     def __call__(self):
         print(self.board)
@@ -54,6 +55,8 @@ class ChessEnv:
 
         move = chess.Move.from_uci(uci)
 
+        # self()
+
         if self.is_promotion(uci, self.get_move()):
             print("PROMOTION")
             return True, uci
@@ -62,6 +65,9 @@ class ChessEnv:
             self.board.push(move)
         else:
             print("Illegal move")
+
+        self.evaluate_board()
+        print(f"Evaluation Value: {self.evaluation}")
 
         return False
 
@@ -116,16 +122,16 @@ class ChessEnv:
 
             # print(f"{tup} -> ({tupx}, {tupy}) -> ({i}, {j})")
 
-            print(f"\n=== MOVE: ({i}, {j}) ===")
+            # print(f"\n=== MOVE: ({i}, {j}) ===")
 
-            print(f"START:\t{self.start} and {self.dest}")
+            # print(f"START:\t{self.start} and {self.dest}")
 
             if self.start == (-1, -1):
-                print("start update")
+                # print("start update")
                 if self.pieces[j][i] != BLANK:
                     self.start = (i, j)
             elif self.dest == (-1, -1) and self.start != (i, j):
-                print("dest update")
+                # print("dest update")
                 self.dest = (i, j)
 
                 # print(
@@ -146,7 +152,7 @@ class ChessEnv:
                 self.start = (i, j)
                 self.dest = (-1, -1)
 
-            print(f"END:\t{self.start} and {self.dest}")
+            # print(f"END:\t{self.start} and {self.dest}")
             return False
 
     def game_over(self, cur_player_clock) -> str:
@@ -217,7 +223,15 @@ class ChessEnv:
             or chess.Move.from_uci(uci + "n") in self.legal_moves
         )
 
-    # def draw_board(self)
+    def evaluate_board(self):
+        self.evaluation = 0.0
+        for row in self.get_all_pieces_2D():
+            for piece in row:
+                if piece != BLANK:
+                    if piece.isupper():
+                        self.evaluation += PIECE_VALUES[piece.lower()]
+                    else:
+                        self.evaluation -= PIECE_VALUES[piece]
 
 
 if __name__ == "__main__":

@@ -25,6 +25,15 @@ FILE_NAMES = {
     "R": "w_rook",
 }
 
+PIECE_VALUES = {
+    "b": 3,
+    "k": 0,
+    "n": 3,
+    "p": 1,
+    "q": 9,
+    "r": 5,
+}
+
 BG_COLOR = (249, 172, 113)  # light brown
 BG_IMG = "assets/backgrounds/bg_wood.jpg"
 
