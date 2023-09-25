@@ -1,6 +1,8 @@
 from vars import *
 import chess
 
+t_opposite = lambda t: (t[0] * -1, t[1] * -1)
+
 
 def list_split(l, skip=1):
     return [l[i : i + skip] for i in range(0, len(l), skip)]
@@ -14,8 +16,8 @@ def t_to_uci(s_t: tuple, e_t: tuple):
     # print(piece_indices)
     # print(s_t, e_t)
     # print(len(piece_indices), len(piece_indices[0]))
-    output += piece_indices[s_t[0]][s_t[1]]
-    output += piece_indices[e_t[0]][e_t[1]]
+    output += piece_indices[s_t[0]][-s_t[1] - 1]
+    output += piece_indices[e_t[0]][-e_t[1] - 1]
     # print(output)
     return output
 
