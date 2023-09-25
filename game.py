@@ -169,9 +169,12 @@ class Game:
             ):
                 running = False
 
+            # on each turn, evaluate the board position for each player
+
             if self.chess.get_move():
                 self.player_1_clock.tick()
             else:
+                # use a minimax or similar algorithm to determine opponent move
                 self.player_2_clock.tick()
             self.player_1_clock.draw(self.window)
             self.player_2_clock.draw(self.window)
