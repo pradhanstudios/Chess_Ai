@@ -27,5 +27,9 @@ def uci_to_san(board, uci_str: str):
     return board.san(move)
 
 
+def get_piece_properties(piece: str):
+    return piece.isupper(), piece
+
+
 if __name__ == "__main__":
     print(list_split([1, 2, 3, 4, 5, 6], 2))

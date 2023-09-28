@@ -3,6 +3,7 @@ import chess
 import pygame
 from vars import *
 from helpers import *
+from evaluation import *
 
 
 class ChessEnv:
@@ -225,14 +226,8 @@ class ChessEnv:
         )
 
     def evaluate_board(self):
-        self.evaluation = 0.0
-        for row in self.get_all_pieces_2D():
-            for piece in row:
-                if piece != BLANK:
-                    if piece.isupper():
-                        self.evaluation += PIECE_VALUES[piece.lower()]
-                    else:
-                        self.evaluation -= PIECE_VALUES[piece]
+        print(self.get_all_pieces_2D())
+        self.evaluation = evaluate()
 
 
 if __name__ == "__main__":
