@@ -9,13 +9,13 @@ def evaluate(board: list[list]):
             color, piece = get_piece_properties(board[i][j])
             if piece != BLANK:
                 # print(color, piece, i, j)
-                additive = EVAL_DICT[color][piece][i][j] / 250
+                multi = 1 + EVAL_DICT[color][piece][i][j] / 200
                 piece_eval = PIECE_VALUES[piece.lower()]
                 if color:
-                    piece_eval += additive
+                    piece_eval *= multi
                 else:
-                    piece_eval -= additive
+                    piece_eval *= -multi
                 # print(piece_eval)
                 evaluation += piece_eval
-    return round(evaluation - 78, 2)
+    return round(evaluation, 2)
                 
