@@ -226,8 +226,8 @@ class ChessEnv:
         )
 
     def evaluate_board(self):
-        print(self.get_all_pieces_2D())
-        self.evaluation = evaluate()
+        # print(self.get_all_pieces_2D())
+        self.evaluation = evaluate(self.get_all_pieces_2D())
 
 
 if __name__ == "__main__":

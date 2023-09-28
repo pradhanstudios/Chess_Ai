@@ -95,7 +95,7 @@ W_QUEEN = [[-20,-10,-10, -5, -5,-10,-10,-20],
 [-10,  5,  5,  5,  5,  5,  0,-10,],
 [-10,  0,  5,  0,  0,  0,  0,-10,],
 [-20,-10,-10, -5, -5,-10,-10,-20]]
-W_KING_MIDDLE_GAME = -[[30,-40,-40,-50,-50,-40,-40,-30,],
+W_KING_MIDDLE_GAME = [[-30,-40,-40,-50,-50,-40,-40,-30,],
 [-30,-40,-40,-50,-50,-40,-40,-30,],
 [-30,-40,-40,-50,-50,-40,-40,-30,],
 [-30,-40,-40,-50,-50,-40,-40,-30,],
@@ -120,21 +120,21 @@ B_QUEEN = W_QUEEN[::-1]
 B_KING_MIDDLE_GAME = W_KING_MIDDLE_GAME[::-1]
 B_KING_END_GAME = W_KING_END_GAME[::-1]
 WHITE_DICT = {
-    "p": W_PAWN,
-    "n": W_KNIGHT,
-    "b": W_BISHOP,
-    "r": W_ROOK,
-    "q": W_QUEEN,
-    "km": W_KING_MIDDLE_GAME,
-    "ke": W_KING_END_GAME,
+    "P": W_PAWN,
+    "N": W_KNIGHT,
+    "B": W_BISHOP,
+    "R": W_ROOK,
+    "Q": W_QUEEN,
+    "K": W_KING_MIDDLE_GAME,
+    # "KE": W_KING_END_GAME,
 }
 BLACK_DICT = {
-    "P": B_PAWN,
-    "N": B_KNIGHT,
-    "B": B_BISHOP,
-    "R": B_ROOK,
-    "Q": B_QUEEN,
-    "KM": B_KING_MIDDLE_GAME,
-    "KE": B_KING_END_GAME,
+    "p": B_PAWN,
+    "n": B_KNIGHT,
+    "b": B_BISHOP,
+    "r": B_ROOK,
+    "q": B_QUEEN,
+    "k": B_KING_MIDDLE_GAME
+    # "ke": B_KING_END_GAME
 }
 EVAL_DICT = {True: WHITE_DICT, False: BLACK_DICT}
