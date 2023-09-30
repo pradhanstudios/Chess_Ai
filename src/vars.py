@@ -138,3 +138,5 @@ BLACK_DICT = {
     # "ke": B_KING_END_GAME
 }
 EVAL_DICT = {True: WHITE_DICT, False: BLACK_DICT}
+NEGATIVE_INFINITY = float("-inf")
+INFINITY = float("inf")

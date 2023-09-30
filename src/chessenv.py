@@ -177,6 +177,26 @@ class ChessEnv:
             return "fifty moves rule; it is a tie."
         if cur_player_clock.done():
             return f"timeout; {COLORS[not self.get_move()]} wins."
+        return False
+    def eval_game_over(self) -> str:
+        # return (
+        #     self.board.is_checkmate()  # checkmate
+        #     or self.board.is_stalemate()  # stalemate
+        #     or self.board.is_insufficient_material()  # insufficient matierial
+        #     or self.board.can_claim_threefold_repetition()  # if the same moves have been repeated 3 times in a row
+        #     or self.board.can_claim_fifty_moves()  # fifty moves after a pawn has movesd
+        # )
+        if self.board.is_checkmate():
+            return f"checkmate; {COLORS[not self.get_move()]} wins."
+        if self.board.is_stalemate():
+            return "stalemate; it is a tie."
+        if self.board.is_insufficient_material():
+            return "insufficient material; it is a tie."
+        if self.board.can_claim_threefold_repetition():
+            return "threefold repetition; it is a tie."
+        if self.board.can_claim_fifty_moves():
+            return "fifty moves rule; it is a tie."
+        return False
 
     def update(self):
         if pygame.mouse.get_pressed()[0]:
@@ -227,7 +247,7 @@ class ChessEnv:
 
     def evaluate_board(self):
         # print(self.get_all_pieces_2D())
-        self.evaluation = evaluate(self.get_all_pieces_2D())
+        self.evaluation = evaluate(self, self.get_move())
 
 
 if __name__ == "__main__":
