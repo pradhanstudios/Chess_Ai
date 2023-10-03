@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <cctype>
@@ -16,9 +17,9 @@ tuple to position converter funciotn
 
 struct Move
 {
-    int piece_pos;
-    int direction;
-    int distance;
+    int Piece;
+    int start;
+    int end;
 };
 
 enum Pieces
@@ -45,7 +46,9 @@ std::map<std::string, int> directional_movement = {
     {"down-left", 7},
 };
 
-int direction_offsets[8] = {1, -1, 8, -8, 7, -7, 9, -9};
+std::vector<int> direction_offsets = {1, -1, 8, -8, 7, -7, 9, -9};
+
+std::vector<Move> all_moves;
 
 std::map<char, int> fen_to_piece = {
     {'p', Pawn},
@@ -71,6 +74,10 @@ void reset_values(std::vector<int> &board)
     {
         board.push_back(0);
     }
+}
+
+bool move_eq(Move m1, Move m2) {
+    return (m1.end == m2.end) && (m1.Piece == m2.Piece) && (m1.start == m2.start);
 }
 
 void print_board(std::vector<int> board)
@@ -141,18 +148,92 @@ void open_fen(std::vector<int> &board, std::string fen)
  * @param direction direction that the piece will be moved
  * @param distance how far the piece will move in the specified direction
  */
-void move_piece(std::vector<int> &board, int piece_pos, std::string direction, int distance)
+void move_piece(std::vector<int> &board, Move move)
 {
-    int cur = board[piece_pos];
-    int target = piece_pos + (directional_movement[direction] * distance);
-    board[piece_pos] = None;
-    board[target] = cur;
+    board[move.start] = None;
+    board[move.end] = move.Piece;
+    all_moves.push_back(move);
 }
 
-// bool is_legal_move(std::vector<int> board, Move move)
-// {
-// TODO: implement function
-// }
+void undo_move(std::vector<int> board) {
+    Move last_move = all_moves[-1];
+    all_moves.pop_back();
+    board[last_move.end] = None;
+    board[last_move.start] = last_move.Piece;
+
+}
+
+bool in_bound(int pos) {
+    return (pos >= 0 && pos < 64);
+}
+
+int get_color(int piece) {
+    return piece & 8 ? White : Black;
+}
+
+bool results_in_check(std::vector<int> board, Move move) {
+    return false; // for now
+}
+
+std::vector<Move> get_piece_moves(std::vector<int> board, std::vector<int> offsets, int piece_pos, int piece, int range=8) {
+    std::vector<Move> moves;
+    int org_color = get_color(piece);
+    for (int dir : offsets) {
+        for (int i = 1; i < range; i++) {
+            if (in_bound(dir) == false) { // idk how to do it a better way lol
+                break;
+            }
+            int cur_piece = board[piece_pos + dir * i];
+            int cur_color = get_color(cur_piece);
+            if (cur_color == org_color) {
+                break;
+            }
+            Move cur_move = (Move){piece, piece_pos, piece_pos + dir * i};
+
+            if (results_in_check(board, cur_move) == false) {
+                moves.push_back((Move){piece, piece_pos, piece_pos + dir * i});
+            }
+            if ((cur_color != org_color) && (cur_piece != None)) {
+                break;
+            }
+        }
+    }
+    return moves;
+}
+
+std::vector<Move> get_legal_moves_piece(std::vector<int> board, int piece, int pos) {
+    if (piece == Queen) {
+        return get_piece_moves(board, direction_offsets, pos, piece); // all moves
+    }
+
+    if (piece == Rook) {
+        std::vector<int> movements(direction_offsets.begin(), direction_offsets.begin() + 4); // first 4 moves
+      
+        return get_piece_moves(board, movements, pos, piece);
+    }
+    if (piece == Bishop) {
+        std::vector<int> movements(direction_offsets.begin() + 4, direction_offsets.begin() + 8); // last 4 moves
+        return get_piece_moves(board, movements, pos, piece);
+    }
+
+    if (piece == King) {
+        return get_piece_moves(board, direction_offsets, pos, piece, 2);
+    }
+
+    if (piece == Knight) {
+        std::vector<int> movements = {-17, -15, -10, -6, 17, 15, 10, 6}; // knight offsets
+        return get_piece_moves(board, movements, pos, piece);
+    }
+}
+
+bool is_legal_move(Move move) {
+    for (Move m : all_moves) {
+        if (move_eq(m, move)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 int main(void)
 {
@@ -166,9 +247,10 @@ int main(void)
     print_board(board);
 
     // testing move piece function
-    std::cout << "move pawn down-right 3 spaces" << std::endl;
-    move_piece(board, 11, "down-right", 3);
-    print_board(board);
+    // std::cout << "move pawn down-right 3 spaces" << std::endl;
+    // move_piece();
+    // print_board(board);
+    std::cout << is_legal_move((Move){Rook, 56, 10}) << "\n";
 
     // for (int i = 0; i < 64; i++)
     // {

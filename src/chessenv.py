@@ -68,8 +68,8 @@ class ChessEnv:
         else:
             print("Illegal move")
 
-        self.evaluate_board()
-        print(f"Evaluation Value: {self.evaluation}")
+        # self.evaluate_board()
+        # print(f"Evaluation Value: {self.evaluation}")
 
         return False
 
