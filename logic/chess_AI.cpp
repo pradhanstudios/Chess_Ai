@@ -76,10 +76,6 @@ void reset_values(std::vector<int> &board)
     }
 }
 
-bool move_eq(Move m1, Move m2) {
-    return (m1.end == m2.end) && (m1.Piece == m2.Piece) && (m1.start == m2.start);
-}
-
 void print_board(std::vector<int> board)
 {
     std::cout << "-----------------------" << std::endl;
@@ -168,6 +164,9 @@ bool in_bound(int pos) {
 }
 
 int get_color(int piece) {
+    if (piece == None) {
+        return None;
+    }
     return piece & 8 ? White : Black;
 }
 
@@ -181,18 +180,23 @@ std::vector<Move> get_piece_moves(std::vector<int> board, std::vector<int> offse
     for (int dir : offsets) {
         for (int i = 1; i < range; i++) {
             if (in_bound(dir) == false) { // idk how to do it a better way lol
+                // std::cout << "broke out of with: " << dir << "\n";
+
                 break;
             }
             int cur_piece = board[piece_pos + dir * i];
             int cur_color = get_color(cur_piece);
+            // std::cout << piece << " " << piece_pos << " " << piece_pos + dir * i << "\n";
             if (cur_color == org_color) {
+                // std::cout << cur_color << "\n";
                 break;
             }
             Move cur_move = (Move){piece, piece_pos, piece_pos + dir * i};
 
-            if (results_in_check(board, cur_move) == false) {
-                moves.push_back((Move){piece, piece_pos, piece_pos + dir * i});
-            }
+            // if (results_in_check(board, cur_move) == false) {
+            // std::cout << "got here" << "\n";
+            moves.push_back((Move){piece, piece_pos, piece_pos + dir * i});
+            // }
             if ((cur_color != org_color) && (cur_piece != None)) {
                 break;
             }
@@ -226,9 +230,10 @@ std::vector<Move> get_legal_moves_piece(std::vector<int> board, int piece, int p
     }
 }
 
-bool is_legal_move(Move move) {
-    for (Move m : all_moves) {
-        if (move_eq(m, move)) {
+bool is_legal_move(std::vector<int> board, Move move) {
+    for (Move m : get_legal_moves_piece(board, move.Piece, move.start)) {
+        // std::cout << m.end << " " << move.end << "\n";
+        if (m.end == move.end) {
             return true;
         }
     }
@@ -251,7 +256,7 @@ int main(void)
     // std::cout << "move pawn down-right 3 spaces" << std::endl;
     // move_piece();
     // print_board(board);
-    std::cout << is_legal_move((Move){Queen, 56, 57}) << "\n";
+    std::cout << is_legal_move(board, (Move){Queen, 56, 61}) << "\n";
 
     // for (int i = 0; i < 64; i++)
     // {
