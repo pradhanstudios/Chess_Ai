@@ -238,7 +238,8 @@ bool is_legal_move(Move move) {
 int main(void)
 {
     std::vector<int> board;
-    std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    // std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    std::string starting_fen = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1";
 
     reset_values(board);
 
@@ -250,7 +251,7 @@ int main(void)
     // std::cout << "move pawn down-right 3 spaces" << std::endl;
     // move_piece();
     // print_board(board);
-    std::cout << is_legal_move((Move){Rook, 56, 10}) << "\n";
+    std::cout << is_legal_move((Move){Queen, 56, 57}) << "\n";
 
     // for (int i = 0; i < 64; i++)
     // {
