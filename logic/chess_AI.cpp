@@ -23,8 +23,12 @@ ROW:
 2nd row: 8-15 <=> (pos // 8 == 1)
 ... row: .... <=> (pos // 8 == ...)
 
+
 */
 
+/***********/
+/* Structs */
+/***********/
 struct Move
 {
     int Piece;
@@ -45,6 +49,10 @@ enum Pieces
     Black = 16
 };
 
+/*************/
+/* Variables */
+/*************/
+
 std::map<std::string, int> directional_movement = {
     {"up", -8},
     {"down", 8},
@@ -54,6 +62,17 @@ std::map<std::string, int> directional_movement = {
     {"up-left", -9},
     {"down-right", 9},
     {"down-left", 7},
+};
+
+std::map<int, char> col_num_to_letter = {
+    {0, 'A'},
+    {1, 'B'},
+    {2, 'C'},
+    {3, 'D'},
+    {4, 'E'},
+    {5, 'F'},
+    {6, 'G'},
+    {7, 'H'},
 };
 
 std::vector<int> direction_offsets = {1, -1, 8, -8, 7, -7, 9, -9};
@@ -77,15 +96,37 @@ std::map<int, char> piece_to_fen = {
     {Queen, 'q'},
     {King, 'k'}};
 
+/*************/
+/* Functions */
+/*************/
+
+/**
+ * @brief Get the column of the given position
+ *
+ * @param position
+ * @return int
+ */
 int get_column(int position)
 {
     return position % 8;
 }
+
+/**
+ * @brief Get the row of the given position
+ *
+ * @param position
+ * @return int
+ */
 int get_row(int position)
 {
     return (int)(position / 8);
 }
 
+/**
+ * @brief Reset values on the board
+ *
+ * @param board
+ */
 void reset_values(std::vector<int> &board)
 {
     board.clear();
@@ -95,6 +136,11 @@ void reset_values(std::vector<int> &board)
     }
 }
 
+/**
+ * @brief Print the board to the CLI
+ *
+ * @param board
+ */
 void print_board(std::vector<int> board)
 {
     std::cout << "-----------------------" << std::endl;
@@ -129,6 +175,12 @@ void print_board(std::vector<int> board)
     std::cout << "-----------------------" << std::endl;
 }
 
+/**
+ * @brief Sets the board to the position specified by the FEN
+ *
+ * @param board
+ * @param fen
+ */
 void open_fen(std::vector<int> &board, std::string fen)
 {
     char cur;
@@ -155,8 +207,9 @@ void open_fen(std::vector<int> &board, std::string fen)
         }
     }
 }
+
 /**
- * @brief Moves the piece specified at the piece_pos on the board based on direction and distance.
+ * @brief Moves the piece specified at the piece_pos on the board based on direction and distance
  *
  * @param board board representation
  * @param piece_pos position of piece that will be moved
@@ -170,6 +223,11 @@ void move_piece(std::vector<int> &board, Move move)
     all_moves.push_back(move);
 }
 
+/**
+ * @brief Undo the last move
+ *
+ * @param board
+ */
 void undo_move(std::vector<int> board)
 {
     Move last_move = all_moves[-1];
@@ -178,11 +236,24 @@ void undo_move(std::vector<int> board)
     board[last_move.start] = last_move.Piece;
 }
 
+/**
+ * @brief Checks if the position is in the board
+ *
+ * @param pos
+ * @return true
+ * @return false
+ */
 bool in_bound(int pos)
 {
     return (pos >= 0 && pos < 64);
 }
 
+/**
+ * @brief Get the color of the piece
+ *
+ * @param piece
+ * @return int
+ */
 int get_color(int piece)
 {
     if (piece == None)
@@ -192,12 +263,31 @@ int get_color(int piece)
     return piece & 8 ? White : Black;
 }
 
+/**
+ * @brief Checks whether the given move results in a check on the board --
+ * TODO: create the function
+ *
+ * @param board
+ * @param move
+ * @return true
+ * @return false
+ */
 bool results_in_check(std::vector<int> board, Move move)
 {
     return false; // for now
 }
 
-std::vector<Move> get_piece_moves(std::vector<int> board, std::vector<int> offsets, int piece_pos, int piece, int range = 8)
+/**
+ * @brief
+ *
+ * @param board
+ * @param offsets
+ * @param piece_pos
+ * @param piece
+ * @param range
+ * @return std::vector<Move>
+ */
+std::vector<Move> get_piece_moves_helper(std::vector<int> board, std::vector<int> offsets, int piece_pos, int piece, int range = 8)
 {
     std::vector<Move> moves;
     int org_color = get_color(piece);
@@ -234,34 +324,41 @@ std::vector<Move> get_piece_moves(std::vector<int> board, std::vector<int> offse
     return moves;
 }
 
-std::vector<Move> get_legal_moves_piece(std::vector<int> board, int piece, int pos)
+/**
+ * @brief Gets the legal moves of the given piece
+ * @param board
+ * @param piece
+ * @param pos
+ * @return std::vector<Move>
+ */
+std::vector<Move> get_piece_moves(std::vector<int> board, int piece, int pos)
 {
     if (piece == Queen)
     {
-        return get_piece_moves(board, direction_offsets, pos, piece); // all moves
+        return get_piece_moves_helper(board, direction_offsets, pos, piece); // all moves
     }
 
     if (piece == Rook)
     {
         std::vector<int> movements(direction_offsets.begin(), direction_offsets.begin() + 4); // first 4 moves
 
-        return get_piece_moves(board, movements, pos, piece);
+        return get_piece_moves_helper(board, movements, pos, piece);
     }
     if (piece == Bishop)
     {
         std::vector<int> movements(direction_offsets.begin() + 4, direction_offsets.begin() + 8); // last 4 moves
-        return get_piece_moves(board, movements, pos, piece);
+        return get_piece_moves_helper(board, movements, pos, piece);
     }
 
     if (piece == King)
     {
-        return get_piece_moves(board, direction_offsets, pos, piece, 2);
+        return get_piece_moves_helper(board, direction_offsets, pos, piece, 2);
     }
 
     if (piece == Knight)
     {
         std::vector<int> movements = {-17, -15, -10, -6, 17, 15, 10, 6}; // knight offsets
-        return get_piece_moves(board, movements, pos, piece);
+        return get_piece_moves_helper(board, movements, pos, piece);
     }
 
     // default return value if reaches end
@@ -270,9 +367,17 @@ std::vector<Move> get_legal_moves_piece(std::vector<int> board, int piece, int p
     return def_vector;
 }
 
+/**
+ * @brief Checks if the given move is legal
+ *
+ * @param board
+ * @param move
+ * @return true
+ * @return false
+ */
 bool is_legal_move(std::vector<int> board, Move move)
 {
-    for (Move m : get_legal_moves_piece(board, move.Piece, move.start))
+    for (Move m : get_piece_moves(board, move.Piece, move.start))
     {
         // std::cout << m.end << " " << move.end << "\n";
         if (m.end == move.end)
@@ -283,23 +388,38 @@ bool is_legal_move(std::vector<int> board, Move move)
     return false;
 }
 
+void print_readable_position(int position)
+{
+    std::cout << col_num_to_letter[get_column(position)] << get_row(position) + 1;
+}
+
 int main(void)
 {
+    // variable to store the board
     std::vector<int> board;
+
+    // FEN that specifies board position to start with
     // std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
     std::string starting_fen = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1";
 
+    // reset the values on the board
     reset_values(board);
 
+    // set the board position to the one in the starting fen
     open_fen(board, starting_fen);
 
+    // print the board
     print_board(board);
 
     // testing move piece function
     // std::cout << "move pawn down-right 3 spaces" << std::endl;
     // move_piece();
     // print_board(board);
-    std::cout << is_legal_move(board, (Move){Queen, 56, 61}) << "\n";
+    std::cout << "Is Queen on position ";
+    print_readable_position(56);
+    std::cout << " --> ";
+    print_readable_position(61);
+    std::cout << " a legal move? " << (is_legal_move(board, (Move){Queen, 56, 61}) ? "Yes" : "No") << std::endl;
 
     // for (int i = 0; i < 64; i++)
     // {
