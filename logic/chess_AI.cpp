@@ -7,11 +7,21 @@
 
 /*
 
-tuple to position converter funciotn
-
+tuple to position converter function
 (1, 5) -> 4
-
 (2, 4) -> 10
+
+8 rows x 8 columns
+
+COL:
+1st column: 0, 8, ... <=> (pos % 8 == 0)
+2nd column: 1, 9, ... <=> (pos % 8 == 1)
+... column: ..... ... <=> (pos % 8 == ...)
+
+ROW:
+1st row: 0-7  <=> (pos // 8 == 0)
+2nd row: 8-15 <=> (pos // 8 == 1)
+... row: .... <=> (pos // 8 == ...)
 
 */
 
@@ -66,6 +76,15 @@ std::map<int, char> piece_to_fen = {
     {Bishop, 'b'},
     {Queen, 'q'},
     {King, 'k'}};
+
+int get_column(int position)
+{
+    return position % 8;
+}
+int get_row(int position)
+{
+    return (int)(position / 8);
+}
 
 void reset_values(std::vector<int> &board)
 {
