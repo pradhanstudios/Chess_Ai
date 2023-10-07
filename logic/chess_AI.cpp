@@ -256,7 +256,7 @@ int main(void)
     // std::cout << "move pawn down-right 3 spaces" << std::endl;
     // move_piece();
     // print_board(board);
-    std::cout << is_legal_move(board, (Move){Queen, 56, 61}) << "\n";
+    std::cout << is_legal_move(board, (Move){Queen, 56, 64}) << "\n";
 
     // for (int i = 0; i < 64; i++)
     // {
