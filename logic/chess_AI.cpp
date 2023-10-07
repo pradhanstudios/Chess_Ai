@@ -415,11 +415,11 @@ int main(void)
     // std::cout << "move pawn down-right 3 spaces" << std::endl;
     // move_piece();
     // print_board(board);
-    std::cout << "Is Queen on position ";
-    print_readable_position(56);
+    std::cout << "Is Knight on ";
+    print_readable_position(16);
     std::cout << " --> ";
-    print_readable_position(61);
-    std::cout << " a legal move? " << (is_legal_move(board, (Move){Queen, 56, 61}) ? "Yes" : "No") << std::endl;
+    print_readable_position(33);
+    std::cout << " a legal move? " << (is_legal_move(board, (Move){Knight, 16, 33}) ? "Yes" : "No") << std::endl;
 
     // for (int i = 0; i < 64; i++)
     // {
