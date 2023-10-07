@@ -387,7 +387,7 @@ std::vector<Move> get_piece_moves(std::vector<int> board, int piece, int pos)
     }
 
     // default return value if reaches end
-    Move def_move = (Move){0, 0, 0};
+    Move def_move = (Move){None, None, None};
     std::vector<Move> def_vector = {def_move};
     return def_vector;
 }
