@@ -29,6 +29,14 @@ ROW:
 /***********/
 /* Structs */
 /***********/
+
+/**
+ * @brief
+ *
+ * @param int Piece
+ * @param int start
+ * @param int end
+ */
 struct Move
 {
     int Piece;
@@ -152,7 +160,7 @@ void reset_values(std::vector<int> &board)
  *
  * @param board
  */
-void print_board(std::vector<int> board)
+void print_board(std::vector<int> &board)
 {
     std::cout << "-----------------------" << std::endl;
     std::cout << "|     A B C D E F G H |" << std::endl;
@@ -229,8 +237,14 @@ void open_fen(std::vector<int> &board, std::string fen)
  */
 void move_piece(std::vector<int> &board, Move move)
 {
+    std::cout << "Board address: " << &board << std::endl;
+    std::cout << piece_num_to_name[move.Piece] << " " << move.start << " " << move.end << std::endl;
+
     board[move.start] = None;
     board[move.end] = move.Piece;
+
+    std::cout << move.end << ": " << piece_num_to_name[board[move.end]] << std::endl;
+
     all_moves.push_back(move);
 }
 
@@ -415,8 +429,8 @@ int main(void)
     std::vector<int> board;
 
     // FEN that specifies board position to start with
-    // std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-    std::string starting_fen = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1";
+    std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    // std::string starting_fen = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1";
 
     // reset the values on the board
     reset_values(board);
@@ -428,16 +442,24 @@ int main(void)
     print_board(board);
 
     // testing move piece function
-    // std::cout << "move pawn down-right 3 spaces" << std::endl;
-    // move_piece();
-    // print_board(board);
+    std::cout << "move Pawn on ";
+    print_readable_position(50);
+    std::cout << " to ";
+    print_readable_position(42);
+    std::cout << std::endl;
+    std::cout << "Board address: " << &board << std::endl;
+    move_piece(board, (Move){Pawn, 50, 42});
+    print_board(board);
+
     std::cout << "Is Knight on ";
     print_readable_position(16);
     std::cout << " --> ";
     print_readable_position(33);
     std::cout << " a legal move? " << (is_legal_move(board, (Move){Knight, 16, 33}) ? "Yes" : "No") << std::endl;
 
-    std::cout << "Piece on pos 16: " << piece_num_to_name[get_piece(board, 16)] << std::endl;
+    std::cout << "Piece on pos ";
+    print_readable_position(16);
+    std::cout << ": " << piece_num_to_name[get_piece(board, 16)] << std::endl;
 
     // for (int i = 0; i < 64; i++)
     // {
