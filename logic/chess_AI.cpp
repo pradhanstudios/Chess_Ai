@@ -36,7 +36,7 @@ struct Move
     int end;
 };
 
-enum Pieces
+enum Piece
 {
     None = 0,
     Pawn = 1,
@@ -53,15 +53,26 @@ enum Pieces
 /* Variables */
 /*************/
 
-std::map<std::string, int> directional_movement = {
-    {"up", -8},
-    {"down", 8},
-    {"left", -1},
-    {"right", 1},
-    {"up-right", -7},
-    {"up-left", -9},
-    {"down-right", 9},
-    {"down-left", 7},
+std::map<int, std::string> piece_num_to_name = {
+    {0, "None"},
+    {1, "Pawn"},
+    {2, "King"},
+    {3, "Knight"},
+    {4, "Bishop"},
+    {5, "Rook"},
+    {6, "Queen"},
+};
+
+std::map<std::string, int>
+    directional_movement = {
+        {"up", -8},
+        {"down", 8},
+        {"left", -1},
+        {"right", 1},
+        {"up-right", -7},
+        {"up-left", -9},
+        {"down-right", 9},
+        {"down-left", 7},
 };
 
 std::map<int, char> col_num_to_letter = {
@@ -393,6 +404,11 @@ void print_readable_position(int position)
     std::cout << col_num_to_letter[get_column(position)] << get_row(position) + 1;
 }
 
+int get_piece(std::vector<int> board, int position)
+{
+    return board[position] % 8;
+}
+
 int main(void)
 {
     // variable to store the board
@@ -420,6 +436,8 @@ int main(void)
     std::cout << " --> ";
     print_readable_position(33);
     std::cout << " a legal move? " << (is_legal_move(board, (Move){Knight, 16, 33}) ? "Yes" : "No") << std::endl;
+
+    std::cout << "Piece on pos 16: " << piece_num_to_name[get_piece(board, 16)] << std::endl;
 
     // for (int i = 0; i < 64; i++)
     // {
