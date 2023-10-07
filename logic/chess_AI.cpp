@@ -151,35 +151,43 @@ void move_piece(std::vector<int> &board, Move move)
     all_moves.push_back(move);
 }
 
-void undo_move(std::vector<int> board) {
+void undo_move(std::vector<int> board)
+{
     Move last_move = all_moves[-1];
     all_moves.pop_back();
     board[last_move.end] = None;
     board[last_move.start] = last_move.Piece;
-
 }
 
-bool in_bound(int pos) {
+bool in_bound(int pos)
+{
     return (pos >= 0 && pos < 64);
 }
 
-int get_color(int piece) {
-    if (piece == None) {
+int get_color(int piece)
+{
+    if (piece == None)
+    {
         return None;
     }
     return piece & 8 ? White : Black;
 }
 
-bool results_in_check(std::vector<int> board, Move move) {
+bool results_in_check(std::vector<int> board, Move move)
+{
     return false; // for now
 }
 
-std::vector<Move> get_piece_moves(std::vector<int> board, std::vector<int> offsets, int piece_pos, int piece, int range=8) {
+std::vector<Move> get_piece_moves(std::vector<int> board, std::vector<int> offsets, int piece_pos, int piece, int range = 8)
+{
     std::vector<Move> moves;
     int org_color = get_color(piece);
-    for (int dir : offsets) {
-        for (int i = 1; i < range; i++) {
-            if (in_bound(dir) == false) { // idk how to do it a better way lol
+    for (int dir : offsets)
+    {
+        for (int i = 1; i < range; i++)
+        {
+            if (in_bound(dir) == false)
+            { // idk how to do it a better way lol
                 // std::cout << "broke out of with: " << dir << "\n";
 
                 break;
@@ -187,7 +195,8 @@ std::vector<Move> get_piece_moves(std::vector<int> board, std::vector<int> offse
             int cur_piece = board[piece_pos + dir * i];
             int cur_color = get_color(cur_piece);
             // std::cout << piece << " " << piece_pos << " " << piece_pos + dir * i << "\n";
-            if (cur_color == org_color) {
+            if (cur_color == org_color)
+            {
                 // std::cout << cur_color << "\n";
                 break;
             }
@@ -197,7 +206,8 @@ std::vector<Move> get_piece_moves(std::vector<int> board, std::vector<int> offse
             // std::cout << "got here" << "\n";
             moves.push_back((Move){piece, piece_pos, piece_pos + dir * i});
             // }
-            if ((cur_color != org_color) && (cur_piece != None)) {
+            if ((cur_color != org_color) && (cur_piece != None))
+            {
                 break;
             }
         }
@@ -205,35 +215,49 @@ std::vector<Move> get_piece_moves(std::vector<int> board, std::vector<int> offse
     return moves;
 }
 
-std::vector<Move> get_legal_moves_piece(std::vector<int> board, int piece, int pos) {
-    if (piece == Queen) {
+std::vector<Move> get_legal_moves_piece(std::vector<int> board, int piece, int pos)
+{
+    if (piece == Queen)
+    {
         return get_piece_moves(board, direction_offsets, pos, piece); // all moves
     }
 
-    if (piece == Rook) {
+    if (piece == Rook)
+    {
         std::vector<int> movements(direction_offsets.begin(), direction_offsets.begin() + 4); // first 4 moves
-      
+
         return get_piece_moves(board, movements, pos, piece);
     }
-    if (piece == Bishop) {
+    if (piece == Bishop)
+    {
         std::vector<int> movements(direction_offsets.begin() + 4, direction_offsets.begin() + 8); // last 4 moves
         return get_piece_moves(board, movements, pos, piece);
     }
 
-    if (piece == King) {
+    if (piece == King)
+    {
         return get_piece_moves(board, direction_offsets, pos, piece, 2);
     }
 
-    if (piece == Knight) {
+    if (piece == Knight)
+    {
         std::vector<int> movements = {-17, -15, -10, -6, 17, 15, 10, 6}; // knight offsets
         return get_piece_moves(board, movements, pos, piece);
     }
+
+    // default return value if reaches end
+    Move def_move = (Move){0, 0, 0};
+    std::vector<Move> def_vector = {def_move};
+    return def_vector;
 }
 
-bool is_legal_move(std::vector<int> board, Move move) {
-    for (Move m : get_legal_moves_piece(board, move.Piece, move.start)) {
+bool is_legal_move(std::vector<int> board, Move move)
+{
+    for (Move m : get_legal_moves_piece(board, move.Piece, move.start))
+    {
         // std::cout << m.end << " " << move.end << "\n";
-        if (m.end == move.end) {
+        if (m.end == move.end)
+        {
             return true;
         }
     }
