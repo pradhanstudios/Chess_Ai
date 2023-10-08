@@ -334,8 +334,10 @@ std::vector<Move> get_piece_moves_helper(std::vector<int> board, std::vector<int
                 // std::cout << cur_color << "\n";
                 break;
             }
+            if (abs(get_row(piece_pos + dir * (i - 1)) - get_row(piece_pos + dir * i)) > 3) {
+                break;
+            }
             Move cur_move = (Move){piece, piece_pos, piece_pos + dir * i};
-
             // if (results_in_check(board, cur_move) == false) {
             // std::cout << "got here" << "\n";
             moves.push_back((Move){piece, piece_pos, piece_pos + dir * i});
