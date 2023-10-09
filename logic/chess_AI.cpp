@@ -4,6 +4,7 @@
 #include <string>
 #include <cctype>
 #include <map>
+#include <bitset>
 
 /*
 
@@ -114,6 +115,25 @@ std::map<int, char> piece_to_fen = {
     {Bishop, 'b'},
     {Queen, 'q'},
     {King, 'k'}};
+
+std::bitset<64> white_pieces;
+std::bitset<64> black_pieces;
+std::bitset<64> kings;
+std::bitset<64> queens;
+std::bitset<64> rooks;
+std::bitset<64> knights;
+std::bitset<64> pawns;
+
+std::map<int, std::bitset<64>> bitboards = {
+    {White | Black, white_pieces | black_pieces},
+    {White, white_pieces},
+    {Black, black_pieces},
+    {King, kings},
+    {Queen, queens},
+    {Rook, rooks},
+    {Knight, knights},
+    {Pawn, pawns}
+}; 
 
 /*************/
 /* Functions */
@@ -425,8 +445,62 @@ int get_piece(std::vector<int> board, int position)
     return board[position] % 8;
 }
 
+void update_bitboards(std::vector<int> board) {
+        for (int i = 0; i < 64; i++) {
+            int cur_piece = board[i];
+            if (cur_piece == None) {
+                white_pieces[i] = 0;
+                black_pieces[i] = 0;
+                kings[i] = 0;
+                queens[i] = 0;
+                rooks[i] = 0;
+                knights[i] = 0;
+                pawns[i] = 0;
+                continue;
+            }
+            else if (get_color(cur_piece) == White) {
+                white_pieces[i] = 1;
+            }
+            else { // color is black
+                black_pieces[i] = 1;
+            } 
+            
+            cur_piece ^= get_color(cur_piece) == White ? White : Black; // get just the piece
+
+            if (cur_piece == King) {
+                kings[i] = 1;
+            }
+            else if (cur_piece == Queen) {
+                queens[i] = 1;
+            }
+            else if (cur_piece == Rook) {
+                rooks[i] = 1;
+            }
+            else if (cur_piece == Knight) {
+                knights[i] = 1;
+            }
+            else if (cur_piece == Pawn) {
+                pawns[i] = 1;
+            }
+
+        }
+    }
+
+void print_bitboard(std::bitset<64> bitboard) {
+    for (int i = 0; i < 64; i++) {
+
+        std::cout << bitboard[i] << " ";
+
+        if ((i + 1) % 8 == 0) {
+            std::cout << std::endl;
+        }
+    }
+}
+
 int main(void)
 {
+    
+
     // variable to store the board
     std::vector<int> board;
 
@@ -443,25 +517,30 @@ int main(void)
     // print the board
     print_board(board);
 
+
+    update_bitboards(board);
+
+    print_bitboard(white_pieces & knights);
+
     // testing move piece function
-    std::cout << "move Pawn on ";
-    print_readable_position(50);
-    std::cout << " to ";
-    print_readable_position(42);
-    std::cout << std::endl;
-    std::cout << "Board address: " << &board << std::endl;
-    move_piece(board, (Move){Pawn, 50, 42});
-    print_board(board);
+    // std::cout << "move Pawn on ";
+    // print_readable_position(50);
+    // std::cout << " to ";
+    // print_readable_position(42);
+    // std::cout << std::endl;
+    // std::cout << "Board address: " << &board << std::endl;
+    // move_piece(board, (Move){Pawn, 50, 42});
+    // print_board(board);
 
-    std::cout << "Is Knight on ";
-    print_readable_position(16);
-    std::cout << " --> ";
-    print_readable_position(33);
-    std::cout << " a legal move? " << (is_legal_move(board, (Move){Knight, 16, 33}) ? "Yes" : "No") << std::endl;
+    // std::cout << "Is Knight on ";
+    // print_readable_position(16);
+    // std::cout << " --> ";
+    // print_readable_position(33);
+    // std::cout << " a legal move? " << (is_legal_move(board, (Move){Knight, 16, 33}) ? "Yes" : "No") << std::endl;
 
-    std::cout << "Piece on pos ";
-    print_readable_position(16);
-    std::cout << ": " << piece_num_to_name[get_piece(board, 16)] << std::endl;
+    // std::cout << "Piece on pos ";
+    // print_readable_position(16);
+    // std::cout << ": " << piece_num_to_name[get_piece(board, 16)] << std::endl;
 
     // for (int i = 0; i < 64; i++)
     // {
