@@ -31,13 +31,6 @@ ROW:
 /* Structs */
 /***********/
 
-/**
- * @brief
- *
- * @param int Piece
- * @param int start
- * @param int end
- */
 struct Move
 {
     int Piece;
