@@ -47,15 +47,16 @@ struct Move
 
 enum Piece
 {
-    None = 0,
-    Pawn = 1,
-    King = 2,
-    Knight = 3,
-    Bishop = 4,
-    Rook = 5,
-    Queen = 6,
-    White = 8,
-    Black = 16
+    None = 0,   // 00000
+    Pawn = 1,   // 00001
+    King = 2,   // 00010
+    Knight = 3, // 00011
+    Bishop = 4, // 00100
+    Rook = 5,   // 00101
+    Queen = 6,  // 00110
+    White = 8,  // 01000
+    Black = 16, // 10000
+    Both = 24,  // 11000
 };
 
 /*************/
@@ -105,7 +106,8 @@ std::map<char, int> fen_to_piece = {
     {'n', Knight},
     {'b', Bishop},
     {'q', Queen},
-    {'k', King}};
+    {'k', King},
+};
 
 std::map<int, char> piece_to_fen = {
     {None, '-'},
@@ -114,26 +116,29 @@ std::map<int, char> piece_to_fen = {
     {Knight, 'n'},
     {Bishop, 'b'},
     {Queen, 'q'},
-    {King, 'k'}};
+    {King, 'k'},
+};
 
 std::bitset<64> white_pieces;
 std::bitset<64> black_pieces;
 std::bitset<64> kings;
 std::bitset<64> queens;
 std::bitset<64> rooks;
+std::bitset<64> bishops;
 std::bitset<64> knights;
 std::bitset<64> pawns;
 
 std::map<int, std::bitset<64>> bitboards = {
-    {White | Black, white_pieces | black_pieces},
+    {Both, (white_pieces | black_pieces)}, // all of the pieces
     {White, white_pieces},
     {Black, black_pieces},
     {King, kings},
     {Queen, queens},
     {Rook, rooks},
+    {Bishop, bishops},
     {Knight, knights},
-    {Pawn, pawns}
-}; 
+    {Pawn, pawns},
+};
 
 /*************/
 /* Functions */
@@ -354,7 +359,8 @@ std::vector<Move> get_piece_moves_helper(std::vector<int> board, std::vector<int
                 // std::cout << cur_color << "\n";
                 break;
             }
-            if (abs(get_row(piece_pos + dir * (i - 1)) - get_row(piece_pos + dir * i)) > 3) {
+            if (abs(get_row(piece_pos + dir * (i - 1)) - get_row(piece_pos + dir * i)) > 3)
+            {
                 break;
             }
             Move cur_move = (Move){piece, piece_pos, piece_pos + dir * i};
@@ -419,8 +425,7 @@ std::vector<Move> get_piece_moves(std::vector<int> board, int piece, int pos)
  *
  * @param board
  * @param move
- * @return true
- * @return false
+ * @return bool
  */
 bool is_legal_move(std::vector<int> board, Move move)
 {
@@ -445,53 +450,81 @@ int get_piece(std::vector<int> board, int position)
     return board[position] % 8;
 }
 
-void update_bitboards(std::vector<int> board) {
-        for (int i = 0; i < 64; i++) {
-            int cur_piece = board[i];
-            if (cur_piece == None) {
-                white_pieces[i] = 0;
-                black_pieces[i] = 0;
-                kings[i] = 0;
-                queens[i] = 0;
-                rooks[i] = 0;
-                knights[i] = 0;
-                pawns[i] = 0;
-                continue;
-            }
-            else if (get_color(cur_piece) == White) {
-                white_pieces[i] = 1;
-            }
-            else { // color is black
-                black_pieces[i] = 1;
-            } 
-            
-            cur_piece ^= get_color(cur_piece) == White ? White : Black; // get just the piece
+void update_bitboards(std::vector<int> board)
+{
+    for (int i = 0; i < 64; i++)
+    {
+        int cur_piece = board[i];
+        if (cur_piece == None)
+        {
+            white_pieces[i] = 0;
+            black_pieces[i] = 0;
+            kings[i] = 0;
+            queens[i] = 0;
+            rooks[i] = 0;
+            bishops[i] = 0;
+            knights[i] = 0;
+            pawns[i] = 0;
+            continue;
+        }
+        else if (get_color(cur_piece) == White)
+        {
+            white_pieces[i] = 1;
+        }
+        else
+        { // color is black
+            black_pieces[i] = 1;
+        }
 
-            if (cur_piece == King) {
-                kings[i] = 1;
-            }
-            else if (cur_piece == Queen) {
-                queens[i] = 1;
-            }
-            else if (cur_piece == Rook) {
-                rooks[i] = 1;
-            }
-            else if (cur_piece == Knight) {
-                knights[i] = 1;
-            }
-            else if (cur_piece == Pawn) {
-                pawns[i] = 1;
-            }
+        cur_piece ^= get_color(cur_piece) == White ? White : Black; // get just the piece
 
+        if (cur_piece == King)
+        {
+            kings[i] = 1;
+        }
+        else if (cur_piece == Queen)
+        {
+            queens[i] = 1;
+        }
+        else if (cur_piece == Rook)
+        {
+            rooks[i] = 1;
+        }
+        else if (cur_piece == Knight)
+        {
+            knights[i] = 1;
+        }
+        else if (cur_piece == Pawn)
+        {
+            pawns[i] = 1;
+        }
+        else if (cur_piece == Bishop)
+        {
+            bishops[i] = 1;
         }
     }
 
-void print_bitboard(std::bitset<64> bitboard) {
-    for (int i = 0; i < 64; i++) {
+    bitboards = {
+        {Both, (white_pieces | black_pieces)}, // all of the pieces
+        {White, white_pieces},
+        {Black, black_pieces},
+        {King, kings},
+        {Queen, queens},
+        {Rook, rooks},
+        {Bishop, bishops},
+        {Knight, knights},
+        {Pawn, pawns},
+    };
+}
 
+void print_bitboard(std::bitset<64> bitboard)
+{
+    for (int i = 0; i < 64; i++)
+    {
         std::cout << bitboard[i] << " ";
 
-        if ((i + 1) % 8 == 0) {
+        if ((i + 1) % 8 == 0)
+        {
             std::cout << std::endl;
         }
     }
@@ -499,8 +532,6 @@ void print_bitboard(std::bitset<64> bitboard) {
 
 int main(void)
 {
-    
-
     // variable to store the board
     std::vector<int> board;
 
@@ -517,10 +548,9 @@ int main(void)
     // print the board
     print_board(board);
 
-
     update_bitboards(board);
 
-    print_bitboard(white_pieces & knights);
+    print_bitboard(bitboards[White | Black]);
 
     // testing move piece function
     // std::cout << "move Pawn on ";
