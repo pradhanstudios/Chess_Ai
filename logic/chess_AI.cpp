@@ -136,6 +136,7 @@ std::bitset<64> rank_5;
 std::bitset<64> rank_6;
 std::bitset<64> rank_7;
 std::bitset<64> rank_8;
+std::bitset<64> empty_spaces;
 
 
 std::map<int, std::bitset<64>> bitboards = {
@@ -357,55 +358,55 @@ bool results_in_check(std::vector<int> board, Move move)
     return false; // for now
 }
 
-/**
- * @brief
- *
- * @param board
- * @param offsets
- * @param piece_pos
- * @param piece
- * @param range
- * @return std::vector<Move>
- */
-std::vector<Move> get_piece_moves_helper(std::vector<int> board, std::vector<int> offsets, int piece_pos, int piece, int range = 8)
-{
-    std::vector<Move> moves;
-    int org_color = get_color(piece);
-    for (int dir : offsets)
-    {
-        for (int i = 1; i < range; i++)
-        {
-            if (in_bound(dir) == false)
-            { // idk how to do it a better way lol
-                // std::cout << "broke out of with: " << dir << "\n";
+// /**
+//  * @brief
+//  *
+//  * @param board
+//  * @param offsets
+//  * @param piece_pos
+//  * @param piece
+//  * @param range
+//  * @return std::vector<Move>
+//  */
+// std::vector<Move> get_piece_moves_helper(std::vector<int> board, std::vector<int> offsets, int piece_pos, int piece, int range = 8)
+// {
+//     std::vector<Move> moves;
+//     int org_color = get_color(piece);
+//     for (int dir : offsets)
+//     {
+//         for (int i = 1; i < range; i++)
+//         {
+//             if (in_bound(dir) == false)
+//             { // idk how to do it a better way lol
+//                 // std::cout << "broke out of with: " << dir << "\n";
 
-                break;
-            }
-            int cur_piece = board[piece_pos + dir * i];
-            int cur_color = get_color(cur_piece);
-            // std::cout << piece << " " << piece_pos << " " << piece_pos + dir * i << "\n";
-            if (cur_color == org_color)
-            {
-                // std::cout << cur_color << "\n";
-                break;
-            }
-            if (abs(get_row(piece_pos + dir * (i - 1)) - get_row(piece_pos + dir * i)) > 3)
-            {
-                break;
-            }
-            Move cur_move = (Move){piece, piece_pos, piece_pos + dir * i};
-            // if (results_in_check(board, cur_move) == false) {
-            // std::cout << "got here" << "\n";
-            moves.push_back((Move){piece, piece_pos, piece_pos + dir * i});
-            // }
-            if ((cur_color != org_color) && (cur_piece != None))
-            {
-                break;
-            }
-        }
-    }
-    return moves;
-}
+//                 break;
+//             }
+//             int cur_piece = board[piece_pos + dir * i];
+//             int cur_color = get_color(cur_piece);
+//             // std::cout << piece << " " << piece_pos << " " << piece_pos + dir * i << "\n";
+//             if (cur_color == org_color)
+//             {
+//                 // std::cout << cur_color << "\n";
+//                 break;
+//             }
+//             if (abs(get_row(piece_pos + dir * (i - 1)) - get_row(piece_pos + dir * i)) > 3)
+//             {
+//                 break;
+//             }
+//             Move cur_move = (Move){piece, piece_pos, piece_pos + dir * i};
+//             // if (results_in_check(board, cur_move) == false) {
+//             // std::cout << "got here" << "\n";
+//             moves.push_back((Move){piece, piece_pos, piece_pos + dir * i});
+//             // }
+//             if ((cur_color != org_color) && (cur_piece != None))
+//             {
+//                 break;
+//             }
+//         }
+//     }
+//     return moves;
+// }
 
 /**
  * @brief Gets the legal moves of the given piece
@@ -414,61 +415,62 @@ std::vector<Move> get_piece_moves_helper(std::vector<int> board, std::vector<int
  * @param pos
  * @return std::vector<Move>
  */
-std::vector<Move> get_piece_moves(std::vector<int> board, int piece, int pos)
+std::bitset<64> get_piece_moves(std::bitset<64> board, std::bitset<64> same_color, std::bitset<64> pieces, int piece)
 {
-    if (piece == Queen)
-    {
-        return get_piece_moves_helper(board, direction_offsets, pos, piece); // all moves
-    }
+    // if (piece == Queen)
+    // {
+    //     return get_piece_moves_helper(board, direction_offsets, pos, piece); // all moves
+    // }
 
-    if (piece == Rook)
-    {
-        std::vector<int> movements(direction_offsets.begin(), direction_offsets.begin() + 4); // first 4 moves
+    // if (piece == Rook)
+    // {
+    //     std::vector<int> movements(direction_offsets.begin(), direction_offsets.begin() + 4); // first 4 moves
 
-        return get_piece_moves_helper(board, movements, pos, piece);
-    }
-    if (piece == Bishop)
-    {
-        std::vector<int> movements(direction_offsets.begin() + 4, direction_offsets.begin() + 8); // last 4 moves
-        return get_piece_moves_helper(board, movements, pos, piece);
-    }
+    //     return get_piece_moves_helper(board, movements, pos, piece);
+    // }
+    // if (piece == Bishop)
+    // {
+    //     std::vector<int> movements(direction_offsets.begin() + 4, direction_offsets.begin() + 8); // last 4 moves
+    //     return get_piece_moves_helper(board, movements, pos, piece);
+    // }
 
     if (piece == King)
     {
-        return get_piece_moves_helper(board, direction_offsets, pos, piece, 2);
+        return ((go_down(pieces) & ~same_color) | (go_up(pieces) & ~same_color) | (go_right(pieces) & ~same_color) | (go_left(pieces) & ~same_color) | (((pieces << 9) & (file_A | rank_8)) & ~same_color) | (((pieces << 7) & (file_H | rank_8)) & ~same_color) | (((pieces >> 7) & (file_H | rank_1)) & ~same_color) | (((pieces >> 9) & (file_A | rank_1)) & ~same_color));
     }
 
     if (piece == Knight)
     {
-        std::vector<int> movements = {-17, -15, -10, -6, 17, 15, 10, 6}; // knight offsets
-        return get_piece_moves_helper(board, movements, pos, piece);
+        return ((((knights >> 6)  | (knights << 10)) & ~(file_G | file_H)) |
+          (((knights >> 10) | (knights << 6))  & ~(file_A | file_B)) |
+          (((knights >> 15) | (knights << 17)) & ~file_H)  |
+          (((knights >> 17) | (knights << 15)) & ~file_A) & ~same_color);
     }
 
-    // default return value if reaches end
-    Move def_move = (Move){None, None, None};
-    std::vector<Move> def_vector = {def_move};
-    return def_vector;
+    // default return value if reaches (for some reason) end
+    std::bitset<64> moves;
+    return moves;
 }
 
-/**
- * @brief Checks if the given move is legal
- *
- * @param board
- * @param move
- * @return bool
- */
-bool is_legal_move(std::vector<int> board, Move move)
-{
-    for (Move m : get_piece_moves(board, move.Piece, move.start))
-    {
-        // std::cout << m.end << " " << move.end << "\n";
-        if (m.end == move.end)
-        {
-            return true;
-        }
-    }
-    return false;
-}
+// /**
+//  * @brief Checks if the given move is legal
+//  *
+//  * @param board
+//  * @param move
+//  * @return bool
+//  */
+// bool is_legal_move(std::vector<int> board, Move move)
+// {
+//     for (Move m : get_piece_moves(board, move.Piece, move.start))
+//     {
+//         // std::cout << m.end << " " << move.end << "\n";
+//         if (m.end == move.end)
+//         {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
 
 void print_readable_position(int position)
 {
@@ -577,8 +579,25 @@ void update_bitboards(std::vector<int> board)
         {Knight, knights},
         {Pawn, pawns},
     };
+
+    empty_spaces = ~(white_pieces | black_pieces);
+}
+// Most basic bit manipulation
+std::bitset<64> go_left(std::bitset<64> pieces) {
+    return (pieces & ~file_A) << 1;
 }
 
+std::bitset<64> go_right(std::bitset<64> pieces) {
+    return (pieces & ~file_H) >> 1;
+}
+
+std::bitset<64> go_up(std::bitset<64> pieces) {
+    return (pieces & ~rank_8) << 8;
+}
+
+std::bitset<64> go_down(std::bitset<64> pieces) {
+    return (pieces & ~rank_1) >> 8;
+}
 
 int main(void)
 {
