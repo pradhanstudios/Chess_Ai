@@ -120,6 +120,23 @@ std::bitset<64> rooks;
 std::bitset<64> bishops;
 std::bitset<64> knights;
 std::bitset<64> pawns;
+std::bitset<64> file_A;
+std::bitset<64> file_B;
+std::bitset<64> file_C;
+std::bitset<64> file_D;
+std::bitset<64> file_E;
+std::bitset<64> file_F;
+std::bitset<64> file_G;
+std::bitset<64> file_H;
+std::bitset<64> rank_1;
+std::bitset<64> rank_2;
+std::bitset<64> rank_3;
+std::bitset<64> rank_4;
+std::bitset<64> rank_5;
+std::bitset<64> rank_6;
+std::bitset<64> rank_7;
+std::bitset<64> rank_8;
+
 
 std::map<int, std::bitset<64>> bitboards = {
     {Both, (white_pieces | black_pieces)}, // all of the pieces
@@ -131,6 +148,26 @@ std::map<int, std::bitset<64>> bitboards = {
     {Bishop, bishops},
     {Knight, knights},
     {Pawn, pawns},
+};
+std::map<int, std::bitset<64>> num_to_rank = {
+    {0, rank_1},
+    {1, rank_2},
+    {2, rank_3},
+    {3, rank_4},
+    {4, rank_5},
+    {5, rank_6},
+    {6, rank_7},
+    {7, rank_8},
+};
+std::map<int, std::bitset<64>> num_to_file = {
+    {0, file_A},
+    {1, file_B},
+    {2, file_C},
+    {3, file_D},
+    {4, file_E},
+    {5, file_F},
+    {6, file_G},
+    {7, file_H},
 };
 
 /*************/
@@ -181,7 +218,7 @@ void reset_values(std::vector<int> &board)
 void print_board(std::vector<int> &board)
 {
     std::cout << "-----------------------" << std::endl;
-    std::cout << "|     A B C D E F G H |" << std::endl;
+    std::cout << "|     H G F E D C B A |" << std::endl;
     std::cout << "|                     |" << std::endl;
     std::cout << "| 1   ";
     for (int i = 0; i < board.size(); i++)
@@ -443,11 +480,26 @@ int get_piece(std::vector<int> board, int position)
     return board[position] % 8;
 }
 
+void print_bitboard(std::bitset<64> bitboard)
+{
+    for (int i = 0; i < 64; i++)
+    {
+        std::cout << bitboard[i] << " ";
+
+        if ((i + 1) % 8 == 0)
+        {
+            std::cout << std::endl;
+        }
+    }
+}
+
 void update_bitboards(std::vector<int> board)
 {
     for (int i = 0; i < 64; i++)
     {
         int cur_piece = board[i];
+        num_to_rank[get_row(i)][i] = 1;
+        num_to_file[get_column(i)][i] = 1;
         if (cur_piece == None)
         {
             white_pieces[i] = 0;
@@ -497,6 +549,23 @@ void update_bitboards(std::vector<int> board)
         }
     }
 
+    file_A = num_to_file[0];
+    file_B = num_to_file[1];
+    file_C = num_to_file[2];
+    file_D = num_to_file[3];
+    file_E = num_to_file[4];
+    file_F = num_to_file[5];
+    file_G = num_to_file[6];
+    file_H = num_to_file[7];
+    rank_1 = num_to_rank[7];
+    rank_2 = num_to_rank[6];
+    rank_3 = num_to_rank[5];
+    rank_4 = num_to_rank[4];
+    rank_5 = num_to_rank[3];
+    rank_6 = num_to_rank[2];
+    rank_7 = num_to_rank[1];
+    rank_8 = num_to_rank[0];
+
     bitboards = {
         {Both, (white_pieces | black_pieces)}, // all of the pieces
         {White, white_pieces},
@@ -510,18 +579,6 @@ void update_bitboards(std::vector<int> board)
     };
 }
 
-void print_bitboard(std::bitset<64> bitboard)
-{
-    for (int i = 0; i < 64; i++)
-    {
-        std::cout << bitboard[i] << " ";
-
-        if ((i + 1) % 8 == 0)
-        {
-            std::cout << std::endl;
-        }
-    }
-}
 
 int main(void)
 {
@@ -539,11 +596,11 @@ int main(void)
     open_fen(board, starting_fen);
 
     // print the board
-    print_board(board);
+    // print_board(board);
 
     update_bitboards(board);
 
-    print_bitboard(bitboards[White | Black]);
+    print_bitboard(rank_1);
 
     // testing move piece function
     // std::cout << "move Pawn on ";
