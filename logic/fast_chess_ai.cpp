@@ -11,11 +11,11 @@ const BB RANK_1 = 0xFF00000000000000ULL; // represent first rank
 const std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // starting fen
 
 // bitwise functions
-void set_bit_on(BB bitboard, int index) {
+void set_bit_on(BB &bitboard, int index) {
     bitboard |= 1ULL << index;
 }
 
-void set_bit_off(BB bitboard, int index) {
+void set_bit_off(BB &bitboard, int index) {
     bitboard &= ~(1ULL << index);
 }
 
@@ -83,6 +83,6 @@ void open_fen(std::string fen) {
 
 int main() {
     open_fen(starting_fen);
-    std::cout << A_FILE << std::endl;
+    std::cout << pawns << std::endl;
     return 0;
 }
