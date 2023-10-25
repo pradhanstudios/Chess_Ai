@@ -24,6 +24,7 @@ BB get_bit(BB bitboard, int index) {
 }
 
 // bitboards
+BB empties;
 BB white;
 BB black;
 BB kings;
@@ -60,29 +61,30 @@ void open_fen(std::string fen) {
             if (cur == 'k') {
                 set_bit_on(kings, board_ptr);
             }
-            if (cur == 'q') {
+            else if (cur == 'q') {
                 set_bit_on(queens, board_ptr);
             }
-            if (cur == 'r') {
+            else if (cur == 'r') {
                 set_bit_on(rooks, board_ptr);
             }
-            if (cur == 'b') {
+            else if (cur == 'b') {
                 set_bit_on(bishops, board_ptr);
             }
-            if (cur == 'n') {
+            else if (cur == 'n') {
                 set_bit_on(knights, board_ptr);
             }
-            if (cur == 'p') {
+            else if (cur == 'p') {
                 set_bit_on(pawns, board_ptr);
             }
 
             board_ptr++;
         }
     }
+    empties = ~(white | black);
 }
 
 int main() {
     open_fen(starting_fen);
-    std::cout << pawns << std::endl;
+    std::cout << empties << std::endl;
     return 0;
 }
