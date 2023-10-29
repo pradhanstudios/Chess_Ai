@@ -165,9 +165,49 @@ BB knight_moves(BB knights_to_move, BB same_team) {
     ((knights_to_move & ~(RANK_8 | RANK_7 | A_FILE)) >> 17)) & ~same_team;
 }
 
+// magic stuff
+BB blocker_mask_rook(int position) {
+    BB blocker_mask;
+    int cpos = position;
+
+    while ((cpos % 8) != 1) { // left
+        // std::cout << cpos << std::endl;
+        cpos -= 1;
+        set_bit_on(blocker_mask, cpos);
+        // print_BB(blocker_mask);
+    } 
+
+    cpos = position;
+
+    while (((cpos + 2) % 8) != 0) { // right
+        cpos += 1;
+        set_bit_on(blocker_mask, cpos);
+        print_BB(blocker_mask);
+    }
+
+    cpos = position;
+    // std::cout << cpos << std::endl;
+
+    while (cpos > 14) { // up
+        // std::cout << cpos << std::endl;
+        cpos -= 8;
+        set_bit_on(blocker_mask, cpos);
+    }
+
+    cpos = position;
+
+    while (cpos < 48) { // down
+        cpos += 8;
+        set_bit_on(blocker_mask, cpos);
+    }
+
+    return blocker_mask;
+
+}
+
 int main() {
     open_fen(starting_fen);
     // print_BB(knight_moves(knights & black, black));
-    print_BB(knight_moves(white & knights, white));
+    print_BB(blocker_mask_rook(46));
     return 0;
 }
