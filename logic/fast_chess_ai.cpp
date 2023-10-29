@@ -77,9 +77,9 @@ void print_BB(BB bitboard) {
 void open_fen(std::string fen) {
     char cur;
     int board_ptr = 0;
-    for (int i = 0; i < fen.length(); i++)
+    for (int i = fen.length(); i > 0; i--)
     {
-        cur = fen[i];
+        cur = fen[i-1];
 
         if (isdigit(cur))
         {
@@ -157,12 +157,12 @@ BB knight_moves(BB knights_to_move, BB same_team) {
     ((knights_to_move << 15) & ~(RANK_1 | RANK_2 | A_FILE)) |
     ((knights_to_move >> 15) & ~(RANK_8 | RANK_7 | H_FILE)) |
     ((knights_to_move << 17) & ~(RANK_1 | RANK_2 | H_FILE)) | 
-    ((knights_to_move >> 17) & ~(RANK_8 | RANK_7 | A_FILE))) & ~same_team
-    ;
+    ((knights_to_move >> 17) & ~(RANK_8 | RANK_7 | A_FILE))) & ~same_team;
 }
 
 int main() {
     open_fen(starting_fen);
-    print_BB(knight_moves(knights & black, black));
+    // print_BB(knight_moves(knights & black, black));
+    print_BB(knight_moves(white & knights, white));
     return 0;
 }
