@@ -152,20 +152,22 @@ BB knight_moves(BB knights_to_move, BB same_team) {
     00000000
     00000000
     */
+   print_BB((knights_to_move & ~(RANK_1 | RANK_2 | H_FILE)) << 15);
+   print_BB(same_team);
     
-    return (((knights_to_move << 6) & ~(RANK_8 | G_FILE | H_FILE)) |
-    ((knights_to_move >> 6) & ~(RANK_1 | A_FILE | B_FILE)) | 
-    ((knights_to_move << 10) & ~(RANK_1 | A_FILE | B_FILE)) |
-    ((knights_to_move >> 10) & ~(RANK_8 | A_FILE | B_FILE)) |
-    ((knights_to_move << 15) & ~(RANK_1 | RANK_2 | A_FILE)) |
-    ((knights_to_move >> 15) & ~(RANK_8 | RANK_7 | H_FILE)) |
-    ((knights_to_move << 17) & ~(RANK_1 | RANK_2 | H_FILE)) | 
-    ((knights_to_move >> 17) & ~(RANK_8 | RANK_7 | A_FILE))) & ~same_team;
+    return (((knights_to_move & ~(RANK_8 | G_FILE | H_FILE)) << 6) |
+    ((knights_to_move & ~(RANK_1 | A_FILE | B_FILE)) >> 6) |
+    ((knights_to_move & ~(RANK_1 | G_FILE | H_FILE)) >> 10) |
+    ((knights_to_move & ~(RANK_8 | A_FILE | B_FILE)) << 10) | 
+    ((knights_to_move & ~(RANK_1 | RANK_2 | H_FILE)) << 15) | 
+    ((knights_to_move & ~(RANK_8 | RANK_7 | A_FILE)) >> 15) |
+    ((knights_to_move & ~(RANK_1 | RANK_2 | H_FILE)) << 17) |
+    ((knights_to_move & ~(RANK_8 | RANK_7 | A_FILE)) >> 17)) & ~same_team;
 }
 
 int main() {
     open_fen(starting_fen);
     // print_BB(knight_moves(knights & black, black));
-    print_BB(pawn_moves(white & pawns, black, 8));
+    print_BB(knight_moves(white & knights, white));
     return 0;
 }
