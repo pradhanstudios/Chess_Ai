@@ -8,7 +8,23 @@ typedef uint64_t BB; // short for Bitboard
 
 // constants
 const BB A_FILE = 0x8080808080808080ULL; // represent a file
+const BB B_FILE = A_FILE >> 1;
+const BB C_FILE = A_FILE >> 2;
+const BB D_FILE = A_FILE >> 3;
+const BB E_FILE = A_FILE >> 4;
+const BB F_FILE = A_FILE >> 5;
+const BB G_FILE = A_FILE >> 6;
+const BB H_FILE = A_FILE >> 7;
+
 const BB RANK_1 = 0x00000000000000FFULL; // represent first rank
+const BB RANK_2 = RANK_1 << 8;
+const BB RANK_3 = RANK_1 << 16;
+const BB RANK_4 = RANK_1 << 24;
+const BB RANK_5 = RANK_1 << 32;
+const BB RANK_6 = RANK_1 << 40;
+const BB RANK_7 = RANK_1 << 48;
+const BB RANK_8 = RANK_1 << 56;
+
 const std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // starting fen
 
 // bitwise functions
@@ -121,12 +137,32 @@ BB pawn_moves(BB pawns_to_move, BB opposite_team, int direction) { // TODO: add 
     return single_moves | double_moves | captures;
 }
 
-// BB knight_moves(BB knights_to_move) {
-//     ;
-// }
+BB knight_moves(BB knights_to_move, BB same_team) {
+    /*
+    A>>6;B<<6;C>>10;D<<10;E>>15;F<<15;G>>17;H<<17;
+    00H0F000
+    0D000B00
+    00010000
+    0A000C00
+    00E0G000
+    00000000
+    00000000
+    00000000
+    */
+    
+    return (((knights_to_move << 6) & ~(RANK_8 | G_FILE | H_FILE)) |
+    ((knights_to_move >> 6) & ~(RANK_1 | A_FILE | B_FILE)) | 
+    ((knights_to_move << 10) & ~(RANK_1 | A_FILE | B_FILE)) |
+    ((knights_to_move >> 10) & ~(RANK_8 | A_FILE | B_FILE)) |
+    ((knights_to_move << 15) & ~(RANK_1 | RANK_2 | A_FILE)) |
+    ((knights_to_move >> 15) & ~(RANK_8 | RANK_7 | H_FILE)) |
+    ((knights_to_move << 17) & ~(RANK_1 | RANK_2 | H_FILE)) | 
+    ((knights_to_move >> 17) & ~(RANK_8 | RANK_7 | A_FILE))) & ~same_team
+    ;
+}
 
 int main() {
     open_fen(starting_fen);
-    print_BB(pawn_moves(pawns & black, white, 8));
+    print_BB(knight_moves(knights & black, black));
     return 0;
 }
