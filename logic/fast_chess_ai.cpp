@@ -125,12 +125,14 @@ void open_fen(std::string fen) {
 
 
 
-// direction should be 8 (down), or -8 (up) for
+// direction should be 8 (white), or -8 (black) for
 BB pawn_moves(BB pawns_to_move, BB opposite_team, int direction) { // TODO: add en passent
 
     BB single_moves = shift_back(pawns_to_move, direction) & empties;
 
-    BB double_moves = shift_back(single_moves, direction) & empties;
+    BB starting_rank = direction <= 0 ? RANK_7 : RANK_2;
+
+    BB double_moves = shift_back(shift_back(pawns_to_move & starting_rank & ~(opposite_team | empties), direction) & empties, direction);
 
     BB captures = (shift_back(pawns_to_move, direction+1) | shift_back(pawns_to_move, direction-1)) & opposite_team;
 
@@ -163,6 +165,6 @@ BB knight_moves(BB knights_to_move, BB same_team) {
 int main() {
     open_fen(starting_fen);
     // print_BB(knight_moves(knights & black, black));
-    print_BB(knight_moves(white & knights, white));
+    print_BB(pawn_moves(white & pawns, black, 8));
     return 0;
 }
