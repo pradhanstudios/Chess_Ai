@@ -65,11 +65,11 @@ void print_BB(BB bitboard) {
         }
 
         if (cur & 1) {
-            std::cout << "1";
+            std::cout << "1 ";
         }
 
         else {
-            std::cout << "0";
+            std::cout << "0 ";
         }
     }
     std::cout << std::endl;
