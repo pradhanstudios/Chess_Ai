@@ -25,7 +25,8 @@ const BB RANK_6 = RANK_1 << 40;
 const BB RANK_7 = RANK_1 << 48;
 const BB RANK_8 = RANK_1 << 56;
 
-const std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // starting fen
+// const std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // starting fen
+const std::string starting_fen = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1";
 
 // bitwise functions
 void set_bit_on(BB &bitboard, int index) {
