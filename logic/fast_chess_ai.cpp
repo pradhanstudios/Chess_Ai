@@ -25,24 +25,27 @@ const BB RANK_6 = RANK_1 << 40;
 const BB RANK_7 = RANK_1 << 48;
 const BB RANK_8 = RANK_1 << 56;
 
+const BB EDGES = A_FILE | H_FILE | RANK_1 | RANK_8;
+
 // const std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // starting fen
 const std::string starting_fen = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1";
 
 // bitwise functions
-void set_bit_on(BB &bitboard, int index) {
-    bitboard |= 1ULL << index;
-}
-
-void set_bit_off(BB &bitboard, int index) {
-    bitboard &= ~(1ULL << index);
-}
-
-BB get_bit(BB bitboard, int index) {
-    return bitboard & (1ULL << index);
-}
 
 BB shift_back(BB bitboard, int back) {
     return back >= 0 ? (bitboard << back): (bitboard >> -back);
+}
+
+void set_bit_on(BB &bitboard, int index) {
+    bitboard |= shift_back(1ULL, index);
+}
+
+void set_bit_off(BB &bitboard, int index) {
+    bitboard &= ~shift_back(1ULL, index);
+}
+
+BB get_bit(BB bitboard, int index) {
+    return bitboard & shift_back(1ULL, index);
 }
 
 // bitboards
@@ -73,6 +76,12 @@ void print_BB(BB bitboard) {
         }
     }
     std::cout << std::endl;
+}
+
+BB show_index(int index) {
+    BB output = 0ULL;
+    set_bit_on(output, index);
+    return output;
 }
 
 void open_fen(std::string fen) {
@@ -170,7 +179,7 @@ BB blocker_mask_rook(int position) {
     BB blocker_mask;
     int cpos = position;
 
-    while ((cpos % 8) != 1) { // left
+    while ((cpos % 8) != 1) {
         // std::cout << cpos << std::endl;
         cpos -= 1;
         set_bit_on(blocker_mask, cpos);
@@ -179,7 +188,7 @@ BB blocker_mask_rook(int position) {
 
     cpos = position;
 
-    while (((cpos + 2) % 8) != 0) { // right
+    while (((cpos + 2) % 8) != 0) {
         cpos += 1;
         set_bit_on(blocker_mask, cpos);
         print_BB(blocker_mask);
@@ -188,7 +197,7 @@ BB blocker_mask_rook(int position) {
     cpos = position;
     // std::cout << cpos << std::endl;
 
-    while (cpos > 14) { // up
+    while (cpos > 14) {
         // std::cout << cpos << std::endl;
         cpos -= 8;
         set_bit_on(blocker_mask, cpos);
@@ -196,7 +205,7 @@ BB blocker_mask_rook(int position) {
 
     cpos = position;
 
-    while (cpos < 48) { // down
+    while (cpos < 48) {
         cpos += 8;
         set_bit_on(blocker_mask, cpos);
     }
@@ -205,9 +214,51 @@ BB blocker_mask_rook(int position) {
 
 }
 
+BB blocker_mask_bishop(int position) {
+    BB blocker_mask;
+    
+    /*
+    000
+    0X0
+    000
+    */
+
+   int cpos = position;
+
+   while(!(cpos % 8 <= 1 || cpos <= 15)) {
+        cpos -= 9;
+        set_bit_on(blocker_mask, cpos);
+   }
+
+   cpos = position;
+
+   while(!(cpos % 8 >= 6 || cpos <= 15)) {
+        cpos -= 7;
+        set_bit_on(blocker_mask, cpos);
+   }
+
+   cpos = position;
+
+   while(!(cpos % 8 >= 6 || cpos >= 48)) {
+        cpos += 9;
+        set_bit_on(blocker_mask, cpos);
+   }
+
+   cpos = position;
+
+   while(!(cpos % 8 <= 1 || cpos >= 48)) {
+        cpos += 7;
+        set_bit_on(blocker_mask, cpos);
+   }
+
+   set_bit_off(blocker_mask, position);
+
+    return blocker_mask;
+}
+
 int main() {
     open_fen(starting_fen);
-    // print_BB(knight_moves(knights & black, black));
-    print_BB(blocker_mask_rook(46));
+    print_BB(blocker_mask_bishop(22));
+    print_BB(show_index(22));
     return 0;
 }
