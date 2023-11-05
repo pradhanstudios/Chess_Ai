@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <math.h>
 
 typedef uint64_t BB; // short for Bitboard
 
@@ -256,9 +257,42 @@ BB blocker_mask_bishop(int position) {
     return blocker_mask;
 }
 
+std::vector<BB> blocker_boards(BB blocker_mask) {
+    std::vector<int> poss;
+
+    for (int i = 0; i < 64; i++) {
+        if (get_bit(blocker_mask, i)) {
+            poss.push_back(i);
+        }
+    }
+
+    int max_num = pow(2, int(poss.size())) - 1;
+    std::vector<int> nums;
+    for (int i = 0; i <= max_num; i++) {
+        nums.push_back(i);
+    }
+
+    std::vector<BB> output;
+
+    for (int i = 0; i < nums.size(); i++) {
+        int cur = nums[i];
+        BB cur_BB = 0ULL;
+        for (int i = 0; i < poss.size(); i++) {
+            if (cur & (1 << i)) {
+                set_bit_on(cur_BB, poss[i]);
+            }
+        }
+
+        output.push_back(cur_BB);
+
+    }
+
+    return output;
+}
+
 int main() {
     open_fen(starting_fen);
-    print_BB(blocker_mask_bishop(22));
+    print_BB(blocker_boards(blocker_mask_bishop(22))[6]);
     print_BB(show_index(22));
     return 0;
 }
