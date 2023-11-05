@@ -2,7 +2,6 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <math.h>
 
 typedef uint64_t BB; // short for Bitboard
 
@@ -266,7 +265,7 @@ std::vector<BB> blocker_boards(BB blocker_mask) {
         }
     }
 
-    int max_num = pow(2, int(poss.size())) - 1;
+    int max_num = (1 << poss.size()) - 1;
     std::vector<int> nums;
     for (int i = 0; i <= max_num; i++) {
         nums.push_back(i);
@@ -296,6 +295,6 @@ int main() {
     // for (int i = 0; i < blocker_board.size(); i++) {
     //     print_BB(blocker_board[i]);
     // }
-    print_BB(blocker_mask_rook(23));
+    print_BB(blocker_boards(blocker_mask_rook(23))[10]);
     return 0;
 }
