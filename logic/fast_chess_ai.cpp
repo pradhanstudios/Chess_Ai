@@ -189,16 +189,16 @@ BB blocker_mask_rook(int position) {
 
     cpos = position;
 
-    while (((cpos + 2) % 8) != 0) {
+    while (((cpos) % 8) < 6) {
         cpos += 1;
         set_bit_on(blocker_mask, cpos);
-        print_BB(blocker_mask);
+        // print_BB(blocker_mask);
     }
 
     cpos = position;
     // std::cout << cpos << std::endl;
 
-    while (cpos > 14) {
+    while (cpos > 16) {
         // std::cout << cpos << std::endl;
         cpos -= 8;
         set_bit_on(blocker_mask, cpos);
@@ -292,9 +292,10 @@ std::vector<BB> blocker_boards(BB blocker_mask) {
 
 int main() {
     open_fen(starting_fen);
-    std::vector<BB> blocker_board = blocker_boards(blocker_mask_rook(23));
-    for (int i = 0; i < blocker_board.size(); i++) {
-        print_BB(blocker_board[i]);
-    }
+    // std::vector<BB> blocker_board = blocker_boards(blocker_mask_rook(23));
+    // for (int i = 0; i < blocker_board.size(); i++) {
+    //     print_BB(blocker_board[i]);
+    // }
+    print_BB(blocker_mask_rook(23));
     return 0;
 }
