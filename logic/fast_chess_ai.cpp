@@ -294,7 +294,7 @@ int main() {
     open_fen(starting_fen);
     std::vector<BB> blocker_board = blocker_boards(blocker_mask_rook(23));
     for (int i = 0; i < blocker_board.size(); i++) {
-        print_BB(blocker_board[i])
+        print_BB(blocker_board[i]);
     }
     return 0;
 }
