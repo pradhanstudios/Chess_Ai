@@ -292,7 +292,9 @@ std::vector<BB> blocker_boards(BB blocker_mask) {
 
 int main() {
     open_fen(starting_fen);
-    print_BB(blocker_boards(blocker_mask_bishop(22))[6]);
-    print_BB(show_index(22));
+    std::vector<BB> blocker_board = blocker_boards(blocker_mask_rook(23));
+    for (int i = 0; i < blocker_board.size(); i++) {
+        print_BB(blocker_board[i])
+    }
     return 0;
 }
