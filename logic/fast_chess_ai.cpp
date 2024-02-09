@@ -185,32 +185,47 @@ BB knight_moves(BB knights_to_move, BB same_team) {
     ((knights_to_move & ~(RANK_8 | RANK_7 | A_FILE)) >> 17)) & ~same_team;
 }
 
-// magic stuff
 BB blocker_mask_rook(int position) {
     BB blocker_mask = H_FILE << (position % 8);
     blocker_mask |= RANK_1 << int(position / 8) * 8;
     // print_BB(blocker_mask);
     set_bit_off(blocker_mask, position);
 
-    return blocker_mask;
+    return blocker_mask & ~EDGES;
 }
 
 BB blocker_mask_bishop(int position) {
-    BB blocker_mask;
-    int rank = int(position / 8);
-    int file = position % 8;
-    blocker_mask = shift_back(BOTLEFTTORIGHT, rank + file);
-    blocker_mask |= shift_back(TOPLEFTTORIGHT, -rank + file);
-    set_bit_off(blocker_mask, position);
-
-    return blocker_mask;
+    BB bitboard;
+    int i = position; 
+    while ((i % 8 != 0) && (i < 56)) {
+        set_bit_on(bitboard, i);
+        i += 7;
+    }
+    i = position;
+    while ((i % 8 != 0) && (i > 7)) {
+        set_bit_on(bitboard, i);
+        i -= 9;
+    }
+    i = position;
+    while ((i > 7) && (i % 8 != 7)) {
+        set_bit_on(bitboard, i);
+        i -= 7;
+    }
+    i = position;
+    while ((i < 56) && (i % 8 != 7)) {
+        set_bit_on(bitboard, i);
+        i += 9;
+    }
+    set_bit_off(bitboard, position);
+    return bitboard;
 }
 
 std::vector<BB> blocker_boards(BB blocker_mask) {
     std::vector<int> poss;
+    BB noedge = blocker_mask & ~EDGES;
 
     for (int i = 0; i < 64; i++) {
-        if (get_bit(blocker_mask, i)) {
+        if (get_bit(noedge, i)) {
             poss.push_back(i);
         }
     }
@@ -255,7 +270,7 @@ BB moveboard(BB blocker_mask, BB blocker_board, int position) {
 
 
 int main() {
-    open_fen(starting_fen);
+    // open_fen(starting_fen);
     // std::vector<BB> blocker_board = blocker_boards(blocker_mask_rook(23));
     // for (int i = 0; i < blocker_board.size(); i++) {
     //     print_BB(blocker_board[i]);
