@@ -59,6 +59,11 @@ int zeroes_start(BB bitboard) {
     return __builtin_ctzll(bitboard);
 }
 
+bool is_within_board(int pos) {
+    return pos >= 0 && pos < 64;
+}
+
+
 // bitboards
 BB empties;
 BB white;
@@ -251,31 +256,57 @@ std::vector<BB> blocker_boards(BB blocker_mask) {
     return output;
 }
 
+// bool is_within_board(int pos) {
+//     return pos >= 0 && pos < 64;
+// }
+
 BB moveboard_bishop(BB blocker_mask, BB blocker_board, int position) {
-    BB moveboard;
-    int i = position; 
-    while ((i % 8 != 0) && (i < 56) && (!get_bit(blocker_board, i))) {
-        set_bit_on(moveboard, i);
-        i += 7;
+    BB moveboard = 0ULL;
+    
+    for (int dir : {9, 7, -7, -9}) {
+        /*
+        A = 9
+        B = 7
+        C = -9
+        D = -7
+        A0B
+        0X0
+        D0C
+        */
+        int temp = position + dir;
+
+        while (is_within_board(temp) && (temp % 8 != ((dir == (7 || -9)) ? 7 : 0)) && (!get_bit(blocker_board, temp))) {
+            set_bit_on(moveboard, temp);
+            temp += dir;
+        }
     }
-    i = position;
-    while ((i % 8 != 0) && (i > 7) && (!get_bit(blocker_board, i))) {
-        set_bit_on(moveboard, i);
-        i -= 9;
-    }
-    i = position;
-    while ((i > 7) && (i % 8 != 7) && (!get_bit(blocker_board, i))) {
-        set_bit_on(moveboard, i);
-        i -= 7;
-    }
-    i = position;
-    while ((i < 56) && (i % 8 != 7) && (!get_bit(blocker_board, i))) {
-        set_bit_on(moveboard, i);
-        i += 9;
-    }
+
     set_bit_off(moveboard, position);
     return moveboard;
 
+
+    // int i = position; 
+    // while ((i % 8 != 0) && (i < 56) && (!get_bit(blocker_board, i))) {
+    //     set_bit_on(moveboard, i);
+    //     i += 7;
+    // }
+    // i = position;
+    // while ((i % 8 != 0) && (i > 7) && (!get_bit(blocker_board, i))) {
+    //     set_bit_on(moveboard, i);
+    //     i -= 9;
+    // }
+    // i = position;
+    // while ((i > 7) && (i % 8 != 7) && (!get_bit(blocker_board, i))) {
+    //     set_bit_on(moveboard, i);
+    //     i -= 7;
+    // }
+    // i = position;
+    // while ((i < 56) && (i % 8 != 7) && (!get_bit(blocker_board, i))) {
+    //     set_bit_on(moveboard, i);
+    //     i += 9;
+    // }
+    // set_bit_off(moveboard, position);
+    // return moveboard;
 }
 
 
@@ -287,7 +318,10 @@ int main() {
     // }
     BB blockermask = blocker_mask_bishop(23);
     std::vector<BB> blockerboards = blocker_boards(blockermask);
-    // print_BB(blockerboards[31]);
+    // std::cout << "example blockermask" << '\n';
+    // print_BB(blockermask);
+    // std::cout << "example blockerboard" << '\n';
+    // print_BB(blockerboards[24]);
     // std::cout << blockerboards.size() << '\n';
     print_BB(moveboard_bishop(blockermask, blockerboards[24], 23));
     return 0;
