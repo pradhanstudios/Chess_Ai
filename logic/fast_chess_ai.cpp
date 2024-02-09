@@ -231,41 +231,51 @@ std::vector<BB> blocker_boards(BB blocker_mask) {
     }
 
     int max_num = (1 << poss.size()) - 1;
-    std::vector<int> nums;
-    for (int i = 0; i <= max_num; i++) {
-        nums.push_back(i);
-    }
 
     std::vector<BB> output;
-
-    for (int i = 0; i < nums.size(); i++) {
-        int cur = nums[i];
-        BB cur_BB = 0ULL;
-        for (int i = 0; i < poss.size(); i++) {
-            if (cur & (1 << i)) {
-                set_bit_on(cur_BB, poss[i]);
+    BB cur_BB = 0ULL;
+    int i = 0;
+    while (i <= max_num) {
+        cur_BB = 0ULL;
+        for (int j = 0; j < poss.size(); j++) {
+            if (i & (1 << j)) {
+                set_bit_on(cur_BB, poss[j]);
             }
         }
 
         output.push_back(cur_BB);
 
+        i++;
     }
 
     return output;
 }
 
-BB moveboard(BB blocker_mask, BB blocker_board, int position) {
+BB moveboard_bishop(BB blocker_mask, BB blocker_board, int position) {
     BB moveboard;
-    // top
-    moveboard = blocker_mask & blocker_board;
-    BB t = moveboard >> (position + 1);
-    int first = zeroes_start(t) + 1;
-    t = (1 << first) - 1;
-    moveboard |= (t << (position + 1)) & blocker_mask;
-
-
-
+    int i = position; 
+    while ((i % 8 != 0) && (i < 56) && (!get_bit(blocker_board, i))) {
+        set_bit_on(moveboard, i);
+        i += 7;
+    }
+    i = position;
+    while ((i % 8 != 0) && (i > 7) && (!get_bit(blocker_board, i))) {
+        set_bit_on(moveboard, i);
+        i -= 9;
+    }
+    i = position;
+    while ((i > 7) && (i % 8 != 7) && (!get_bit(blocker_board, i))) {
+        set_bit_on(moveboard, i);
+        i -= 7;
+    }
+    i = position;
+    while ((i < 56) && (i % 8 != 7) && (!get_bit(blocker_board, i))) {
+        set_bit_on(moveboard, i);
+        i += 9;
+    }
+    set_bit_off(moveboard, position);
     return moveboard;
+
 }
 
 
@@ -275,6 +285,10 @@ int main() {
     // for (int i = 0; i < blocker_board.size(); i++) {
     //     print_BB(blocker_board[i]);
     // }
-    print_BB(blocker_mask_bishop(23));
+    BB blockermask = blocker_mask_bishop(23);
+    std::vector<BB> blockerboards = blocker_boards(blockermask);
+    // print_BB(blockerboards[31]);
+    // std::cout << blockerboards.size() << '\n';
+    print_BB(moveboard_bishop(blockermask, blockerboards[24], 23));
     return 0;
 }
