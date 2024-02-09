@@ -256,11 +256,7 @@ std::vector<BB> blocker_boards(BB blocker_mask) {
     return output;
 }
 
-// bool is_within_board(int pos) {
-//     return pos >= 0 && pos < 64;
-// }
-
-BB moveboard_bishop(BB blocker_mask, BB blocker_board, int position) {
+BB moveboard_bishop(BB blocker_board, int position) {
     BB moveboard = 0ULL;
     
     for (int dir : {9, 7, -7, -9}) {
@@ -283,32 +279,11 @@ BB moveboard_bishop(BB blocker_mask, BB blocker_board, int position) {
 
     set_bit_off(moveboard, position);
     return moveboard;
-
-
-    // int i = position; 
-    // while ((i % 8 != 0) && (i < 56) && (!get_bit(blocker_board, i))) {
-    //     set_bit_on(moveboard, i);
-    //     i += 7;
-    // }
-    // i = position;
-    // while ((i % 8 != 0) && (i > 7) && (!get_bit(blocker_board, i))) {
-    //     set_bit_on(moveboard, i);
-    //     i -= 9;
-    // }
-    // i = position;
-    // while ((i > 7) && (i % 8 != 7) && (!get_bit(blocker_board, i))) {
-    //     set_bit_on(moveboard, i);
-    //     i -= 7;
-    // }
-    // i = position;
-    // while ((i < 56) && (i % 8 != 7) && (!get_bit(blocker_board, i))) {
-    //     set_bit_on(moveboard, i);
-    //     i += 9;
-    // }
-    // set_bit_off(moveboard, position);
-    // return moveboard;
 }
 
+BB moveboard_rook(BB blocker_board, int position) {
+
+}
 
 int main() {
     // open_fen(starting_fen);
@@ -323,6 +298,6 @@ int main() {
     // std::cout << "example blockerboard" << '\n';
     // print_BB(blockerboards[24]);
     // std::cout << blockerboards.size() << '\n';
-    print_BB(moveboard_bishop(blockermask, blockerboards[24], 23));
+    print_BB(moveboard_bishop(blockerboards[24], 23));
     return 0;
 }
