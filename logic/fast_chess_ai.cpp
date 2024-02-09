@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <bits/stdc++.h>
 
 typedef uint64_t BB; // short for Bitboard
 
@@ -307,6 +308,35 @@ BB moveboard_rook(BB blocker_board, int position) {
 
     set_bit_off(moveboard, position);
     return moveboard;
+}
+
+BB blocker_masks_rook[64];
+BB blocker_boards_rook[64][4096];
+BB moveboards_rook[64][4096];
+BB blocker_masks_bishop[64];
+BB blocker_boards_bishop[64][4096];
+BB moveboards_bishop[64][4096];
+
+void init_magic_bitboards() {
+    for (int i = 0; i < 64; i++) {
+        blocker_masks_rook[i] = blocker_mask_rook(i);
+        std::vector<BB> blo_mas_roo = (blocker_boards(blocker_masks_rook[i]));
+        std::copy(blo_mas_roo.begin(), blo_mas_roo.end(), blocker_boards_rook[i]);
+        int j = 0;
+        for (BB bl_bo : blocker_boards_rook[i]) {
+            moveboards_rook[i][j] = moveboard_rook(bl_bo, i);
+            j++;
+        }
+
+        blocker_masks_bishop[i] = blocker_mask_bishop(i);
+        std::vector<BB> blo_bis_roo = (blocker_boards(blocker_masks_bishop[i]));
+        std::copy(blo_bis_roo.begin(), blo_bis_roo.end(), blocker_boards_bishop[i]);
+        j = 0;
+        for (BB bl_bo : blocker_boards_bishop[i]) {
+            moveboards_rook[i][j] = moveboard_bishop(bl_bo, i);
+            j++;
+        }
+    }
 }
 
 int main() {
