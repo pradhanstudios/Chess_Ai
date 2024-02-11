@@ -266,7 +266,7 @@ BB find_magic_num(int pos, int piece)
     int ismagic, tmax, j; // largest shift value is the best
     BB best;
     BB min = INFINITY;
-    // std::cout << ",\n";
+    std::cout << ",\n";
     for (int k = 0; k < 65535; k++){
         ismagic = 1;
         tmax = 0;
@@ -298,24 +298,32 @@ int main()
 {
     int i;
     BB r_magics[64], b_magics[64];
-    std::cout << 'ROOK MAGIC NUMBERS\n{';
+    std::cout << "ROOK MAGIC NUMBERS{\n";
     for (i = 0; i < 64; i++) {
         r_magics[i] = find_magic_num(i, 0);
-        std::cout << r_magics[i] << ', ';
+        std::cout << r_magics[i] << ", ";
+        // std::cout.flush();
     }
-    std::cout << '}\nROOK SHIFT NUMBERS\n{';
+    std::cout << "}\nROOK SHIFT NUMBERS\n{" << std::endl;
+    // std::cout.flush();
     for (BB magic : r_magics) {
-        std::cout << 64-count_bits(magic) << ', ';
+        std::cout << 64-count_bits(magic) << ", ";
     }
-    std::cout << '}\nBISHOP MAGIC NUMBERS\n{';
+    std::cout << "}\nBISHOP MAGIC NUMBERS\n{";
     for (i = 0; i < 64; i++) {
         b_magics[i] = find_magic_num(i, 1);
-        std::cout << b_magics[i] << ', ';
-    }
-    std::cout << '}BISHOP SHIFT NUMBERS\n{';
+        std::cout << b_magics[i] << ", ";
+        std::cout.flush();
+  }
+    std::cout << "}BISHOP SHIFT NUMBERS\n{";
+    std::cout.flush();
+
     for (BB magic : b_magics) {
-        std::cout << 64-count_bits(magic) << ', ';
+        std::cout << 64-count_bits(magic) << ", ";
+        std::cout.flush();
     }
-    std::cout << '}' << std::endl;
+    std::cout << "}" << std::endl;
+    std::cout.flush();
+
     return 0;
 }
