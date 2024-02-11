@@ -34,36 +34,72 @@ const BB EDGES = A_FILE | H_FILE | RANK_1 | RANK_8;
 const BB TOPLEFTTORIGHT = 9241421688590303745ULL;
 const BB BOTLEFTTORIGHT = 72624976668147840ULL;
 
-
-BB shift_back(BB bitboard, int back) {
-    return back >= 0 ? (bitboard << back): (bitboard >> -back);
+BB shift_back(BB bitboard, int back)
+{
+    return back >= 0 ? (bitboard << back) : (bitboard >> -back);
 }
 
-void set_bit_on(BB &bitboard, int index) {
+void set_bit_on(BB &bitboard, int index)
+{
     bitboard |= shift_back(1ULL, index);
 }
 
-void set_bit_off(BB &bitboard, int index) {
+void set_bit_off(BB &bitboard, int index)
+{
     bitboard &= ~shift_back(1ULL, index);
 }
 
-BB get_bit(BB bitboard, int index) {
+BB get_bit(BB bitboard, int index)
+{
     return bitboard & shift_back(1ULL, index);
 }
 
-int zeroes_end(BB bitboard) {
+int zeroes_end(BB bitboard)
+{
     return __builtin_clzll(bitboard);
 }
 
-int zeroes_start(BB bitboard) {
+int zeroes_start(BB bitboard)
+{
     return __builtin_ctzll(bitboard);
 }
 
-bool is_within_board(int pos) {
+int count_bits(BB bitboard)
+{
+    return __builtin_popcount(bitboard);
+}
+
+bool is_within_board(int pos)
+{
     return pos >= 0 && pos < 64;
 }
 
-BB blocker_mask_rook(int position) {
+void print_BB(BB bitboard)
+{
+    for (int i = 63; i >= 0; i--)
+    {
+        int cur = bitboard >> i;
+
+        if ((i + 1) % 8 == 0)
+        {
+            std::cout << std::endl;
+        }
+
+        if (cur & 1)
+        {
+            std::cout << "1 ";
+        }
+
+        else
+        {
+            std::cout << "0 ";
+        }
+    }
+    std::cout << std::endl;
+}
+
+BB blocker_mask_rook(int position)
+{
     BB blocker_mask_up = H_FILE << (position % 8);
     blocker_mask_up &= ~(RANK_1 | RANK_8);
     BB blocker_mask_side = RANK_1 << int(position / 8) * 8;
@@ -75,25 +111,30 @@ BB blocker_mask_rook(int position) {
     return blocker_mask;
 }
 
-BB blocker_mask_bishop(int position) {
+BB blocker_mask_bishop(int position)
+{
     BB bitboard;
-    int i = position; 
-    while ((i % 8 != 0) && (i < 56)) {
+    int i = position;
+    while ((i % 8 != 0) && (i < 56))
+    {
         set_bit_on(bitboard, i);
         i += 7;
     }
     i = position;
-    while ((i % 8 != 0) && (i > 7)) {
+    while ((i % 8 != 0) && (i > 7))
+    {
         set_bit_on(bitboard, i);
         i -= 9;
     }
     i = position;
-    while ((i > 7) && (i % 8 != 7)) {
+    while ((i > 7) && (i % 8 != 7))
+    {
         set_bit_on(bitboard, i);
         i -= 7;
     }
     i = position;
-    while ((i < 56) && (i % 8 != 7)) {
+    while ((i < 56) && (i % 8 != 7))
+    {
         set_bit_on(bitboard, i);
         i += 9;
     }
@@ -101,30 +142,36 @@ BB blocker_mask_bishop(int position) {
     return bitboard;
 }
 
-std::vector<BB> blocker_boards(BB blocker_mask) {
+std::array<BB, 4096> blocker_boards(BB blocker_mask)
+{
     std::vector<int> poss;
     BB noedge = blocker_mask & ~EDGES;
 
-    for (int i = 0; i < 64; i++) {
-        if (get_bit(noedge, i)) {
+    for (int i = 0; i < 64; i++)
+    {
+        if (get_bit(noedge, i))
+        {
             poss.push_back(i);
         }
     }
 
     int max_num = (1 << poss.size()) - 1;
 
-    std::vector<BB> output;
+    std::array<BB, 4096> output;
     BB cur_BB = 0ULL;
     int i = 0;
-    while (i <= max_num) {
+    while (i <= max_num)
+    {
         cur_BB = 0ULL;
-        for (int j = 0; j < poss.size(); j++) {
-            if (i & (1 << j)) {
+        for (int j = 0; j < poss.size(); j++)
+        {
+            if (i & (1 << j))
+            {
                 set_bit_on(cur_BB, poss[j]);
             }
         }
 
-        output.push_back(cur_BB);
+        output[i] = cur_BB;
 
         i++;
     }
@@ -132,10 +179,12 @@ std::vector<BB> blocker_boards(BB blocker_mask) {
     return output;
 }
 
-BB moveboard_bishop(BB blocker_board, int position) {
+BB moveboard_bishop(BB blocker_board, int position)
+{
     BB moveboard = 0ULL;
-    
-    for (int dir : {9, 7, -7, -9}) {
+
+    for (int dir : {9, 7, -7, -9})
+    {
         /*
         A = 9
         B = 7
@@ -147,7 +196,8 @@ BB moveboard_bishop(BB blocker_board, int position) {
         */
         int i = position + dir;
 
-        while (is_within_board(i) && (i % 8 != ((dir == (7 || -9)) ? 7 : 0)) && (!get_bit(blocker_board, i))) {
+        while (is_within_board(i) && (i % 8 != ((dir == (7 || -9)) ? 7 : 0)) && (!get_bit(blocker_board, i)))
+        {
             set_bit_on(moveboard, i);
             i += dir;
         }
@@ -157,10 +207,12 @@ BB moveboard_bishop(BB blocker_board, int position) {
     return moveboard;
 }
 
-BB moveboard_rook(BB blocker_board, int position) {
+BB moveboard_rook(BB blocker_board, int position)
+{
     BB moveboard = 0ULL;
 
-    for (int dir : {8, -8, 1, -1}) {
+    for (int dir : {8, -8, 1, -1})
+    {
         /*
         A = -1
         B = 1
@@ -172,7 +224,8 @@ BB moveboard_rook(BB blocker_board, int position) {
         */
         int i = position + dir;
 
-        while (is_within_board(i) && (i % 8 != ((dir < 0)) ? 7 : 0) && (!get_bit(blocker_board, i))) {
+        while (is_within_board(i) && (i % 8 != ((dir < 0)) ? 7 : 0) && (!get_bit(blocker_board, i)))
+        {
             set_bit_on(moveboard, i);
             i += dir;
         }
@@ -182,13 +235,87 @@ BB moveboard_rook(BB blocker_board, int position) {
     return moveboard;
 }
 
-typedef struct magic_bitboard {
-    BB mask;
-    BB magic;
-    int shift;
+int calculate_index(BB input_bitboard, BB magic, int shift) {
+    BB out = input_bitboard;
+    out *= magic;
+    out >>= shift;
+    return out;
+}
 
-} magic_bitboard;
+BB _random_BB_helper()
+{
+    return random() | (random() << 32);
+}
 
-int calculate_index(BB input_bitboard, magic_bitboard magic) {
-    return (input_bitboard ^ magic.magic) >> magic.shift;
+BB random_BB()
+{
+    return _random_BB_helper() & _random_BB_helper() & _random_BB_helper();
+}
+
+BB find_magic_num(int pos, int piece)
+{ // rook: 0 bishop: 1
+    BB mask, magic;
+    mask = piece ? blocker_mask_bishop(pos) : blocker_mask_rook(pos);
+    int s = 1 << count_bits(mask);
+    std::array<BB, 4096> blockerboard, moveboard, used;
+    std::array<BB, 4096> t = blocker_boards(mask);
+    for (int i = 0; i < t.size(); i++)
+    {
+        moveboard[i] = piece ? moveboard_bishop(t[i], pos) : moveboard_rook(t[i], pos);
+    }
+    int ismagic, tmax, j; // largest shift value is the best
+    BB best;
+    BB min = INFINITY;
+    // std::cout << ",\n";
+    for (int k = 0; k < 65535; k++){
+        ismagic = 1;
+        tmax = 0;
+        magic = random_BB();
+        for (int i = 0; i < 4096; i++) {
+            used[i] = 0ULL;
+        }
+        for (int i = 0; (i < s) && ismagic; i++) {
+            j = calculate_index(blockerboard[i], magic, 64-count_bits(magic));
+            tmax = std::max(tmax, j);
+            if (used[j] == 0ULL) {
+                used[j] = moveboard[i];
+            }
+            else if (used[j] != moveboard[i]) {
+                ismagic = 0;
+            }
+        }
+        if (ismagic && (tmax < min)) {
+            best = magic;
+            // std::cout << best << '\n';
+            min = tmax;
+        }
+
+    }
+    return best;
+}
+
+int main()
+{
+    int i;
+    BB r_magics[64], b_magics[64];
+    std::cout << 'ROOK MAGIC NUMBERS\n{';
+    for (i = 0; i < 64; i++) {
+        r_magics[i] = find_magic_num(i, 0);
+        std::cout << r_magics[i] << ', ';
+    }
+    std::cout << '}\nROOK SHIFT NUMBERS\n{';
+    for (BB magic : r_magics) {
+        std::cout << 64-count_bits(magic) << ', ';
+    }
+    std::cout << '}\nBISHOP MAGIC NUMBERS\n{';
+    for (i = 0; i < 64; i++) {
+        b_magics[i] = find_magic_num(i, 1);
+        std::cout << b_magics[i] << ', ';
+    }
+    std::cout << '}BISHOP SHIFT NUMBERS\n{';
+    for (BB magic : b_magics) {
+        std::cout << 64-count_bits(magic) << ', ';
+    }
+    std::cout << '}' << std::endl;
+    return 0;
 }
