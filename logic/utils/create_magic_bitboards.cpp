@@ -69,6 +69,12 @@ int count_bits(BB bitboard)
     return __builtin_popcount(bitboard);
 }
 
+int real_count(BB bitboard) {
+    int count;
+    for (count = 0; bitboard != 0; count++, bitboard &= bitboard-1);
+    return count;
+}
+
 bool is_within_board(int pos)
 {
     return pos >= 0 && pos < 64;
@@ -266,7 +272,7 @@ BB find_magic_num(int pos, int piece)
     int ismagic, tmax, j; // largest shift value is the best
     BB best;
     BB min = INFINITY;
-    std::cout << ",\n";
+    std::cout << "";
     for (int k = 0; k < 65535; k++){
         ismagic = 1;
         tmax = 0;
@@ -275,7 +281,7 @@ BB find_magic_num(int pos, int piece)
             used[i] = 0ULL;
         }
         for (int i = 0; (i < s) && ismagic; i++) {
-            j = calculate_index(blockerboard[i], magic, 64-count_bits(magic));
+            j = calculate_index(blockerboard[i], magic, 64-real_count(magic));
             tmax = std::max(tmax, j);
             if (used[j] == 0ULL) {
                 used[j] = moveboard[i];
@@ -307,7 +313,7 @@ int main()
     std::cout << "}\nROOK SHIFT NUMBERS\n{" << std::endl;
     // std::cout.flush();
     for (BB magic : r_magics) {
-        std::cout << 64-count_bits(magic) << ", ";
+        std::cout << 64-real_count(magic) << ", ";
     }
     std::cout << "}\nBISHOP MAGIC NUMBERS\n{";
     for (i = 0; i < 64; i++) {
@@ -319,7 +325,7 @@ int main()
     std::cout.flush();
 
     for (BB magic : b_magics) {
-        std::cout << 64-count_bits(magic) << ", ";
+        std::cout << 64-real_count(magic) << ", ";
         std::cout.flush();
     }
     std::cout << "}" << std::endl;
