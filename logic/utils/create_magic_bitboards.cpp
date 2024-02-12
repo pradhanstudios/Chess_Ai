@@ -1,6 +1,6 @@
 /*
 -------------------------------
---skip to 184 for actual code--
+--skip to 230 for actual code--
 -------------------------------
 */
 #include <stdint.h>
@@ -8,6 +8,8 @@
 #include <iostream>
 #include <vector>
 #include <bits/stdc++.h>
+
+// #define RSEED 42069
 
 typedef uint64_t BB; // short for Bitboard
 
@@ -151,7 +153,7 @@ BB blocker_mask_bishop(int position)
 std::array<BB, 4096> blocker_boards(BB blocker_mask)
 {
     std::vector<int> poss;
-    BB noedge = blocker_mask & ~EDGES;
+    BB noedge = blocker_mask;
 
     for (int i = 0; i < 64; i++)
     {
@@ -160,7 +162,7 @@ std::array<BB, 4096> blocker_boards(BB blocker_mask)
             poss.push_back(i);
         }
     }
-
+    // std::cout << poss.size();
     int max_num = (1 << poss.size()) - 1;
 
     std::array<BB, 4096> output;
@@ -174,13 +176,15 @@ std::array<BB, 4096> blocker_boards(BB blocker_mask)
             if (i & (1 << j))
             {
                 set_bit_on(cur_BB, poss[j]);
+                // std::cout << "here" << std::endl;
             }
         }
-
+        // std::cout << cur_BB << std::endl;
         output[i] = cur_BB;
 
         i++;
     }
+    // std::cout << output[20] << std::endl;
 
     return output;
 }
@@ -262,41 +266,55 @@ BB find_magic_num(int pos, int piece)
 { // rook: 0 bishop: 1
     BB mask, magic;
     mask = piece ? blocker_mask_bishop(pos) : blocker_mask_rook(pos);
-    int s = 1 << count_bits(mask);
-    std::array<BB, 4096> blockerboard, moveboard, used;
-    std::array<BB, 4096> t = blocker_boards(mask);
-    for (int i = 0; i < t.size(); i++)
+    // std::cout << mask << std::endl;
+    // int s = 1 << real_count(mask);
+    std::map<int, BB> used;
+    std::array<BB, 4096> blockerboard, moveboard;
+    blockerboard = blocker_boards(mask);
+    int size = 1 << real_count(mask);
+    // std::cout << blockerboard[20] << std::endl;
+    for (int i = 0; i < size; i++)
     {
-        moveboard[i] = piece ? moveboard_bishop(t[i], pos) : moveboard_rook(t[i], pos);
+        moveboard[i] = piece ? moveboard_bishop(blockerboard[i], pos) : moveboard_rook(blockerboard[i], pos);
     }
-    int ismagic, tmax, j; // largest shift value is the best
+    int ismagic, j; 
+    // std::cout << size << std::endl;
+    int tmax;
     BB best;
     BB min = INFINITY;
-    std::cout << "";
-    for (int k = 0; k < 65535; k++){
+    // std::cout << "";
+    for (long k = 0; k < 65535; k++){
+        used = {};
         ismagic = 1;
         tmax = 0;
         magic = random_BB();
-        for (int i = 0; i < 4096; i++) {
-            used[i] = 0ULL;
-        }
-        for (int i = 0; (i < s) && ismagic; i++) {
+        // std::cout << magic << std::endl;
+        for (int i = 0; (i < size) && ismagic; i++) {
             j = calculate_index(blockerboard[i], magic, 64-real_count(magic));
+            if (j > 10000) {
+                ismagic = 0;
+                break;
+            }
+            // std::cout << j << std::endl;
             tmax = std::max(tmax, j);
-            if (used[j] == 0ULL) {
+            if (used.find(j) == used.end()) {
                 used[j] = moveboard[i];
             }
             else if (used[j] != moveboard[i]) {
                 ismagic = 0;
+                // break;
             }
         }
         if (ismagic && (tmax < min)) {
+            // std::cout << "got here " << k << std::endl;
             best = magic;
-            // std::cout << best << '\n';
+            // // std::cout << best << '\n';
             min = tmax;
+            // return magic;
         }
 
     }
+    // std::cout << best;
     return best;
 }
 
@@ -304,18 +322,20 @@ int main()
 {
     int i;
     BB r_magics[64], b_magics[64];
-    std::cout << "ROOK MAGIC NUMBERS{\n";
-    for (i = 0; i < 64; i++) {
-        r_magics[i] = find_magic_num(i, 0);
-        std::cout << r_magics[i] << ", ";
-        // std::cout.flush();
-    }
-    std::cout << "}\nROOK SHIFT NUMBERS\n{" << std::endl;
-    // std::cout.flush();
-    for (BB magic : r_magics) {
-        std::cout << 64-real_count(magic) << ", ";
-    }
+    // std::cout << "ROOK MAGIC NUMBERS{\n";
+    // for (i = 0; i < 64; i++) {
+    //     r_magics[i] = find_magic_num(i, 0);
+    //     std::cout << r_magics[i] << ", ";
+    //     // std::cout.flush();
+    // }
+    // std::cout << "}\nROOK SHIFT NUMBERS\n{" << std::endl;
+    // // std::cout.flush();
+    // for (BB magic : r_magics) {
+    //     std::cout << 64-real_count(magic) << ", ";
+    // }
+    // srand(RSEED);
     std::cout << "}\nBISHOP MAGIC NUMBERS\n{";
+    std::cout.flush();
     for (i = 0; i < 64; i++) {
         b_magics[i] = find_magic_num(i, 1);
         std::cout << b_magics[i] << ", ";
@@ -330,6 +350,11 @@ int main()
     }
     std::cout << "}" << std::endl;
     std::cout.flush();
+    // BB mask = blocker_mask_rook(0);
+    // std::array<BB, 4096> b = blocker_boards(mask);
+    // print_BB(mask);
+    // std::cout << b[1];
+    // std::cout << find_magic_num(25, 1) << std::endl;
 
     return 0;
 }
