@@ -4,6 +4,8 @@
 #include "bit_operations.hpp"
 #include "sliding_moves.hpp"
 #include "non_sliding_moves.hpp"
+#include "moveboards.hpp"
+#include "magic_values.hpp"
 
 
 // const std::string starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // starting fen
@@ -71,7 +73,12 @@ void open_fen(std::string fen) {
 
 
 int main() {
-    // open_fen(starting_fen);
+    init_moveboards();
+    
+    open_fen(starting_fen); // 51
+    print_BB(black | white);
+    print_BB(BISHOP_MASKS[51]);
+    // print_BB(BISHOP_MOVES[51][calculate_index((black | white) & BISHOP_MASKS[51], BISHOP_MAGICS[51], BISHOP_SHIFTS[51])]);
     // std::vector<BB> blocker_board = blocker_boards(blocker_mask_rook(23));
     // for (int i = 0; i < blocker_board.size(); i++) {
     //     print_BB(blocker_board[i]);

@@ -1,10 +1,11 @@
 CC = g++
-CFLAGS = -Wall -Wextra -Werror -Wpedantic
+CFLAGS = -Wall -Wextra -Wpedantic
 
-all: chess_AI
+default: 
+	g++ fast_chess_ai.cpp -o fast_chess_ai $(CFLAGS)
 
-chess_AI: chess_AI.o $(DEPENDENCIES)
-	$(CC) -o chess_AI $^
+# chess_AI: chess_AI.o $(DEPENDENCIES)
+# 	$(CC) -o fast_chess_ai$^
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $<
