@@ -4,15 +4,15 @@
 #include "bit_operations.hpp"
 
 enum PIECE {
-    EMPTY = 0,
-    WHITE = 1,
-    BLACK = 2,
-    PAWN = 3,
-    KNIGHT = 4,
-    BISHOP = 5,
-    ROOK = 6,
-    QUEEN = 7,
-    KING = 8,
+    PAWN = 0,
+    KNIGHT = 1,
+    BISHOP = 2,
+    ROOK = 3,
+    QUEEN = 4,
+    KING = 5,
+    EMPTY = 6,
+    WHITE = 7,
+    BLACK = 8,
 };
 
 const std::string DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -26,13 +26,6 @@ std::map<char, int> col_letter_to_num = {
     {'g', 6},
     {'h', 7},
 };
-
-typedef struct Move {
-    int color;
-    int piece;
-    int from;
-    int to;
-} Move;
 
 class Board {
     public:
