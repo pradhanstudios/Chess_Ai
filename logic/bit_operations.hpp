@@ -13,6 +13,10 @@ void set_bit_off(BB &bitboard, int index) {
     bitboard &= ~shift_back(1ULL, index);
 }
 
+void fast_reverse_bit(BB &bitboard, int index) { // xor is supposed to be faster
+    bitboard ^= 1ULL << index;
+}
+
 BB get_bit(BB bitboard, int index) {
     return bitboard & shift_back(1ULL, index);
 }
@@ -23,6 +27,12 @@ int zeroes_end(BB bitboard) {
 
 int zeroes_start(BB bitboard) {
     return __builtin_ctzll(bitboard);
+}
+
+int pop_first_one(BB &bitboard) {
+    int first = zeroes_start(bitboard);
+    bitboard &= bitboard - 1;
+    return first;
 }
 
 int real_count(BB bitboard) {
@@ -56,7 +66,7 @@ void print_BB(BB bitboard) {
 
 void print_Move_bits(Move move) {
     for (int i = 15; i >= 0; i--) {
-        int cur = move >> i;
+        int cur = move.data >> i;
         if (cur & 1) {
             std::cout << "1 ";
         }

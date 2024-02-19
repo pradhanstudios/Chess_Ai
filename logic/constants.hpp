@@ -6,12 +6,21 @@
 #include <vector>
 #include <bits/stdc++.h>
 
+// eventually maybe try int_fast_64_t
 typedef uint64_t BB; // short for Bitboard
-typedef int Move;
+typedef struct Move {
+    unsigned int data : 20;
+} Move;
 
-const Move MOVE_FROM = 0b111111;
-const Move MOVE_TO = MOVE_FROM << 6;
-const Move MOVE_TYPE = MOVE_TO << 6; // 16-bit cuts it off so 0b1111 << 12 == ob111111 << 12
+
+enum MOVE_TYPES {
+    NORMAL_MOVE = 0,
+    PROMOTION = 1,
+    CASTLE = 2, // 0 for queenside and 1 for kingside
+    EN_PESSANT = 3,
+};
+
+// bitboards
 
 const BB A_FILE = 0x8080808080808080ULL; // represent a file
 const BB B_FILE = A_FILE >> 1;

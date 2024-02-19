@@ -49,27 +49,26 @@ BB blocker_mask_bishop(int position)
 
 std::array<BB, 4096> blocker_boards(BB blocker_mask)
 {
+    // std::cout << "\tfunc start" << std::endl;
     std::vector<int> poss;
-    BB noedge = blocker_mask;
-
-    for (int i = 0; i < 64; i++)
-    {
-        if (get_bit(noedge, i))
-        {
-            poss.push_back(i);
-        }
+    while (blocker_mask) {
+        poss.push_back(pop_first_one(blocker_mask));
     }
+
+    std::cout << "\tfirst loop passed" << std::endl;
     // std::cout << poss.size();
-    int max_num = (1 << poss.size()) - 1;
+    int max_num = (1 << poss.size());
 
     std::array<BB, 4096> output;
     BB cur_BB = 0ULL;
     int i = 0;
-    while (i <= max_num)
+    while (i < max_num && i < 4096)
     {
+        // std::cout << "\t\t" << i << std::endl;
         cur_BB = 0ULL;
         for (int j = 0; j < poss.size(); j++)
         {
+            // std::cout << "\t\t\t" << j << std::endl;
             if (i & (1 << j))
             {
                 set_bit_on(cur_BB, poss[j]);
@@ -78,10 +77,13 @@ std::array<BB, 4096> blocker_boards(BB blocker_mask)
         }
         // std::cout << cur_BB << std::endl;
         output[i] = cur_BB;
+        // std::cout << "\t\t" << i << std::endl;
 
         i++;
     }
     // std::cout << output[20] << std::endl;
+
+    std::cout << "\tfunc end" << std::endl;
 
     return output;
 }

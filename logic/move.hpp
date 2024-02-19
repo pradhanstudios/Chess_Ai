@@ -2,23 +2,18 @@
 
 #include "constants.hpp"
 
-enum MOVE_TYPES {
-    NORMAL_MOVE = 0b0001,
-    PROMOTION = 0b0010,
-    CASTLE = 0b0011,
-    EN_PESSANT = 0b0100,
-};
+// Move Structure 20-bit
+// move_type(2-bit)| capture_type(3-bit) | piece_type(3-bit) | to(6-bit) | from(6-bit)
 
-Move generate_move(int from, int to, int type, int piece = 0, int castle_side = 0) { // you dont have to specify piece if you are doing an en pessant
-    Move out = from;
-    out |= (to << 6);
-    out |= (type << 12);
-    if (type == PROMOTION || type == NORMAL_MOVE) { // then we have to specify the piece
-        out |= (piece << 13);
-    }
-    else if (type == EN_PESSANT) { // then we have to specify which side
-        out |= (castle_side << 14);
+Move generate_move(int from, int to, int type, int piece = 0, int capture = 0, int castle_side = 0) { // you dont have to specify piece if you are doing an en pessant
+    Move out;
+    out.data = from;
+    out.data |= (to << 6);
+    out.data |= (piece << 12);
+    out.data |= (piece << 15);
+    out.data |= (type << 18);
+    if (type == EN_PESSANT) { // then we have to specify which side
+        out.data |= (castle_side << 14);
     }
     return out;
 }
-
