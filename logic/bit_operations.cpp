@@ -65,7 +65,7 @@ void print_BB(BB bitboard) {
 
 void print_Move_bits(Move move) {
     for (int i = 15; i >= 0; i--) {
-        int cur = move.data >> i;
+        int cur = move >> i;
         if (cur & 1) {
             std::cout << "1 ";
         }

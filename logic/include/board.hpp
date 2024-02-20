@@ -5,24 +5,27 @@
 #include "move.hpp"
 
 enum PIECE {
-    EMPTY,
-    PAWN,
-    KNIGHT,
-    BISHOP,
-    ROOK,
-    QUEEN,
-    KING,
-    WHITE,
-    BLACK,
+    EMPTY = 0,
+    PAWN = 1,
+    KNIGHT = 2,
+    BISHOP = 3,
+    ROOK = 4,
+    QUEEN = 5,
+    KING = 6,
+    WHITE = 7,
+    BLACK = 8,
 };
 
-const std::string DEFAULT_FEN;
-std::map<char, int> col_letter_to_num;
+extern const std::string DEFAULT_FEN;
+extern const std::map<char, int> col_letter_to_num;
 
-int turn_to_index(bool turn);
+extern int turn_to_index(bool turn);
+
+
 
 class Board {
     public:
+        std::array<int, 64> piece_data;
         std::array<BB, 9> pieces;
         std::array<bool, 4> castles;
         int enpessant;

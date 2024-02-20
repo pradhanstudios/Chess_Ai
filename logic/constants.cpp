@@ -1,15 +1,5 @@
 #include "constants.hpp"
 
-// eventually maybe try int_fast_64_t
-
-
-enum MOVE_TYPES {
-    NORMAL_MOVE = 0,
-    PROMOTION = 1,
-    CASTLE = 2, // 0 for queenside and 1 for kingside
-    EN_PESSANT = 3,
-};
-
 // bitboards
 
 const BB A_FILE = 0x8080808080808080ULL; // represent a file

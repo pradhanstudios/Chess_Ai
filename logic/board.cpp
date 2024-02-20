@@ -1,19 +1,7 @@
 #include "board.hpp"
 
-enum PIECE {
-    EMPTY = 0,
-    PAWN = 1,
-    KNIGHT = 2,
-    BISHOP = 3,
-    ROOK = 4,
-    QUEEN = 5,
-    KING = 6,
-    WHITE = 7,
-    BLACK = 8,
-};
-
 const std::string DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-std::map<char, int> col_letter_to_num = {
+const std::map<char, int> col_letter_to_num = {
     {'a', 0},
     {'b', 1},
     {'c', 2},
@@ -58,7 +46,7 @@ Board::Board(std::string fen) {
 
     this->turn = (fen[i] == 'w');
     i--;
-
+    int color;
     for (; i > -1; i--)
     {
         cur = fen[i];
@@ -73,25 +61,32 @@ Board::Board(std::string fen) {
         }
         else
         {
-            isupper(cur) ? set_bit_on(this->pieces[WHITE], board_ptr) : set_bit_on(this->pieces[BLACK], board_ptr);
+            int color = isupper(cur) ? 0 : 8;
+            color ? set_bit_on(this->pieces[WHITE], board_ptr) : set_bit_on(this->pieces[BLACK], board_ptr);
             cur = char(std::tolower(cur));
             if (cur == 'k') {
                 set_bit_on(this->pieces[KING], board_ptr);
+                this->piece_data[board_ptr] = KING - color;
             }
             else if (cur == 'q') {
                 set_bit_on(this->pieces[QUEEN], board_ptr);
+                this->piece_data[board_ptr] = QUEEN - color;
             }
             else if (cur == 'r') {
                 set_bit_on(this->pieces[ROOK], board_ptr);
+                this->piece_data[board_ptr] = ROOK - color;
             }
             else if (cur == 'b') {
                 set_bit_on(this->pieces[BISHOP], board_ptr);
+                this->piece_data[board_ptr] = BISHOP - color;
             }
             else if (cur == 'n') {
                 set_bit_on(this->pieces[KNIGHT], board_ptr);
+                this->piece_data[board_ptr] = KNIGHT - color;
             }
             else if (cur == 'p') {
                 set_bit_on(this->pieces[PAWN], board_ptr);
+                this->piece_data[board_ptr] = PAWN - color;
             }
 
             board_ptr++;

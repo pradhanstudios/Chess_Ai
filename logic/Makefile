@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -Wall -Wextra -Wpedantic
 
 default: 
-	g++ *.cpp -o fast_chess_ai $(CFLAGS)
+	g++ *.cpp -o fast_chess_ai $(CFLAGS) -I ./include/
 
 # chess_AI: chess_AI.o $(DEPENDENCIES)
 # 	$(CC) -o fast_chess_ai$^
