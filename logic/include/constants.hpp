@@ -12,11 +12,14 @@ typedef uint16_t Move;
 
 
 enum MOVE_TYPES {
-    NORMAL_MOVE = 0,
-    PROMOTION = 1,
-    CASTLE = 2, // 0 for queenside and 1 for kingside
-    EN_PESSANT = 3,
+    NORMAL_MOVE = 0b0000,
+    PROMOTION = 0b0001,
+    CASTLE = 0b0010, // 0 for queenside and 1 for kingside
+    EN_PESSANT = 0b0100,
 };
+
+extern const Move FIRST_FOUR;
+extern const Move FIRST_SIX;
 
 // bitboards
 

@@ -19,21 +19,23 @@ enum PIECE {
 extern const std::string DEFAULT_FEN;
 extern const std::map<char, int> col_letter_to_num;
 
-extern int turn_to_index(bool turn);
-
+int turn_to_index(bool turn);
+int no_color(int piece);
 
 
 class Board {
     public:
         std::array<int, 64> piece_data;
         std::array<BB, 9> pieces;
-        std::array<bool, 4> castles;
-        int enpessant;
+        int castles;
+        std::vector<int> enpessents;
         bool turn; // true for white false for black
         Board(std::string fen);
 
         void next_turn();
         void update_empties();
+        void play_move(Move move);
+        void undo_move(Move move);
         // this needs some more thinking
 //         void play_move(Move move) { // this is assuming that the moves are legal
 //             int piece;

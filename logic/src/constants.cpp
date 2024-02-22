@@ -2,6 +2,9 @@
 
 // bitboards
 
+const Move FIRST_FOUR = 0xF;
+const Move FIRST_SIX = 0xF3;
+
 const BB A_FILE = 0x8080808080808080ULL; // represent a file
 const BB B_FILE = A_FILE >> 1;
 const BB C_FILE = A_FILE >> 2;
