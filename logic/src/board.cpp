@@ -115,7 +115,7 @@ Board::Board(std::string fen) {
             board_ptr++;
         }
     }
-    this->pieces[EMPTY] = ~(this->pieces[WHITE] | this->pieces[BLACK]);
+    
 }
 
 void Board::print_square_data() {
@@ -163,14 +163,15 @@ void Board::next_turn() {
     this->turn = !this->turn;
 }
 
-void Board::update_empties() { // update bitboards which are dependant on other bitboards
-    this->pieces[EMPTY] = ~(this->pieces[WHITE] | this->pieces[BLACK]);
+void Board::update_bitboards() { // update bitboards which are dependant on other bitboards
+    this->pieces[FULL] = (this->pieces[WHITE] | this->pieces[BLACK]);
+    this->pieces[EMPTY] = ~this->pieces[FULL];
 }
 
 void Board::play_move(Move move) {
     Move from, to, type;
     int ind, piece;
-    int cur_en_pessant = 0;
+    int cur_en_pessant = -1;
     ind = turn_to_index(this->turn);
     from = move & FIRST_SIX;
     to = (move >> 6) & FIRST_SIX;
@@ -309,6 +310,6 @@ void Board::play_move(Move move) {
 
     // std::cout << cur_en_pessant << std::endl;
     this->enpessents.push_back(cur_en_pessant);
-    this->update_empties();
+    this->update_bitboards();
     this->next_turn();
 }

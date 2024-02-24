@@ -10,13 +10,13 @@
 #include "move.hpp"
 
 int main() {
-    // std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
-    // std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
-    // init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
+    std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
+    std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
+    init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
     Board chess = Board(DEFAULT_FEN);
     // print_BB(chess.pieces[KNIGHT] & chess.pieces[BLACK]);
-    std::cout << chess.turn << std::endl;
-    Move move01 = generate_move(4, 1, CASTLE, EMPTY, 0);
+    // std::cout << chess.turn << std::endl;
+    // Move move01 = generate_move(8, 24, CASTLE, EMPTY, 0);
     // Move move01 = generate_move(8, 24, NORMAL_MOVE);
     // Move move02 = generate_move(55, 47, NORMAL_MOVE);
     // Move move03 = generate_move(24, 32, NORMAL_MOVE);
@@ -35,9 +35,9 @@ int main() {
     // Move move16 = generate_move(38, 30, NORMAL_MOVE);
     // Move move17 = generate_move(4, 1, CASTLE, EMPTY, 0);
     // 0 is kingside 1 is queenside
-    
-
-    chess.play_move(move01);
+    // init_moveboards();
+    // chess.play_move(move01);
+    print_BB(ROOK_MOVES[0][1]);
     // chess.play_move(move02);
     // chess.play_move(move03);
     // chess.play_move(move04);
@@ -58,9 +58,9 @@ int main() {
     // chess.play_move(move15); // move bishop
     // chess.play_move(move16); // waste move
     // chess.play_move(move17); // castle
-    chess.print_square_data();
+    // chess.print_square_data();
 
-    print_BB(chess.pieces[WHITE] | chess.pieces[BLACK]);
+    // print_BB(chess.pieces[WHITE] | chess.pieces[BLACK]);
     
     // open_fen(starting_fen); // 51
     // print_BB(black | white);

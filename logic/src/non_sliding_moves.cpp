@@ -1,6 +1,6 @@
 #include "non_sliding_moves.hpp"
 
-BB pawn_moves(BB pawns_to_move, BB opposite_team, BB empties, int direction) { // TODO: add en passent
+BB pawn_moves(BB pawns_to_move, BB opposite_team, BB empties, int direction) {
 
     BB single_moves = shift_back(pawns_to_move, direction) & empties;
 
