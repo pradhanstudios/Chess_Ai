@@ -68,8 +68,8 @@ class ChessEnv:
         else:
             print("Illegal move")
 
-        # self.evaluate_board()
-        # print(f"Evaluation Value: {self.evaluation}")
+        self.evaluate_board()
+        print(f"Evaluation Value: {self.evaluation}")
 
         return False
 
@@ -247,7 +247,9 @@ class ChessEnv:
 
     def evaluate_board(self):
         # print(self.get_all_pieces_2D())
-        self.evaluation = evaluate(self, self.get_move())
+        eval = evaluate(self, self.get_move())
+        self.evaluation = eval[0]
+        print(f"best move: {eval[1]}")
 
 
 if __name__ == "__main__":

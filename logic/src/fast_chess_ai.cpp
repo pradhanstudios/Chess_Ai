@@ -13,9 +13,54 @@ int main() {
     // std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
     // std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
     // init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
-    // Board chess = Board(DEFAULT_FEN);
+    Board chess = Board(DEFAULT_FEN);
     // print_BB(chess.pieces[KNIGHT] & chess.pieces[BLACK]);
-    print_Move_bits(generate_move(63, 54, BISHOP, NORMAL_MOVE));
+    std::cout << chess.turn << std::endl;
+    Move move01 = generate_move(4, 1, CASTLE, EMPTY, 0);
+    // Move move01 = generate_move(8, 24, NORMAL_MOVE);
+    // Move move02 = generate_move(55, 47, NORMAL_MOVE);
+    // Move move03 = generate_move(24, 32, NORMAL_MOVE);
+    // Move move04 = generate_move(49, 33, NORMAL_MOVE);
+    // Move move05 = generate_move(32, 41, EN_PESSANT);
+    // Move move06 = generate_move(47, 39, NORMAL_MOVE);
+    // Move move07 = generate_move(41, 49, NORMAL_MOVE);
+    // Move move08 = generate_move(39, 31, NORMAL_MOVE);
+    // Move move09 = generate_move(49, 56, PROMOTION, QUEEN); 
+    // Move move10 = generate_move(31, 23, NORMAL_MOVE);
+    // Move move11 = generate_move(11, 19, NORMAL_MOVE);
+    // Move move12 = generate_move(54, 46, NORMAL_MOVE);
+    // Move move13 = generate_move(3, 12, NORMAL_MOVE);
+    // Move move14 = generate_move(46, 38, NORMAL_MOVE);
+    // Move move15 = generate_move(1, 18, NORMAL_MOVE);
+    // Move move16 = generate_move(38, 30, NORMAL_MOVE);
+    // Move move17 = generate_move(4, 1, CASTLE, EMPTY, 0);
+    // 0 is kingside 1 is queenside
+    
+
+    chess.play_move(move01);
+    // chess.play_move(move02);
+    // chess.play_move(move03);
+    // chess.play_move(move04);
+    // // std::cout << abs(33-49) << "should bve 16" << std::endl;
+    // // std::cout << chess.enpessents.back() << std::endl;
+    // // print_vector(chess.enpessents);
+    // chess.play_move(move05);
+    // chess.play_move(move06);
+    // chess.play_move(move07);
+    // chess.play_move(move08);
+    // chess.play_move(move09);
+    // chess.play_move(move09); // PROMO
+    // chess.play_move(move10); // waste move
+    // chess.play_move(move11); // move knight
+    // chess.play_move(move12); // waste move
+    // chess.play_move(move13); // move pawn
+    // chess.play_move(move14); // waste move
+    // chess.play_move(move15); // move bishop
+    // chess.play_move(move16); // waste move
+    // chess.play_move(move17); // castle
+    chess.print_square_data();
+
+    print_BB(chess.pieces[WHITE] | chess.pieces[BLACK]);
     
     // open_fen(starting_fen); // 51
     // print_BB(black | white);

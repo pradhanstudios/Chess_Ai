@@ -21,7 +21,9 @@ extern const std::map<char, int> col_letter_to_num;
 
 int turn_to_index(bool turn);
 int no_color(int piece);
+void print_vector(std::vector<int> v);
 
+std::vector<std::string> split(std::string s, char delim);
 
 class Board {
     public:
@@ -31,7 +33,7 @@ class Board {
         std::vector<int> enpessents;
         bool turn; // true for white false for black
         Board(std::string fen);
-
+        void print_square_data();
         void next_turn();
         void update_empties();
         void play_move(Move move);
