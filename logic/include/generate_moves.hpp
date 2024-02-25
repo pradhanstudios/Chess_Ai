@@ -7,4 +7,4 @@
 #include "move.hpp"
 #include "board.hpp"
 
-std::vector<Move> generate_legal_moves(Board chess_board);
+void generate_legal_moves(Board chess_board, std::vector<Move> &moves);

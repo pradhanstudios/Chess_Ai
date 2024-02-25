@@ -19,3 +19,7 @@ Move generate_move(int from, int to, int type, int promotion, int castle_side) {
     
     return out;
 }
+
+void print_move_fancy(Move m) {
+    std::cout << "Move(from=" << (m & FIRST_SIX) << ", to=" << ((m >> 6) & FIRST_SIX) << ")\n";
+}

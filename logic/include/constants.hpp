@@ -18,6 +18,8 @@ enum MOVE_TYPES {
     EN_PESSANT = 0b0100,
 };
 
+extern const int MAX_LEGAL_MOVES;
+
 extern const Move FIRST_FOUR;
 extern const Move FIRST_SIX;
 

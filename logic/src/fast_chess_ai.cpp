@@ -8,12 +8,23 @@
 #include "magic_values.hpp"
 #include "board.hpp"
 #include "move.hpp"
+#include "generate_moves.hpp"
 
 int main() {
-    std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
-    std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
-    init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
+    // std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
+    // std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
+    // init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
+    std::vector<Move> legal_moves;
+    legal_moves.reserve(MAX_LEGAL_MOVES);
     Board chess = Board(DEFAULT_FEN);
+    // chess.print_square_data();
+    // print_BB();
+    generate_legal_moves(chess, legal_moves);
+    for (Move m : legal_moves) {
+        print_move_fancy(m);
+    }
+    // BB pos = 0b01000010ULL;
+    // std::cout << pop_first_one(pos) << " " << pop_first_one(pos) << std::endl;
     // print_BB(chess.pieces[KNIGHT] & chess.pieces[BLACK]);
     // std::cout << chess.turn << std::endl;
     // Move move01 = generate_move(8, 24, CASTLE, EMPTY, 0);
@@ -37,7 +48,6 @@ int main() {
     // 0 is kingside 1 is queenside
     // init_moveboards();
     // chess.play_move(move01);
-    print_BB(ROOK_MOVES[0][1]);
     // chess.play_move(move02);
     // chess.play_move(move03);
     // chess.play_move(move04);

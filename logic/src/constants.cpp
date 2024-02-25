@@ -2,6 +2,8 @@
 
 // bitboards
 
+const int MAX_LEGAL_MOVES = 218;
+
 const Move FIRST_FOUR = 0b1111;
 const Move FIRST_SIX = 0b111111;
 

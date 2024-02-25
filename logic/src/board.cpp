@@ -47,7 +47,10 @@ Board::Board(std::string fen) {
     std::vector<std::string> fensplit = split(fen, ' ');
 
     if (fensplit[3][0] != '-'){
-        this->enpessents.push_back(col_letter_to_num.at(fensplit[3][0]) + std::stoi(&fensplit[3][1]));
+        this->enpessents.push_back(col_letter_to_num.at(fensplit[3][0]) + std::stoi(&fensplit[3][1])-1);
+    }
+    else {
+        this->enpessents.push_back(-1);
     }
     i--;
 
@@ -84,8 +87,8 @@ Board::Board(std::string fen) {
         }
         else
         {
-            color = !isupper(cur) ? 0 : 8;
-            color ? set_bit_on(this->pieces[WHITE], board_ptr) : set_bit_on(this->pieces[BLACK], board_ptr);
+            color = isupper(cur) ? 8 : 0;
+            color ? set_bit_on(this->pieces[BLACK], board_ptr) : set_bit_on(this->pieces[WHITE], board_ptr);
             cur = char(std::tolower(cur));
             if (cur == 'k') {
                 set_bit_on(this->pieces[KING], board_ptr);
@@ -115,6 +118,8 @@ Board::Board(std::string fen) {
             board_ptr++;
         }
     }
+
+    this->update_bitboards();
     
 }
 

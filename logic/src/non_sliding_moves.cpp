@@ -27,13 +27,22 @@ BB knight_moves(BB knights_to_move, BB same_team) {
     */
 //    print_BB((knights_to_move & ~(RANK_1 | RANK_2 | H_FILE)) << 15);
 //    print_BB(same_team);
+
+    BB legal_moves = 0ULL;
+
+    BB not_same_team = ~same_team;
+    // https://www.chess.com/analysis?tab=analysis
+    BB moves =
+            ((knights_to_move & ~(RANK_1 | A_FILE | B_FILE)) >> 6) |
+            ((knights_to_move & ~(RANK_1 | G_FILE | H_FILE)) >> 10) |
+            ((knights_to_move & ~(RANK_8 | G_FILE | H_FILE)) << 6) |
+            ((knights_to_move & ~(RANK_8 | A_FILE | B_FILE)) << 10) | 
+            ((knights_to_move & ~(RANK_1 | RANK_2 | H_FILE)) >> 15) | 
+            ((knights_to_move & ~(RANK_1 | RANK_2 | H_FILE)) >> 17) |
+            ((knights_to_move & ~(RANK_8 | RANK_7 | A_FILE)) << 15) |
+            ((knights_to_move & ~(RANK_8 | RANK_7 | H_FILE)) << 17);
     
-    return (((knights_to_move & ~(RANK_8 | G_FILE | H_FILE)) << 6) |
-    ((knights_to_move & ~(RANK_1 | A_FILE | B_FILE)) >> 6) |
-    ((knights_to_move & ~(RANK_1 | G_FILE | H_FILE)) >> 10) |
-    ((knights_to_move & ~(RANK_8 | A_FILE | B_FILE)) << 10) | 
-    ((knights_to_move & ~(RANK_1 | RANK_2 | H_FILE)) << 15) | 
-    ((knights_to_move & ~(RANK_8 | RANK_7 | A_FILE)) >> 15) |
-    ((knights_to_move & ~(RANK_1 | RANK_2 | H_FILE)) << 17) |
-    ((knights_to_move & ~(RANK_8 | RANK_7 | A_FILE)) >> 17)) & ~same_team;
+    legal_moves = moves & not_same_team;
+
+    return legal_moves;
 }
