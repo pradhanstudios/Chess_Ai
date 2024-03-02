@@ -49,7 +49,7 @@ class ChessEnv:
         self.legal_moves = self.board.legal_moves
 
     def get_move(self):
-        return not len(self.board.move_stack) % 2
+        return not len(self.board.move_stack) & 1
 
     def move_piece(self, start_cell, end_cell):
         uci = t_to_uci(start_cell, end_cell)
@@ -248,6 +248,7 @@ class ChessEnv:
     def evaluate_board(self):
         # print(self.get_all_pieces_2D())
         eval = evaluate(self, self.get_move())
+
         self.evaluation = eval[0]
         print(f"best move: {eval[1]}")
 

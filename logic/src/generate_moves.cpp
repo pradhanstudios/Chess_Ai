@@ -32,8 +32,8 @@ void generate_legal_moves(Board chess_board, std::vector<Move> &moves) { // shou
             }
         }
         // en_pessant
-        if (chess_board.enpessents.back() != -1 && abs(chess_board.enpessents.back() - pos) < 2 && pos != chess_board.enpessents.back()) { // if it is one off of the en pessant pawn
-            moves.push_back(generate_move(pos, chess_board.enpessents.back() - chess_board.turn ? -8 : 8, EN_PESSANT));
+        if (chess_board.enpessent_history.back() != -1 && abs(chess_board.enpessent_history.back() - pos) < 2 && pos != chess_board.enpessent_history.back()) { // if it is one off of the en pessant pawn
+            moves.push_back(generate_move(pos, chess_board.enpessent_history.back() - chess_board.turn ? -8 : 8, EN_PESSANT));
         }
     }
     // knights

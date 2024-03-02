@@ -30,8 +30,8 @@ class Board {
     public:
         std::array<int, 64> piece_data;
         std::array<BB, 10> pieces;
-        int castles;
-        std::vector<int> enpessents;
+        // int castles;
+        std::vector<int> enpessent_history, castle_history, capture_history;
         bool turn; // true for white false for black
         Board(std::string fen);
         void print_square_data();

@@ -15,23 +15,39 @@ void init_moveboards(std::array<BB, 64> &rook_masks, std::array<BB, 64> &bishop_
 
     // std::array<std::array<BB, 4096>, 64> rook_moves, bishop_moves;
     std::array<BB, 4096> rook_blockerboards, bishop_blockerboards;
+    // std::array<std::array<BB, 4096>, 64> rook_blockerboards, bishop_blockerboards;
     int j;
 
     for (i = 0; i < 64; i++) {
+        // std::cout << "Big loop " << i << std::endl;
         rook_blockerboards = blocker_boards(rook_masks[i]);
         bishop_blockerboards = blocker_boards(bishop_masks[i]);
-        for (j = 0; j < (1 << real_count(rook_masks[i])); j++) {
+
+        // if (rook_blockerboards[5] == 0) {
+        //     std::cout << i << " ";
+        // }
+        // print_BB(bishop_blockerboards[2]);
+
+        for (j = 0; j < (1 << real_count(rook_masks[i])) && j < 4096; j++) {
             rook_moves[i][j] = moveboard_rook(rook_blockerboards[j], i);
+        }
+        // if (i == 5) {
+        //     j = 0;
+        //     for (BB b : rook_moves[5]) {
+        //         if (b == 0) {
+        //             std::cout << j << ", ";
+        //             j++;
+        //         }
+        //     }
+        //     std::cout << std::endl;
+        //     // print_BB(rook_blockerboards[34]);
+        // }
+        // std::cout << "\tFirst loop passed" << std::endl;
+
+        for (j = 0; j < (1 << real_count(bishop_masks[i])) && j < 4096; j++) {
             bishop_moves[i][j] = moveboard_bishop(bishop_blockerboards[j], i);
         }
+        // print_BB(bishop_moves[i][3]);
+        // std::cout << "\tSecond loop passed" << std::endl;
     }
-    // print_BB(bishop_masks[32]);
-    
-    // std::cout << rook_masks_t[12] << std::endl;
-    // struct _Moves {rook_masks_t, bishop_masks_t, rook_moves_t, bishop_moves_t};
-    // m.ROOK_MASKS = rook_masks_t;
-    // m.BISHOP_MASKS = bishop_masks_t;
-    // m.ROOK_MOVES = rook_moves_t;
-    // m.BISHOP_MOVES = bishop_moves_t;
-    // return m;
 }

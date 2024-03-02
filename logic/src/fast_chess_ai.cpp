@@ -11,18 +11,43 @@
 #include "generate_moves.hpp"
 
 int main() {
-    // std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
-    // std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
-    // init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
-    std::vector<Move> legal_moves;
-    legal_moves.reserve(MAX_LEGAL_MOVES);
-    Board chess = Board(DEFAULT_FEN);
+    std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
+    std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
+    init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
+    // int i = 0;
+    // int count = 0;
+    print_BB(ROOK_MOVES[0][90]);
+    // std::cout << "Empty bb's: " << std::endl;
+    // for (BB bitboard : ROOK_MOVES[2]) {
+    //     if (!bitboard) {
+    //         // if (i < 100) {
+    //         // print_BB(bitboard);
+    //         // std::cout << i << ", ";
+    //         // }
+    //         count++;
+    //     }
+    //     i++;
+    // }
+    // std::cout << std::endl << "Count: " << count << "/" << i << std::endl;
+
+    // BB rook_blck = 0b110ULL;
+
+    // BB newbb = moveboard_rook(rook_blck, 0);
+
+    // print_BB(newbb);
+
+
+
+    // print_BB(ROOK_MOVES[0][26]);
+    // std::vector<Move> legal_moves;
+    // legal_moves.reserve(MAX_LEGAL_MOVES);
+    // Board chess = Board(DEFAULT_FEN);
     // chess.print_square_data();
     // print_BB();
-    generate_legal_moves(chess, legal_moves);
-    for (Move m : legal_moves) {
-        print_move_fancy(m);
-    }
+    // generate_legal_moves(chess, legal_moves);
+    // for (Move m : legal_moves) {
+    //     print_move_fancy(m);
+    // }
     // BB pos = 0b01000010ULL;
     // std::cout << pop_first_one(pos) << " " << pop_first_one(pos) << std::endl;
     // print_BB(chess.pieces[KNIGHT] & chess.pieces[BLACK]);

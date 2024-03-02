@@ -17,7 +17,8 @@ void fast_reverse_bit(BB &bitboard, int index) { // xor is supposed to be faster
 }
 
 BB get_bit(BB bitboard, int index) {
-    return bitboard & shift_back(1ULL, index);
+    // return bitboard & (1ULL << index);
+    return (bitboard >> index) & 1ULL;
 }
 
 int zeroes_end(BB bitboard) {
@@ -36,6 +37,10 @@ int pop_first_one(BB &bitboard) {
 
 int real_count(BB bitboard) {
     int count;
+    // while (bitboard) {
+    //     count++;
+    //     bitboard &= (bitboard - 1);
+    // }
     for (count = 0; bitboard != 0; count++, bitboard &= bitboard-1);
     return count;
 }

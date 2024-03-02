@@ -5,7 +5,7 @@ sys.setrecursionlimit(10000)
 
 
 def evaluate(position, turn, depth=4):
-    return minimax(position, turn, depth, NEGATIVE_INFINITY, INFINITY)
+    return minimax(position, turn, depth, NEGATIVE_INFINITY, INFINITY, depth)
     # return evaluate_weights(position.get_all_pieces_2D())
 
 def evaluate_weights(board: list[list]):
@@ -15,19 +15,19 @@ def evaluate_weights(board: list[list]):
             color, piece = get_piece_properties(board[i][j])
             if piece != BLANK:
                 # print(color, piece, i, j)
-                multi = EVAL_DICT[color][piece][i][j] / 100
+                multi = (EVAL_DICT[color][piece][i][j]) / 100
+                multi = multi if color else -multi
                 piece_eval = PIECE_VALUES[piece.lower()]
-                if color:
-                    piece_eval *= multi
-                else:
-                    piece_eval *= -multi
+                piece_eval = piece_eval if color else -piece_eval
                 # print(piece_eval)
-                evaluation += piece_eval
+                evaluation += multi + piece_eval
+                # print(piece_eval)
+                # evaluation += piece_eval
     return round(evaluation, 2)
 
 best_move = [0, 0] # second one should be a move
                 
-def minimax(position, maximize, depth, alpha, beta):
+def minimax(position, maximize, depth, alpha, beta, origdepth):
     # print(depth)
     # print(depth == 0)
     global best_move
@@ -35,9 +35,16 @@ def minimax(position, maximize, depth, alpha, beta):
 
     def m_max(position, maximize, depth, alpha, beta):
         global best_move
-        if depth == 0 or position.eval_game_over():
+        if depth == 0:
             return evaluate_weights(position.get_all_pieces_2D())
-
+        if position.board.is_checkmate():
+            won = position.board.outcome()
+            if won.winner == True:
+                return INFINITY if maximize else NEGATIVE_INFINITY
+            if won.winner == False:
+                return NEGATIVE_INFINITY if maximize else INFINITY
+        if position.board.is_stalemate():
+            return 0
         if maximize:
             max_eval = NEGATIVE_INFINITY
             for move in position.board.legal_moves:
@@ -46,7 +53,7 @@ def minimax(position, maximize, depth, alpha, beta):
                 position.board.pop()
                 max_eval = max(max_eval, evaluation)
                 alpha = max(alpha, evaluation)
-                if evaluation > best_move[0]:
+                if evaluation > best_move[0] and depth == origdepth:
                     # print("here")
                     best_move[0] = evaluation
                     best_move[1] = move
