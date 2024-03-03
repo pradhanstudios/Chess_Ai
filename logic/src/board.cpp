@@ -78,52 +78,58 @@ Board::Board(std::string fen) {
     int board_ptr = 0;
     // int actual_pos;
     char cur;
+    std::vector<std::string> fen_lines = split(fensplit[0], '/');
+    std::reverse(fen_lines.begin(), fen_lines.end());
+    int row = 0;
     // std::string pieces_fen = fensplit[0];
-    for (int i = 0; i < fensplit[0].length(); i++)
-    {
-        cur = fensplit[0][i];
-        // std::cout << cur << " ";
-        if (isdigit(cur))
-        {
-            board_ptr += std::stoi(&cur);
+    for (std::string line : fen_lines) {
+        // std::cout << line << std::endl;
+        board_ptr = 8*row;
+        for (int i = line.length()-1; i > -1; i--) {
+            cur = line[i];
+            // std::cout << cur << " ";
+            if (isdigit(cur))
+            {
+                board_ptr += std::stoi(&cur);
+            }
+            else if (cur == '/')
+            {
+                break;
+            }
+            else
+            {
+                color = isupper(cur) ? 0 : 8;
+                // actual_pos = 63-board_ptr;
+                color ? set_bit_on(this->pieces[BLACK], board_ptr) : set_bit_on(this->pieces[WHITE], board_ptr);
+                cur = char(std::tolower(cur));
+                if (cur == 'k') {
+                    set_bit_on(this->pieces[KING], board_ptr);
+                    this->piece_data[board_ptr] = KING + color;
+                }
+                else if (cur == 'q') {
+                    set_bit_on(this->pieces[QUEEN], board_ptr);
+                    this->piece_data[board_ptr] = QUEEN + color;
+                }
+                else if (cur == 'r') {
+                    set_bit_on(this->pieces[ROOK], board_ptr);
+                    this->piece_data[board_ptr] = ROOK + color;
+                }
+                else if (cur == 'b') {
+                    set_bit_on(this->pieces[BISHOP], board_ptr);
+                    this->piece_data[board_ptr] = BISHOP + color;
+                }
+                else if (cur == 'n') {
+                    set_bit_on(this->pieces[KNIGHT], board_ptr);
+                    this->piece_data[board_ptr] = KNIGHT + color;
+                }
+                else if (cur == 'p') {
+                    set_bit_on(this->pieces[PAWN], board_ptr);
+                    this->piece_data[board_ptr] = PAWN + color;
+                }
+                board_ptr++;
+            }
         }
-        else if (cur == '/')
-        {
-            continue;
-        }
-        else
-        {
-            color = isupper(cur) ? 8 : 0;
-            // actual_pos = 63-board_ptr;
-            color ? set_bit_on(this->pieces[BLACK], board_ptr) : set_bit_on(this->pieces[WHITE], board_ptr);
-            cur = char(std::tolower(cur));
-            if (cur == 'k') {
-                set_bit_on(this->pieces[KING], board_ptr);
-                this->piece_data[board_ptr] = KING + color;
-            }
-            else if (cur == 'q') {
-                set_bit_on(this->pieces[QUEEN], board_ptr);
-                this->piece_data[board_ptr] = QUEEN + color;
-            }
-            else if (cur == 'r') {
-                set_bit_on(this->pieces[ROOK], board_ptr);
-                this->piece_data[board_ptr] = ROOK + color;
-            }
-            else if (cur == 'b') {
-                set_bit_on(this->pieces[BISHOP], board_ptr);
-                this->piece_data[board_ptr] = BISHOP + color;
-            }
-            else if (cur == 'n') {
-                set_bit_on(this->pieces[KNIGHT], board_ptr);
-                this->piece_data[board_ptr] = KNIGHT + color;
-            }
-            else if (cur == 'p') {
-                set_bit_on(this->pieces[PAWN], board_ptr);
-                this->piece_data[board_ptr] = PAWN + color;
-            }
-
-            board_ptr++;
-        }
+        row++;
     }
 
     this->update_bitboards();

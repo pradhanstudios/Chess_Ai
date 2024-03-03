@@ -46,10 +46,10 @@ int main() {
     // print_BB(chess.pieces[WHITE]);
     // 20
     // generate_magics_and_save();
-    std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
-    load_magics(ROOK_MAGICS, BISHOP_MAGICS);
-    // // // std::cout << ROOK_MAGICS[0].magic;
-    print_BB(get_sliding_moves(chess.pieces[FULL], chess.pieces[WHITE], 12, BISHOP_MAGICS[12]));
+    // std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
+    // load_magics(ROOK_MAGICS, BISHOP_MAGICS);
+    // std::cout << ROOK_MAGICS[0].magic;
+    // print_BB(get_sliding_moves(chess.pieces[FULL], chess.pieces[WHITE], 12, BISHOP_MAGICS[12]));
     // chess.print_square_data();
     // print_BB();
     // generate_legal_moves(chess, legal_moves);
