@@ -1,7 +1,7 @@
 #include "bit_operations.hpp"
 
 BB shift_back(BB bitboard, int back){
-    return back >= 0 ? (bitboard << back): (bitboard >> -back);
+    return back > 0 ? (bitboard << back): (bitboard >> -back);
 }
 
 void set_bit_on(BB &bitboard, int index) {

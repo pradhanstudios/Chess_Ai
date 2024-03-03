@@ -11,12 +11,12 @@
 #include "generate_moves.hpp"
 
 int main() {
-    std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
-    std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
-    init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
-    // int i = 0;
+    // std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
+    // std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
+    // init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
+    // // int i = 0;
     // int count = 0;
-    print_BB(ROOK_MOVES[0][90]);
+    // print_BB(ROOK_MOVES[0][90]);
     // std::cout << "Empty bb's: " << std::endl;
     // for (BB bitboard : ROOK_MOVES[2]) {
     //     if (!bitboard) {
@@ -41,7 +41,15 @@ int main() {
     // print_BB(ROOK_MOVES[0][26]);
     // std::vector<Move> legal_moves;
     // legal_moves.reserve(MAX_LEGAL_MOVES);
-    // Board chess = Board(DEFAULT_FEN);
+    Board chess = Board("r4rk1/p3bp1p/1qb1pnp1/1p1pB3/3P4/2PB1N1P/PPQ2PP1/R4RK1 w - - 1 15");
+    chess.print_square_data();
+    // print_BB(chess.pieces[WHITE]);
+    // 20
+    // generate_magics_and_save();
+    std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
+    load_magics(ROOK_MAGICS, BISHOP_MAGICS);
+    // // // std::cout << ROOK_MAGICS[0].magic;
+    print_BB(get_sliding_moves(chess.pieces[FULL], chess.pieces[WHITE], 12, BISHOP_MAGICS[12]));
     // chess.print_square_data();
     // print_BB();
     // generate_legal_moves(chess, legal_moves);

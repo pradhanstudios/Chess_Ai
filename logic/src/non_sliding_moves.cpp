@@ -4,7 +4,7 @@ BB pawn_moves(BB pawns_to_move, BB opposite_team, BB empties, int direction) {
 
     BB single_moves = shift_back(pawns_to_move, direction) & empties;
 
-    BB starting_rank = direction <= 0 ? RANK_7 : RANK_2;
+    BB starting_rank = direction < 0 ? RANK_7 : RANK_2;
 
     BB double_moves = shift_back(shift_back(pawns_to_move & starting_rank & ~(opposite_team | empties), direction) & empties, direction);
 

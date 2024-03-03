@@ -28,7 +28,7 @@ BB blocker_mask_bishop(int position)
     }
 
     set_bit_off(bitboard, position);
-    return bitboard;
+    return bitboard & ~EDGES;
 
     // while ((i % 8 != 0) && (i < 56))
     // {

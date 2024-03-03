@@ -41,7 +41,6 @@ std::vector<std::string> split(std::string s, char delim) {
 
 Board::Board(std::string fen) {
     // char cur;
-    int board_ptr = 0;
     int i = fen.length() - 1;
     int castles = 0;
     
@@ -76,9 +75,14 @@ Board::Board(std::string fen) {
     this->turn = fensplit[1][0] == 'w';
 
     int color;
-    for (char cur : fensplit[0])
+    int board_ptr = 0;
+    // int actual_pos;
+    char cur;
+    // std::string pieces_fen = fensplit[0];
+    for (int i = 0; i < fensplit[0].length(); i++)
     {
-
+        cur = fensplit[0][i];
+        // std::cout << cur << " ";
         if (isdigit(cur))
         {
             board_ptr += std::stoi(&cur);
@@ -90,6 +94,7 @@ Board::Board(std::string fen) {
         else
         {
             color = isupper(cur) ? 8 : 0;
+            // actual_pos = 63-board_ptr;
             color ? set_bit_on(this->pieces[BLACK], board_ptr) : set_bit_on(this->pieces[WHITE], board_ptr);
             cur = char(std::tolower(cur));
             if (cur == 'k') {
@@ -128,7 +133,7 @@ Board::Board(std::string fen) {
 void Board::print_square_data() {
     std::string cur;
     int entry;
-    for (int i = 64; i > -1; i--) {
+    for (int i = 63; i > -1; i--) {
         if ((i+1) % 8 == 0) {
             std::cout << "\n";
         }
