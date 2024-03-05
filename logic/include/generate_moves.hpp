@@ -6,5 +6,6 @@
 #include "sliding_moves.hpp"
 #include "move.hpp"
 #include "board.hpp"
+#include "magic_values.hpp"
 
-void generate_legal_moves(Board chess_board, std::vector<Move> &moves);
+void generate_legal_moves(Board chess_board, std::array<magic_structure, 64> ROOK_MAGICS, std::array<magic_structure, 64> BISHOP_MAGICS, std::vector<Move> &moves);

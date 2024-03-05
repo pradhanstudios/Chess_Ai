@@ -39,17 +39,22 @@ int main() {
 
 
     // print_BB(ROOK_MOVES[0][26]);
-    // std::vector<Move> legal_moves;
-    // legal_moves.reserve(MAX_LEGAL_MOVES);
+    std::vector<Move> legal_moves;
+    legal_moves.reserve(MAX_LEGAL_MOVES);
     Board chess = Board("r4rk1/p3bp1p/1qb1pnp1/1p1pB3/3P4/2PB1N1P/PPQ2PP1/R4RK1 w - - 1 15");
-    chess.print_square_data();
-    // print_BB(chess.pieces[WHITE]);
-    // 20
-    // generate_magics_and_save();
-    // std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
-    // load_magics(ROOK_MAGICS, BISHOP_MAGICS);
+    std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
+    load_magics(ROOK_MAGICS, BISHOP_MAGICS);
+    // int *temp;
+    // std::cout << "ok" << std::endl;
+    // int temp2 = temp[3];
+    // std::cout << (7 & temp[2]) << std::endl;
+    // chess.print_square_data();
+    // std::cout << "here";
+    std::cout << chess.pieces[WHITE] << std::endl;
+    generate_legal_moves(chess, ROOK_MAGICS, BISHOP_MAGICS, legal_moves);
+    // std::cout << legal_moves.size() << std::endl;
     // std::cout << ROOK_MAGICS[0].magic;
-    // print_BB(get_sliding_moves(chess.pieces[FULL], chess.pieces[WHITE], 12, BISHOP_MAGICS[12]));
+    // print_BB(get_sliding_moves(chess.pieces[FULL], chess.pieces[WHITE], 20, BISHOP_MAGICS[20]));
     // chess.print_square_data();
     // print_BB();
     // generate_legal_moves(chess, legal_moves);
