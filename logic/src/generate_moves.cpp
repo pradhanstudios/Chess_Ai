@@ -130,6 +130,10 @@ void generate_legal_moves(Board chess_board, std::vector<Move> &moves) { // shou
     while (same_team_bishops) {
         pos = pop_first_one(same_team_bishops); // from
         piece_moves = get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], pos, (BISHOP_MAGICS)[pos]);
+        // if (pos == 35) {
+        //     // print_BB(chess_board.pieces[FULL] & BISHOP_MAGICS[35].mask);
+        //     print_BB(piece_moves);
+        // }
         while (piece_moves) {
             new_pos = pop_first_one(piece_moves);
             moves.push_back(generate_move(pos, new_pos, NORMAL_MOVE));

@@ -125,9 +125,12 @@ BB moveboard_bishop(BB blocker_board, int position)
             set_bit_on(moveboard, i);
             i += dir;
         }
+        if (get_bit(blocker_board, i)) {
+            set_bit_on(moveboard, i);
+        }
     }
 
-    set_bit_off(moveboard, position);
+    // set_bit_off(moveboard, position);
     return moveboard;
 }
 
@@ -163,8 +166,11 @@ BB moveboard_rook(BB blocker_board, int position)
             set_bit_on(moveboard, i);
             i += dir;
         }
+        if (get_bit(blocker_board, i)) {
+            set_bit_on(moveboard, i);
+        }
     }
 
-    set_bit_off(moveboard, position);
+    // set_bit_off(moveboard, position);
     return moveboard;
 }
