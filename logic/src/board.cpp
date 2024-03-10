@@ -155,7 +155,8 @@ void Board::print_square_data() {
         if (cur_piece == EMPTY) {
             cur = " 0";
         } else {
-            cur += (cur_piece & BLACK) ? "B" : "W";
+            cur += (entry & BLACK) ? "B" : "W";
+            // std::cout << (cur_piece & BLACK) << std::endl;
 
             switch (cur_piece) {
                 case PAWN:
@@ -177,15 +178,16 @@ void Board::print_square_data() {
                     cur += "K";
                     break;
                 default:
+                    std::cout << "got here\t" << cur_piece << "\t";
                     break;
             }
         }
         std::cout << cur << " ";
 
-        // std::cout << "\t" << i << ":" << entry << std::endl;
     }
+    std::cout << std::endl;
 
-    std::cout << "Done printing square data." << std::endl;
+    // std::cout << "Done printing square data." << std::endl;
 }
 
 

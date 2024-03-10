@@ -34,19 +34,19 @@ magic_structure _find_magics_rook(int pos) {
     }
     m.shift = 64-count;
 
-    magic_structure best_magic_structure;
-    BB best_magic, magic, hash;
-    int max_value, this_max;
+    // magic_structure best_magic_structure;
+    BB magic, hash;
+    // int max_value, this_max;
     bool ismagic;
-    max_value = INFINITY;
-    for (int j = 0; j < 65535; j++) {
+    // max_value = INFINITY;
+    for (int j = 0; j < 200000; j++) {
         ismagic = true;
         magic = random_BB();
-        this_max = -1;
+        // this_max = -1;
         std::fill(std::begin(m.attacks), std::end(m.attacks), 0);
         for (int k = 0; k < size; k++) {
             hash = (magic * b_boards[k]) >> m.shift;
-            this_max = hash > this_max ? hash : this_max;
+            // this_max = hash > this_max ? hash : this_max;
             if (m.attacks[hash] != 0 && m.attacks[hash] != moveboards[k])
 			{
 				ismagic = false;
@@ -56,16 +56,19 @@ magic_structure _find_magics_rook(int pos) {
             m.attacks[hash] = moveboards[k];
         }
 
-        if (ismagic && this_max < max_value) {
+        if (ismagic) { // basically we are trying to get the magic number which results in the smallest size
             m.magic = magic;
-            best_magic_structure = m;
-            max_value = this_max;
+            // std::cout << "got here";
+            return m;
         }
     }
     // if (best_magic == 0) {
     //     std::cout << "it did not work" << std::endl;
     // }
-    return best_magic_structure;
+    // m.magic = best_magic;
+    magic_structure bad;
+    // std::cout << "did not work" << std::endl;
+    return bad;
 }
 
 magic_structure _find_magics_bishop(int pos) {
@@ -80,19 +83,19 @@ magic_structure _find_magics_bishop(int pos) {
     }
     m.shift = 64-count;
 
-    magic_structure best_magic_structure;
+    // magic_structure best_magic_structure;
     BB magic, hash;
-    int max_value, this_max;
+    // int max_value, this_max;
     bool ismagic;
-    max_value = INFINITY;
-    for (int j = 0; j < 65535; j++) {
+    // max_value = INFINITY;
+    for (int j = 0; j < 200000; j++) {
         ismagic = true;
         magic = random_BB();
-        this_max = -1;
+        // this_max = -1;
         std::fill(std::begin(m.attacks), std::end(m.attacks), 0);
         for (int k = 0; k < size; k++) {
             hash = (magic * b_boards[k]) >> m.shift;
-            this_max = hash > this_max ? hash : this_max;
+            // this_max = hash > this_max ? hash : this_max;
             if (m.attacks[hash] != 0 && m.attacks[hash] != moveboards[k])
 			{
 				ismagic = false;
@@ -102,18 +105,19 @@ magic_structure _find_magics_bishop(int pos) {
             m.attacks[hash] = moveboards[k];
         }
 
-        if (ismagic && this_max < max_value) { // basically we are trying to get the magic number which results in the smallest size
+        if (ismagic) { // basically we are trying to get the magic number which results in the smallest size
             m.magic = magic;
-            best_magic_structure = m;
-            // best_magic_structure.attacks = m.attacks;
-            max_value = this_max;
+            // std::cout << "got here";
+            return m;
         }
     }
     // if (best_magic == 0) {
     //     std::cout << "it did not work" << std::endl;
     // }
     // m.magic = best_magic;
-    return best_magic_structure;
+    magic_structure bad;
+    // std::cout << "did not work" << std::endl;
+    return bad;
 }
 
 // similar to implementation from https://github.com/Usama-Azad/Pickle-in-Cpp
@@ -137,49 +141,74 @@ magic_structure _find_magics_bishop(int pos) {
 //     outfile.close();
 // }
 
+void _write_magic_structure(magic_structure structure, std::ofstream &file) {
+    file << structure.mask << "\n";
+    file << structure.magic << "\n";
+    file << structure.shift << "\n";
+    for (int i = 0; i < 4096; i++) {
+        file << structure.attacks[i] << " ";
+    }
+    file << "\n";
+}
+
 void generate_magics_and_save() {
+    // magic_structure m;
+    // m = _find_magics_rook(0);
+    // std::cout << m.shift;
     // _find_magics_rook(27);
     // _find_magics_bishop(27);
     // print_BB(blocker_mask_bishop(27));
     std::array<magic_structure, 64> RK_MAGICS, BP_MAGICS;
-    std::cout << "starting" << std::endl;
+    // std::cout << "starting" << std::endl;
     for (int i = 0; i < 64; i++) {
         RK_MAGICS[i] = _find_magics_rook(i);
         BP_MAGICS[i] = _find_magics_bishop(i);
-        std::cout << "done with " << i << std::endl;
+        // std::cout << "done with " << i << std::endl;
+        // std::cout << BP_MAGICS[i].shift << std::endl;
     }
-    std::ofstream save_rook_magics("../magics/ROOK_MAGICS.bin", std::ios::binary);
-    for (int i = 0; i < 64; i++) {
-        std::cout << "saved rook magics " << i << std::endl;
-        save_rook_magics.write((const char *)&RK_MAGICS[i], sizeof(RK_MAGICS[i]));
-    }
-    // Close file
-    save_rook_magics.close();
-    std::ofstream save_bishop_magics("../magics/BISHOP_MAGICS.bin", std::ios::binary);
-    for (int i = 0; i < 64; i++) {
-        std::cout << "saved bishop magics " << i << std::endl;
-        save_bishop_magics.write((const char *)&BP_MAGICS[i], sizeof(BP_MAGICS[i]));
-    }
-    // Close file
-    save_bishop_magics.close();
+    // std::ofstream save_rook_magics("../magics/ROOK_MAGICS.txt");
+    // for (int i = 0; i < 64; i++) {
+    //     // save_rook_magics.write((const char *)&RK_MAGICS[i], sizeof(RK_MAGICS[i]));
+    //     _write_magic_structure(RK_MAGICS[i], save_rook_magics);
+    //     save_rook_magics << "/\n";
+    //     std::cout << "saved rook magics " << i << std::endl;
+    // }
+    // // Close file
+    // save_rook_magics.close();
+    // std::ofstream save_bishop_magics("../magics/BISHOP_MAGICS.txt");
+    // for (int i = 0; i < 64; i++) {
+    //     // save_bishop_magics.write((const char *)&BP_MAGICS[i], sizeof(BP_MAGICS[i]));
+    //     _write_magic_structure(BP_MAGICS[i], save_bishop_magics);
+    //     save_rook_magics << "/\n";
+    //     std::cout << "saved bishop magics " << i << std::endl;
+    // }
+    // // Close file
+    // save_bishop_magics.close();
 }
 
-void load_magics(std::array<magic_structure, 64> &ROOK_MAGICS, std::array<magic_structure, 64> &BISHOP_MAGICS) {
-    std::ifstream rook_file("../magics/ROOK_MAGICS.bin", std::ios::binary);
+void load_magics() {
+    // std::ifstream rook_file("../magics/ROOK_MAGICS.bin", std::ios::binary);
 
-    for (int i = 0; i < 64; i++)
-        rook_file.read((char *)&ROOK_MAGICS[i], sizeof(ROOK_MAGICS[i]));
-    rook_file.close();
+    // for (int i = 0; i < 64; i++)
+    //     rook_file.read((char *)&ROOK_MAGICS[i], sizeof(ROOK_MAGICS[i]));
+    // rook_file.close();
 
-    // std::cout << ROOK_MAGICS[2].magic << std::endl;
+    // // std::cout << ROOK_MAGICS[2].magic << std::endl;
 
-    std::ifstream bishop_file("../magics/BISHOP_MAGICS.bin", std::ios::binary);
+    // std::ifstream bishop_file("../magics/BISHOP_MAGICS.bin", std::ios::binary);
 
-    for (int i = 0; i < 64; i++)
-        bishop_file.read((char *)&BISHOP_MAGICS[i], sizeof(BISHOP_MAGICS[i]));
+    // for (int i = 0; i < 64; i++)
+    //     bishop_file.read((char *)&BISHOP_MAGICS[i], sizeof(BISHOP_MAGICS[i]));
 
-    bishop_file.close();
+    // bishop_file.close();
     // std::cout << "got here" << std::endl;
+    // extern std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
+    for (int i = 0; i < 64; i++) {
+        ROOK_MAGICS[i] = _find_magics_rook(i);
+        BISHOP_MAGICS[i] = _find_magics_bishop(i);
+        // std::cout << "done with " << i << std::endl;
+        // std::cout << BP_MAGICS[i].shift << std::endl;
+    }
 }
 
 BB get_sliding_moves(BB current_position, BB friendlies, int pos, magic_structure magic) {
