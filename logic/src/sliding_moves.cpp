@@ -19,7 +19,7 @@ BB blocker_mask_bishop(int position)
     int i;
 
     for (int dir : {9, 7, -7, -9}) {
-        i = position;
+        i = position + dir;
 
         while (is_within_board(i) && ((i % 8) != (((dir == 7) || (dir == -9)) ? 7 : 0))) {
             set_bit_on(bitboard, i);

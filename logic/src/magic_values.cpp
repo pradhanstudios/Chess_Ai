@@ -141,17 +141,18 @@ magic_structure _find_magics_bishop(int pos) {
 //     outfile.close();
 // }
 
-void _write_magic_structure(magic_structure structure, std::ofstream &file) {
-    file << structure.mask << "\n";
-    file << structure.magic << "\n";
-    file << structure.shift << "\n";
-    for (int i = 0; i < 4096; i++) {
-        file << structure.attacks[i] << " ";
-    }
-    file << "\n";
-}
+// void _write_magic_structure(magic_structure structure, std::ofstream &file) {
+//     file << structure.mask << "\n";
+//     file << structure.magic << "\n";
+//     file << structure.shift << "\n";
+//     for (int i = 0; i < 4096; i++) {
+//         file << structure.attacks[i] << " ";
+//     }
+//     file << "\n";
+// }
 
 void generate_magics_and_save() {
+    // std::cout << "here";
     // magic_structure m;
     // m = _find_magics_rook(0);
     // std::cout << m.shift;
@@ -159,56 +160,56 @@ void generate_magics_and_save() {
     // _find_magics_bishop(27);
     // print_BB(blocker_mask_bishop(27));
     std::array<magic_structure, 64> RK_MAGICS, BP_MAGICS;
-    // std::cout << "starting" << std::endl;
+    std::cout << "starting" << std::endl;
     for (int i = 0; i < 64; i++) {
         RK_MAGICS[i] = _find_magics_rook(i);
         BP_MAGICS[i] = _find_magics_bishop(i);
-        // std::cout << "done with " << i << std::endl;
-        // std::cout << BP_MAGICS[i].shift << std::endl;
+        std::cout << "done with " << i << std::endl;
+        std::cout << BP_MAGICS[i].shift << std::endl;
     }
-    // std::ofstream save_rook_magics("../magics/ROOK_MAGICS.txt");
-    // for (int i = 0; i < 64; i++) {
-    //     // save_rook_magics.write((const char *)&RK_MAGICS[i], sizeof(RK_MAGICS[i]));
-    //     _write_magic_structure(RK_MAGICS[i], save_rook_magics);
-    //     save_rook_magics << "/\n";
-    //     std::cout << "saved rook magics " << i << std::endl;
-    // }
-    // // Close file
-    // save_rook_magics.close();
-    // std::ofstream save_bishop_magics("../magics/BISHOP_MAGICS.txt");
-    // for (int i = 0; i < 64; i++) {
-    //     // save_bishop_magics.write((const char *)&BP_MAGICS[i], sizeof(BP_MAGICS[i]));
-    //     _write_magic_structure(BP_MAGICS[i], save_bishop_magics);
-    //     save_rook_magics << "/\n";
-    //     std::cout << "saved bishop magics " << i << std::endl;
-    // }
-    // // Close file
-    // save_bishop_magics.close();
+    std::ofstream save_rook_magics("../magics/ROOK_MAGICS.bin");
+    for (int i = 0; i < 64; i++) {
+        save_rook_magics.write((const char *)&RK_MAGICS[i], sizeof(RK_MAGICS[i]));
+        
+        std::cout << "saved rook magics " << i << std::endl;
+    }
+    // Close file
+    save_rook_magics.close();
+    std::ofstream save_bishop_magics("../magics/BISHOP_MAGICS.bin");
+    for (int i = 0; i < 64; i++) {
+        save_bishop_magics.write((const char *)&BP_MAGICS[i], sizeof(BP_MAGICS[i]));
+        // _write_magic_structure(BP_MAGICS[i], save_bishop_magics);
+        save_rook_magics << "/\n";
+        std::cout << "saved bishop magics " << i << std::endl;
+    }
+    std::cout << "done" << std::endl;
+    // Close file
+    save_bishop_magics.close();
 }
 
 void load_magics() {
-    // std::ifstream rook_file("../magics/ROOK_MAGICS.bin", std::ios::binary);
+    std::ifstream rook_file("../magics/ROOK_MAGICS.bin", std::ios::binary);
 
-    // for (int i = 0; i < 64; i++)
-    //     rook_file.read((char *)&ROOK_MAGICS[i], sizeof(ROOK_MAGICS[i]));
-    // rook_file.close();
+    for (int i = 0; i < 64; i++)
+        rook_file.read((char *)&ROOK_MAGICS[i], sizeof(ROOK_MAGICS[i]));
+    rook_file.close();
 
-    // // std::cout << ROOK_MAGICS[2].magic << std::endl;
+    // std::cout << ROOK_MAGICS[2].magic << std::endl;
 
-    // std::ifstream bishop_file("../magics/BISHOP_MAGICS.bin", std::ios::binary);
+    std::ifstream bishop_file("../magics/BISHOP_MAGICS.bin", std::ios::binary);
 
-    // for (int i = 0; i < 64; i++)
-    //     bishop_file.read((char *)&BISHOP_MAGICS[i], sizeof(BISHOP_MAGICS[i]));
+    for (int i = 0; i < 64; i++)
+        bishop_file.read((char *)&BISHOP_MAGICS[i], sizeof(BISHOP_MAGICS[i]));
 
-    // bishop_file.close();
+    bishop_file.close();
     // std::cout << "got here" << std::endl;
     // extern std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
-    for (int i = 0; i < 64; i++) {
-        ROOK_MAGICS[i] = _find_magics_rook(i);
-        BISHOP_MAGICS[i] = _find_magics_bishop(i);
-        // std::cout << "done with " << i << std::endl;
-        // std::cout << BP_MAGICS[i].shift << std::endl;
-    }
+    // for (int i = 0; i < 64; i++) {
+    //     // ROOK_MAGICS[i] = _find_magics_rook(i);
+    //     // BISHOP_MAGICS[i] = _find_magics_bishop(i);
+    //     // std::cout << "done with " << i << std::endl;
+    //     // std::cout << BP_MAGICS[i].shift << std::endl;
+    // }
 }
 
 BB get_sliding_moves(BB current_position, BB friendlies, int pos, magic_structure magic) {

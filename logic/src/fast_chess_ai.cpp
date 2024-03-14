@@ -39,18 +39,21 @@ int main() {
     // generate_magics_and_save();
 
     // print_BB(ROOK_MOVES[0][26]);
-    std::vector<Move> moves;
-    moves.reserve(MAX_LEGAL_MOVES);
+    // std::vector<Move> moves;
+    // moves.reserve(MAX_LEGAL_MOVES);
     // std::array<magic_structure, 64> t;
-    Board chess_board = Board("r4rk1/p3bp1p/1qb1pnp1/1p1pB3/3P4/2PB1N1P/PPQ2PP1/R4RK1 w - - 1 15");
+    // Board chess_board = Board("r4rk1/p3bp1p/1qb1pnp1/1p1pB3/3P4/2PB1N1P/PPQ2PP1/R4RK1 w - - 1 15");
     // std::cout << chess_board.piece_data[11];
     // std::cout << "\n" << chess_board.piece_data[63] << std::endl;
     load_magics();
-    chess_board.print_square_data();
-    generate_legal_moves(chess_board, moves);
-    for (Move m : moves) {
-        print_move_fancy(m);
-    }
+    std::cout << ROOK_MAGICS[20].magic << std::endl;
+    // chess_board.print_square_data();
+    // generate_legal_moves(chess_board, moves);
+    // for (Move m : moves) {
+        // print_move_fancy(m);
+    // }
+    // print_BB(blocker_mask_bishop(0));
+    // generate_magics_and_save();
     // extern std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
     // std::cout << ROOK_MAGICS[0].magic << std::endl;
     // int *temp;

@@ -35,7 +35,7 @@ BB random_BB();
 int calculate_index(BB input_bitboard, BB magic, int shift);
 magic_structure _find_magics_rook(int pos);
 magic_structure _find_magics_bishop(int pos);
-void _write_magic_structure(magic_structure structure, std::ofstream &file);
+// void _write_magic_structure(magic_structure structure, std::ofstream &file);
 void generate_magics_and_save();
 // void _save(std::array<magic_structure, 64> array, std::string filename);
 void load_magics();
