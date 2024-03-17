@@ -13,4 +13,6 @@
         // std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
         // Searcher(std::array<magic_structure, 64> ROOK_MAGICS, std::array<magic_structure, 64> BISHOP_MAGICS);
 void generate_legal_moves(Board chess_board, std::vector<Move> &moves);
+BB generate_attacks(Board chess_board);
+void set_attack_bitboard(Board &chess_board);
 // };

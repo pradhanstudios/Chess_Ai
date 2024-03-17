@@ -8,7 +8,7 @@ BB pawn_moves(BB pawns_to_move, BB opposite_team, BB empties, int direction) {
 
     BB double_moves = shift_back(shift_back(pawns_to_move & starting_rank & ~(opposite_team | empties), direction) & empties, direction);
 
-    BB captures = (shift_back(pawns_to_move, direction+1) | shift_back(pawns_to_move, direction-1)) & opposite_team;
+    BB captures = (shift_back(pawns_to_move & ~(((direction+1) == -7) ? ~(A_FILE) : ~(H_FILE)), direction+1) | shift_back(pawns_to_move & ~(((direction-1) == -9) ? ~(H_FILE) : ~(A_FILE)), direction-1)) & opposite_team;
 
     return single_moves | double_moves | captures;
 }
@@ -45,4 +45,31 @@ BB knight_moves(BB knights_to_move, BB same_team) {
     legal_moves = moves & not_same_team;
 
     return legal_moves;
+}
+
+BB king_moves(BB king, BB same_team, BB other_team_attacks) {
+    /*
+    A = <<9
+    B = <<8
+    C = <<7
+    D = <<1
+    E = >>1
+    F = >>7
+    G = >>8
+    H = >>9
+    ABC
+    DXE
+    FGH
+    */
+
+   return (
+    ((king & ~(RANK_8 | A_FILE)) << 9) |
+    ((king & ~(RANK_8)) << 8) |
+    ((king & ~(RANK_8 | H_FILE)) << 7) |
+    ((king & ~(A_FILE)) << 1) |
+    ((king & ~(H_FILE)) >> 1) |
+    ((king & ~(RANK_1 | A_FILE)) >> 7) |
+    ((king & ~(RANK_1)) >> 8) |
+    ((king & ~(RANK_1 | H_FILE)) >> 9)
+   ) & ~(same_team | other_team_attacks);
 }

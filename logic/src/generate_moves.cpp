@@ -70,7 +70,7 @@
 //     }
 // }
 
-void generate_legal_moves(Board chess_board, std::vector<Move> &moves) { // should be reserved to size 218
+void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // should be reserved to size 218
     // fprintf(stderr, "here\n");
     // fflush(stderr);
     // printf("oh yea\n");
@@ -155,10 +155,59 @@ void generate_legal_moves(Board chess_board, std::vector<Move> &moves) { // shou
     while (same_team_queens) {
         pos = pop_first_one(same_team_queens); // from
         // moves for rooks and bishops combined
-        piece_moves = get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], pos, (ROOK_MAGICS)[pos]) ^ get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], pos, (BISHOP_MAGICS)[pos]);
+        piece_moves = get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], pos, (ROOK_MAGICS)[pos]) | get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], pos, (BISHOP_MAGICS)[pos]);
         while (piece_moves) {
             new_pos = pop_first_one(piece_moves);
             moves.push_back(generate_move(pos, new_pos, NORMAL_MOVE));
         }
     }
+
+    // king
+    chess_board.next_turn(); // skip turn
+    set_attack_bitboard(chess_board);
+    chess_board.next_turn(); // go back
+    BB king = chess_board.pieces[KING] & chess_board.pieces[same_team];
+    piece_moves = king_moves(king, chess_board.pieces[same_team], chess_board.pieces[OTHER_TEAM_ATTACKS]);
+    pos = pop_first_one(king);
+    while (piece_moves) {
+        new_pos = pop_first_one(piece_moves);
+        moves.push_back(generate_move(pos, new_pos, NORMAL_MOVE));
+    }
+
+}
+
+BB generate_attacks(Board chess_board) {
+    BB attacks = 0ULL;
+    int pos, same_team, other_team;
+    same_team = turn_to_index(chess_board.turn);
+    other_team = turn_to_index(!chess_board.turn);
+    // sliding pieces first because they're easy
+    BB same_team_bishops = chess_board.pieces[BISHOP] & chess_board.pieces[same_team];
+    while (same_team_bishops) {
+        pos = pop_first_one(same_team_bishops); // from
+        attacks |= get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], pos, (BISHOP_MAGICS)[pos]);
+    }
+    BB same_team_rooks = chess_board.pieces[ROOK] & chess_board.pieces[same_team];
+    while (same_team_rooks) {
+        pos = pop_first_one(same_team_rooks);
+        attacks |= get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], pos, (ROOK_MAGICS)[pos]);
+    }
+    BB same_team_queens = chess_board.pieces[QUEEN] & chess_board.pieces[same_team];
+    while (same_team_queens) {
+        pos = pop_first_one(same_team_queens);
+        attacks |= get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], pos, (ROOK_MAGICS)[pos]) | get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], pos, (BISHOP_MAGICS)[pos]);
+    }
+    // knights
+    attacks |= knight_moves(chess_board.pieces[KNIGHT] & chess_board.pieces[same_team], chess_board.pieces[same_team]); 
+
+    // pawns
+    BB same_team_pawns = chess_board.pieces[PAWN] & chess_board.pieces[same_team];
+    int direction = chess_board.turn ? 8 : -8;
+    attacks |= (shift_back(same_team_pawns & ~(((direction+1) == -7) ? ~(A_FILE) : ~(H_FILE)), direction+1) | shift_back(same_team_pawns & ~(((direction-1) == -9) ? ~(H_FILE) : ~(A_FILE)), direction-1)) & ~(same_team);
+
+    return attacks;
+}
+
+void set_attack_bitboard(Board &chess_board) {
+    chess_board.pieces[OTHER_TEAM_ATTACKS] = generate_attacks(chess_board);
 }

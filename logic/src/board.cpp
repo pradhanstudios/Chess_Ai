@@ -397,12 +397,15 @@ void Board::undo_move(Move move) {
         fast_reverse_bit(this->pieces[other_team], cur_en_pessant);
     }
     else if (type & CASTLE) {
-        BB t = (((castle & (this->turn ? 0b0011 : 0b1100)) & 0b1010) ? 0b10111000ULL : 0b1111) << (!this->turn * 56);
+        bool is_queenside_castle = ((castle & (!this->turn ? 0b0011 : 0b1100)) & 0b1010);
+        // std::cout << "is queenside castle:\t" << is_queenside_castle << std::endl;
+        BB t = (is_queenside_castle ? 0b10111000ULL : 0b1111) << (!this->turn * 56); // checking if it is a queenside or kingside castle
         this->pieces[same_team] ^= t;
-        int rookStart = (piece == 0) ? (7 + (!this->turn * 56)) : (0 + (!this->turn * 56)); // (piece * 7) + (!this->turn * 56)
+        int rookStart = (is_queenside_castle) ? (7 + (!this->turn * 56)) : (0 + (!this->turn * 56)); // (piece * 7) + (!this->turn * 56)
         int kingStart = 3 + (!this->turn * 56);
-        int rookEnd = 2 + (!piece << 1) + (!this->turn * 56);
-        int kingEnd = 1 + (!piece << 2) + (!this->turn * 56); // x << 1 == x * 2
+        int rookEnd = 2 + (is_queenside_castle << 1) + (!this->turn * 56);
+        int kingEnd = 1 + (is_queenside_castle << 2) + (!this->turn * 56); // x << 1 == x * 2
+        std::cout << "kingstart:\t" << kingStart; 
         fast_reverse_bit(this->pieces[ROOK], rookStart); // off
         fast_reverse_bit(this->pieces[KING], kingStart); // if its black add 56
         fast_reverse_bit(this->pieces[ROOK], rookEnd); // on x << 1 == x * 2

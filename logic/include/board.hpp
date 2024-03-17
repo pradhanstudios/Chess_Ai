@@ -14,7 +14,8 @@ enum PIECE {
     KING = 6,
     WHITE = 7,
     BLACK = 8,
-    FULL = 9
+    OTHER_TEAM_ATTACKS = 9,
+    FULL = 10
 };
 
 extern const std::string DEFAULT_FEN;
@@ -29,7 +30,7 @@ std::vector<std::string> split(std::string s, char delim);
 class Board {
     public:
         std::array<int, 64> piece_data;
-        std::array<BB, 10> pieces;
+        std::array<BB, 11> pieces;
         // int castles;
         std::vector<int> enpessent_history, castle_history, capture_history;
         bool turn; // true for white false for black

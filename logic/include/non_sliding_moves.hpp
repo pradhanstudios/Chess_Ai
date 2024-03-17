@@ -7,3 +7,5 @@
 BB pawn_moves(BB pawns_to_move, BB opposite_team, BB empties, int direction);
 
 BB knight_moves(BB knights_to_move, BB same_team);
+
+BB king_moves(BB king, BB same_team, BB attacks);
