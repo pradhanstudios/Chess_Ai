@@ -81,3 +81,11 @@ void print_Move_bits(Move move) {
     }
     std::cout << std::endl;
 }
+
+int file(int pos) {
+    return pos / 8; // auto cast to int
+}
+
+int rank(int pos) {
+    pos & 7;
+}

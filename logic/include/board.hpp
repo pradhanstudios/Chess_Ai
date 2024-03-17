@@ -35,8 +35,8 @@ class Board {
         bool turn; // true for white false for black
         Board(std::string fen);
         void print_square_data();
-        void next_turn();
-        void update_bitboards();
+        inline void next_turn();
+        inline void update_bitboards();
         void play_move(Move move);
         void undo_move(Move move);
         // this needs some more thinking

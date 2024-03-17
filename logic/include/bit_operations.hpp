@@ -24,3 +24,8 @@ bool is_within_board(int pos);
 void print_BB(BB bitboard);
 
 void print_Move_bits(Move move);
+
+int file(int pos);
+
+int rank(int pos);
+

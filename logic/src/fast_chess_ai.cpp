@@ -42,11 +42,30 @@ int main() {
     // std::vector<Move> moves;
     // moves.reserve(MAX_LEGAL_MOVES);
     // std::array<magic_structure, 64> t;
-    // Board chess_board = Board("r4rk1/p3bp1p/1qb1pnp1/1p1pB3/3P4/2PB1N1P/PPQ2PP1/R4RK1 w - - 1 15");
+    Board chess_board = Board(DEFAULT_FEN);
     // std::cout << chess_board.piece_data[11];
     // std::cout << "\n" << chess_board.piece_data[63] << std::endl;
-    load_magics();
-    std::cout << ROOK_MAGICS[20].magic << std::endl;
+    // load_magics();
+    Move m1 = generate_move(8, 24, NORMAL_MOVE);
+    // Move m2 = generate_move(55, 47, NORMAL_MOVE);
+    Move m2 = generate_move(24, 32, NORMAL_MOVE);
+    // Move m4 = generate_move(47, 39, NORMAL_MOVE);
+    Move m3 = generate_move(32, 40, NORMAL_MOVE);
+    Move m4 = generate_move(40, 49, NORMAL_MOVE);
+    Move m5 = generate_move(49, 56, PROMOTION, QUEEN);
+    // chess_board.play_move(m);
+    chess_board.play_move(m1);
+    chess_board.next_turn();
+    chess_board.play_move(m2);
+    chess_board.next_turn(); // skip a turn
+    chess_board.play_move(m3);
+    chess_board.next_turn();
+    chess_board.play_move(m4);
+    chess_board.next_turn();
+    chess_board.play_move(m5);
+    chess_board.undo_move(m5);
+    chess_board.print_square_data();
+    // std::cout << ROOK_MAGICS[20].magic << std::endl;
     // chess_board.print_square_data();
     // generate_legal_moves(chess_board, moves);
     // for (Move m : moves) {

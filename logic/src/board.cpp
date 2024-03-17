@@ -191,20 +191,20 @@ void Board::print_square_data() {
 }
 
 
-void Board::next_turn() {
+inline void Board::next_turn() {
     this->turn = !this->turn;
 }
 
-void Board::update_bitboards() { // update bitboards which are dependant on other bitboards
+inline void Board::update_bitboards() { // update bitboards which are dependant on other bitboards
     this->pieces[FULL] = (this->pieces[WHITE] | this->pieces[BLACK]);
     this->pieces[EMPTY] = ~this->pieces[FULL];
 }
 
 void Board::play_move(Move move) {
     Move from, to, type;
-    int ind, piece;
+    int same_team, piece;
     int cur_en_pessant = -1;
-    ind = turn_to_index(this->turn);
+    same_team = turn_to_index(this->turn);
     from = move & FIRST_SIX;
     to = (move >> 6) & FIRST_SIX;
     type = (move >> 12);
@@ -220,7 +220,7 @@ void Board::play_move(Move move) {
         // std::cout << ind << std::endl;
         // print_BB((1 << to) ^ (1 << from));
         this->pieces[piece] ^= t;
-        this->pieces[ind] ^= t;
+        this->pieces[same_team] ^= t;
         if (piece_data[to] == ROOK) { // rook is captured
             if (to == 63) { // blck qside
                 cur_castle &= 0b0111;
@@ -272,8 +272,8 @@ void Board::play_move(Move move) {
     else if (type & PROMOTION) {
         piece = type >> 1; // promotion piece
         fast_reverse_bit(this->pieces[PAWN], from); // off
-        fast_reverse_bit(this->pieces[ind], from);
-        fast_reverse_bit(this->pieces[ind], to); // on
+        fast_reverse_bit(this->pieces[same_team], from);
+        fast_reverse_bit(this->pieces[same_team], to); // on
         fast_reverse_bit(this->pieces[piece], to);
         if (piece_data[to] == ROOK) { // rook is captured
             if (to == 63) { // blck qside
@@ -292,28 +292,29 @@ void Board::play_move(Move move) {
                 cur_castle &= 0b1110;
             }
         }
-        this->piece_data[to] = piece + (this->turn * 8);
+        this->piece_data[to] = piece + (!this->turn * 8);
         this->piece_data[from] = EMPTY;
     }
 
     else if (type & CASTLE) {
         // std::cout << "Here" << std::endl;
-        piece = type >> 3; // more like side; 0 is kingside 1 is queenside
+        piece = type >> 3; // more like side; 1 is kingside 0 is queenside
         cur_castle &= 0b0011 ^ (0b1111 * this->turn); // if u castle once u cant castle again
 
         BB t = (piece ? 0b10111000ULL : 0b1111) << (!this->turn * 56);
 
         // starting positions
         int rookStart = (piece == 0) ? (7 + (!this->turn * 56)) : (0 + (!this->turn * 56)); // (piece * 7) + (!this->turn * 56)
-        int kingStart = 4 + (!this->turn * 56);
-        int rookEnd = 3 + (!piece << 1) + (!this->turn * 56); // x << 1 == x * 2
-        int kingEnd = 6 - (piece * 4) + (!this->turn * 56);
+        int kingStart = 3 + (!this->turn * 56);
+        int rookEnd = 2 + (!piece << 1) + (!this->turn * 56);
+        int kingEnd = 1 + (!piece << 2) + (!this->turn * 56); // x << 1 == x * 2
+        // int kingEnd = 6 - (piece * 4) + (!this->turn * 56);
         
         fast_reverse_bit(this->pieces[ROOK], rookStart); // off
         fast_reverse_bit(this->pieces[KING], kingStart); // if its black add 56
         fast_reverse_bit(this->pieces[ROOK], rookEnd); // on x << 1 == x * 2
         fast_reverse_bit(this->pieces[KING], kingEnd);
-        this->pieces[ind] ^= t;
+        this->pieces[same_team] ^= t;
         this->piece_data[rookEnd] = this->piece_data[rookStart];
         this->piece_data[kingEnd] = this->piece_data[kingStart];
         this->piece_data[rookStart] = EMPTY;
@@ -328,21 +329,22 @@ void Board::play_move(Move move) {
         // std::cout << this->enpessent_history[N-1] << "\t" << this->enpessent_history[N-2] << std::endl;
         BB t = (1ULL << from) ^ (1ULL << to);
         // print_BB((BB)(1ULL << from));
-        std::cout << to << std::endl;
-        print_BB(1ULL << to);
+        // std::cout << to << std::endl;
+        // print_BB(1ULL << to);
         this->pieces[PAWN] ^= t;
-        // std::cout << ind << std::endl;
-        this->pieces[ind] ^= t;
+        // std::cout << same_team << std::endl;
+        this->pieces[same_team] ^= t;
         fast_reverse_bit(this->pieces[PAWN], enpessent);
         fast_reverse_bit(this->pieces[turn_to_index(!turn)], enpessent);
         this->piece_data[to] = this->piece_data[from];
         this->piece_data[from] = EMPTY;
         this->piece_data[enpessent] = EMPTY;
+        cur_en_pessant = enpessent;
     }
 
     else {
         std::cout << "something went wrong..." << std::endl;
-        print_Move_bits(move);
+        print_move_fancy(move);
     }
 
     // std::cout << cur_en_pessant << std::endl;
@@ -379,15 +381,37 @@ void Board::undo_move(Move move) {
         fast_reverse_bit(this->pieces[PAWN], from);
         fast_reverse_bit(this->pieces[same_team], from);
 
-        this->piece_data[from] = PAWN + this->turn ? 0 : 8;
+        this->piece_data[from] = PAWN + (this->turn ? 0 : 8);
         this->piece_data[to] = capture;
     }
     else if (type == EN_PESSANT) {
-        // int N = this->enpessent_history.size();
-        // int enpessent = this->enpessent_history.back();
-        // print_vector(this->enpessent_history);
-        // std::cout << enpessent << std::endl;
-        // std::cout << this->enpessent_history[N-1] << "\t" << this->enpessent_history[N-2] << std::endl;
-        
+        BB t = (1ULL << from) ^ (1ULL << to);
+        // std::cout << cur_en_pessant << std::endl;
+        this->piece_data[cur_en_pessant] = PAWN + (!this->turn ? 0 : 8);
+        // std::cout << (PAWN + !this->turn ? 0 : 8) << std::endl;
+        this->piece_data[from] = this->piece_data[to];
+        this->piece_data[to] = EMPTY;
+        this->pieces[PAWN] ^= t;
+        this->pieces[same_team] ^= t;
+        fast_reverse_bit(this->pieces[PAWN], cur_en_pessant);
+        fast_reverse_bit(this->pieces[other_team], cur_en_pessant);
     }
+    else if (type & CASTLE) {
+        BB t = (((castle & (this->turn ? 0b0011 : 0b1100)) & 0b1010) ? 0b10111000ULL : 0b1111) << (!this->turn * 56);
+        this->pieces[same_team] ^= t;
+        int rookStart = (piece == 0) ? (7 + (!this->turn * 56)) : (0 + (!this->turn * 56)); // (piece * 7) + (!this->turn * 56)
+        int kingStart = 3 + (!this->turn * 56);
+        int rookEnd = 2 + (!piece << 1) + (!this->turn * 56);
+        int kingEnd = 1 + (!piece << 2) + (!this->turn * 56); // x << 1 == x * 2
+        fast_reverse_bit(this->pieces[ROOK], rookStart); // off
+        fast_reverse_bit(this->pieces[KING], kingStart); // if its black add 56
+        fast_reverse_bit(this->pieces[ROOK], rookEnd); // on x << 1 == x * 2
+        fast_reverse_bit(this->pieces[KING], kingEnd);
+        this->piece_data[rookStart] = this->piece_data[rookEnd];
+        this->piece_data[kingStart] = this->piece_data[kingEnd];
+        this->piece_data[rookEnd] = EMPTY;
+        this->piece_data[kingEnd] = EMPTY;
+    }
+
+    this->update_bitboards();
 }
