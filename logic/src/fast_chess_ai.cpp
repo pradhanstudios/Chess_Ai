@@ -11,6 +11,7 @@
 #include "generate_moves.hpp"
 
 int main() {
+    // print_BB(MAX_VALUE);
     // std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
     // std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
     // init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
@@ -42,21 +43,24 @@ int main() {
     // std::vector<Move> moves;
     // moves.reserve(MAX_LEGAL_MOVES);
     // std::array<magic_structure, 64> t;
-    Board chess_board = Board(DEFAULT_FEN);
+    // Board chess_board = Board(DEFAULT_FEN);
+    // print_BB(blocker_mask_rook(10));
+    // std::cout << real_count(blocker_mask_rook(10));
     // load_magics();
     // std::cout << chess_board.piece_data[11];
     // print_BB(generate_attacks(chess_board));
     // std::cout << "\n" << chess_board.piece_data[63] << std::endl;
     // load_magics();
-    Move m = generate_move(3, 1, CASTLE, EMPTY, 0);
+    // Move m = generate_move(3, 1, CASTLE, EMPTY, 0);
+
     // // Move m2 = generate_move(55, 47, NORMAL_MOVE);
     // Move m2 = generate_move(24, 32, NORMAL_MOVE);
     // // Move m4 = generate_move(47, 39, NORMAL_MOVE);
     // Move m3 = generate_move(32, 40, NORMAL_MOVE);
     // Move m4 = generate_move(40, 49, NORMAL_MOVE);
     // Move m5 = generate_move(49, 56, PROMOTION, QUEEN);
-    chess_board.play_move(m);
-    chess_board.undo_move(m);
+    // chess_board.play_move(m);
+    // chess_board.undo_move(m);
     // chess_board.play_move(m1);
     // chess_board.next_turn();
     // chess_board.play_move(m2);
@@ -67,7 +71,7 @@ int main() {
     // chess_board.next_turn();
     // chess_board.play_move(m5);
     // chess_board.undo_move(m5);
-    chess_board.print_square_data();
+    // chess_board.print_square_data();
     // std::cout << ROOK_MAGICS[20].magic << std::endl;
     // chess_board.print_square_data();
     // generate_legal_moves(chess_board, moves);

@@ -45,6 +45,7 @@ std::vector<std::string> split(std::string s, char delim) {
 }
 
 Board::Board(std::string fen) {
+
     // char cur;
     int i = fen.length() - 1;
     int castles = 0;
@@ -61,13 +62,13 @@ Board::Board(std::string fen) {
 
     for (char cur : fensplit[2]) {
         if (cur == 'q') {
-            castles ^= 1 << 4;
-        }
-        else if (cur == 'k') {
             castles ^= 1 << 3;
         }
-        else if (cur == 'Q') {
+        else if (cur == 'k') {
             castles ^= 1 << 2;
+        }
+        else if (cur == 'Q') {
+            castles ^= 1 << 1;
         }
         else if (cur == 'K') {
             castles ^= 1;
@@ -190,6 +191,9 @@ void Board::print_square_data() {
     // std::cout << "Done printing square data." << std::endl;
 }
 
+bool Board::is_in_check() {
+    return (this->pieces[KING] & this->pieces[turn_to_index(this->turn)]) & this->pieces[OTHER_TEAM_ATTACKS];
+}
 
 inline void Board::next_turn() {
     this->turn = !this->turn;
@@ -300,14 +304,15 @@ void Board::play_move(Move move) {
         // std::cout << "Here" << std::endl;
         piece = type >> 3; // more like side; 1 is kingside 0 is queenside
         cur_castle &= 0b0011 ^ (0b1111 * this->turn); // if u castle once u cant castle again
+        int color_to_pos = (!this->turn * 56);
 
-        BB t = (piece ? 0b10111000ULL : 0b1111) << (!this->turn * 56);
+        BB t = (piece ? 0b1111 : 0b10111000ULL) << color_to_pos;
 
         // starting positions
-        int rookStart = (piece == 0) ? (7 + (!this->turn * 56)) : (0 + (!this->turn * 56)); // (piece * 7) + (!this->turn * 56)
-        int kingStart = 3 + (!this->turn * 56);
-        int rookEnd = 2 + (!piece << 1) + (!this->turn * 56);
-        int kingEnd = 1 + (!piece << 2) + (!this->turn * 56); // x << 1 == x * 2
+        int rookStart = (piece == 0) ? (7 + color_to_pos) : (0 + color_to_pos); // (piece * 7) + color_to_pos
+        int kingStart = 3 + color_to_pos;
+        int rookEnd = 2 + (!piece << 1) + color_to_pos;
+        int kingEnd = 1 + (!piece << 2) + color_to_pos; // x << 1 == x * 2
         // int kingEnd = 6 - (piece * 4) + (!this->turn * 56);
         
         fast_reverse_bit(this->pieces[ROOK], rookStart); // off

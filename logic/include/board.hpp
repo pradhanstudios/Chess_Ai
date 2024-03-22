@@ -18,6 +18,11 @@ enum PIECE {
     FULL = 10
 };
 
+enum CASTLE_TYPE {
+    QUEENSIDE_CASTLE = 0,
+    KINGSIDE_CASTLE = 1
+};
+
 extern const std::string DEFAULT_FEN;
 extern const std::map<char, int> col_letter_to_num;
 
@@ -36,6 +41,7 @@ class Board {
         bool turn; // true for white false for black
         Board(std::string fen);
         void print_square_data();
+        bool is_in_check();
         inline void next_turn();
         inline void update_bitboards();
         void play_move(Move move);

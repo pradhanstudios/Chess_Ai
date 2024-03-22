@@ -87,5 +87,5 @@ int file(int pos) {
 }
 
 int rank(int pos) {
-    pos & 7;
+    return pos & 7;
 }

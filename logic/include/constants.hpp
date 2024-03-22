@@ -25,6 +25,7 @@ extern const Move FIRST_SIX;
 
 // bitboards
 
+extern const BB MAX_VALUE;
 extern const BB A_FILE; // represent a file
 extern const BB B_FILE;
 extern const BB C_FILE;

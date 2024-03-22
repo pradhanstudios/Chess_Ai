@@ -173,7 +173,23 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
         new_pos = pop_first_one(piece_moves);
         moves.push_back(generate_move(pos, new_pos, NORMAL_MOVE));
     }
+    int check_mask = 0ULL;
+    int cur_check_allowance = chess_board.castle_history.back();
+    int color_to_position = chess_board.turn ? 0 : 56;
+    // kingside castle
+    int shift = chess_board.turn ? 0 : 2;
+    check_mask = 0b1111 << color_to_position;
+    if (((0b0110 << color_to_position) & ~(chess_board.pieces[FULL] | chess_board.pieces[OTHER_TEAM_ATTACKS])) && ((cur_check_allowance>>shift) & 1)) {
+        moves.push_back(generate_move(3 + color_to_position, 1 + color_to_position, CASTLE, EMPTY, KINGSIDE_CASTLE));
+    }
 
+    // queenside castle
+    check_mask = 0b10111000 << color_to_position;
+    shift++; // because queenside castles are after in the mask
+    if (((0b01110000 << color_to_position) & ~chess_board.pieces[FULL]) && ((cur_check_allowance>>shift) & 1) && ((0b001100000 << color_to_position) & ~(chess_board.pieces[OTHER_TEAM_ATTACKS]))) {
+        moves.push_back(generate_move(3 + color_to_position, 4 + color_to_position, CASTLE, EMPTY, QUEENSIDE_CASTLE));
+    }
+    moves = filter_illegal_moves(chess_board, moves);
 }
 
 BB generate_attacks(Board chess_board) {
@@ -203,7 +219,19 @@ BB generate_attacks(Board chess_board) {
     // pawns
     BB same_team_pawns = chess_board.pieces[PAWN] & chess_board.pieces[same_team];
     int direction = chess_board.turn ? 8 : -8;
-    attacks |= (shift_back(same_team_pawns & ~(((direction+1) == -7) ? ~(A_FILE) : ~(H_FILE)), direction+1) | shift_back(same_team_pawns & ~(((direction-1) == -9) ? ~(H_FILE) : ~(A_FILE)), direction-1)) & ~(same_team);
+    attacks |= (shift_back(same_team_pawns & ~(((direction+1) == -7) ? ~(A_FILE) : ~(H_FILE)), direction+1) | shift_back(same_team_pawns & ~(((direction-1) == -9) ? ~(H_FILE) : ~(A_FILE)), direction-1));
+
+    // king
+    BB king = chess_board.pieces[KING] & chess_board.pieces[same_team];
+    attacks |= 
+    (((king & ~(RANK_8 | A_FILE)) << 9) |
+    ((king & ~(RANK_8)) << 8) |
+    ((king & ~(RANK_8 | H_FILE)) << 7) |
+    ((king & ~(A_FILE)) << 1) |
+    ((king & ~(H_FILE)) >> 1) |
+    ((king & ~(RANK_1 | A_FILE)) >> 7) |
+    ((king & ~(RANK_1)) >> 8) |
+    ((king & ~(RANK_1 | H_FILE)) >> 9));
 
     return attacks;
 }
@@ -211,3 +239,103 @@ BB generate_attacks(Board chess_board) {
 void set_attack_bitboard(Board &chess_board) {
     chess_board.pieces[OTHER_TEAM_ATTACKS] = generate_attacks(chess_board);
 }
+
+bool is_legal(Board chess_board, Move move, BB king, BB other_team_bishops_and_queens, BB other_team_rooks_and_queens, int same_team, int other_team) {
+    int from, to, type, same_team, other_team;
+    BB cur_bishop_moves, cur_rook_moves, cur_attacks, cur_king;
+    from = move & FIRST_SIX;
+    to = (move >> 6) & FIRST_SIX;
+    type = (move >> 12) & FIRST_FOUR;
+    if (type == NORMAL_MOVE) {
+        // generate queen moves for position
+        cur_bishop_moves = get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], from, (BISHOP_MAGICS)[from]);
+        cur_rook_moves = get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], from, (ROOK_MAGICS)[from]);
+        if ((cur_bishop_moves & other_team_bishops_and_queens) || (cur_rook_moves & other_team_rooks_and_queens)) { // the idea is that if we are being attacked by sliding pieces we might be pinned
+            chess_board.play_move(move);
+            cur_attacks = generate_attacks(chess_board);
+            cur_king = chess_board.pieces[same_team] & chess_board.pieces[KING];
+            // I dont have to undo move because I did not reference it, so it doesn't matter
+            if (cur_king & cur_attacks) { // king is in check
+                return false;
+            }
+        }
+    }
+    else if (type == EN_PESSANT) { // it is too complicated to calculate this, so just brute force it
+        chess_board.play_move(move);
+        cur_attacks = generate_attacks(chess_board);
+        if (king & cur_attacks) {
+            return false;
+        }
+    }
+    else if (type == PROMOTION) {
+        cur_bishop_moves = get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], from, (BISHOP_MAGICS)[from]);
+        cur_rook_moves = get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], from, (ROOK_MAGICS)[from]);
+        if ((cur_bishop_moves & other_team_bishops_and_queens) || (cur_rook_moves & other_team_rooks_and_queens)) {
+            chess_board.play_move(move);
+            cur_attacks = generate_attacks(chess_board);
+            // I dont have to undo move because I did not reference it, so it doesn't matter
+            if (king & cur_attacks) { // king is in check
+                return false;
+            }
+        }
+    // for castles, in move generation we already make sure that we do not run into check
+    }
+    return true;
+}
+
+bool is_legal(Board chess_board, Move move) {
+    int same_team, other_team;
+    same_team = turn_to_index(chess_board.turn);
+    other_team = turn_to_index(!chess_board.turn);
+    BB other_team_queens = chess_board.pieces[other_team] & chess_board.pieces[QUEEN];
+    return is_legal(chess_board, move, chess_board.pieces[same_team] & chess_board.pieces[KING], (chess_board.pieces[BISHOP] | other_team_queens) & chess_board.pieces[other_team], (chess_board.pieces[ROOK] | other_team_queens) & chess_board.pieces[other_team], same_team, other_team);
+}
+
+std::vector<Move> filter_illegal_moves(Board chess_board, std::vector<Move> moves) {
+    int from, to, type, same_team, other_team;
+    BB cur_moves, cur_attacks;
+    std::vector<Move> legal;
+    same_team = turn_to_index(chess_board.turn);
+    other_team = turn_to_index(!chess_board.turn);
+    BB same_team_king = chess_board.pieces[same_team] & chess_board.pieces[KING];
+    BB other_team_bishops_and_queens = (chess_board.pieces[BISHOP] | chess_board.pieces[QUEEN]) & chess_board.pieces[other_team];
+    BB other_team_rooks_and_queens = (chess_board.pieces[ROOK] | chess_board.pieces[QUEEN]) & chess_board.pieces[other_team];
+    std::vector<Move> filtered_moves;
+    filtered_moves.reserve(MAX_LEGAL_MOVES);
+    for (Move move : moves) {
+        if (!is_legal(chess_board, move, same_team_king, other_team_bishops_and_queens, other_team_rooks_and_queens, same_team, other_team)) {
+            continue;
+        }
+        filtered_moves.push_back(move);
+    }
+    return filtered_moves;
+}
+// void set_pins(Board &chess_board) {
+//     int pos, same_team, other_team, direction, rank, file, difference, king_pos_rank, king_pos_file, king_pos, cur_attacks;
+//     same_team = turn_to_index(chess_board.turn);
+//     other_team = turn_to_index(!chess_board.turn);
+//     BB same_team_king = chess_board.pieces[KING] & chess_board.pieces[same_team];
+//     king_pos = zeroes_start(same_team_king);
+//     king_pos_rank = king_pos & 7;
+//     king_pos_file = int(king_pos / 8);
+//     BB no_same_team_pieces = ~(chess_board.pieces[same_team] ^ (same_team_king)) & chess_board.pieces[FULL];
+//     BB cur_attacks, pin_ray;
+//     BB other_team_rooks = chess_board.pieces[ROOK] & chess_board.pieces[other_team];
+//     BB cur_line;
+//     while (other_team_rooks) {
+//         pos = pop_first_one(other_team_rooks);
+//         cur_attacks = get_sliding_moves(no_same_team_pieces, chess_board.pieces[other_team], pos, (ROOK_MAGICS)[pos]);
+//         if (cur_attacks & same_team_king) {
+//             rank = pos & 7;
+//             file = int(pos / 8);
+//             if (rank == king_pos_rank) {
+//                 cur_attacks &= (RANK_1 << (8 * rank)) & (((1 << (abs(file - king_pos_file) + 1)) - 1) << (file < king_pos_file ? file : king_pos_file) /*min*/);
+//                 cur_attacks ^= same_team_king;
+//                 cur_attacks &= chess_board.pieces[same_team];
+//                 if (real_count(cur_attacks) == 1) { // only one piece is being pinned
+//                     chess_board.pins[chess_board.turn][zeroes_start(cur_attacks)] = cur_attacks; 
+//                 }
+//             }
+//         }
+//     } 
+// }
