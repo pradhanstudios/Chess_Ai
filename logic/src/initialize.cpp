@@ -30,4 +30,39 @@ void initialize_engine() {
             in_between_lookup[i*64 + j] = _in_between(i, j);
         }
     }
+
+    int direction;
+    for (int i = 0; i < 64; i++) {
+        
+        for (int j = 0; j < 2; j++) {
+            direction = -8 + 16*(j); /*-8 for black 8 for white*/ 
+            PAWN_MOVES[j][i] = (shift_back(SQUARE_TO_BB[i], direction));
+        }
+
+        for (int j = 2; j < 4; j++) {
+            direction = -8 + 16*(j-2); /*-8 for black 8 for white*/ 
+            PAWN_MOVES[j][i] = (shift_back(SQUARE_TO_BB[i] & ~A_FILE, direction+1) | shift_back(SQUARE_TO_BB[i] & ~H_FILE, direction-1));
+        }
+        KNIGHT_MOVES[i] = (
+        ((SQUARE_TO_BB[i] & ~(RANK_1 | A_FILE | B_FILE)) >> 6) |
+        ((SQUARE_TO_BB[i] & ~(RANK_1 | G_FILE | H_FILE)) >> 10) |
+        ((SQUARE_TO_BB[i] & ~(RANK_8 | G_FILE | H_FILE)) << 6) |
+        ((SQUARE_TO_BB[i] & ~(RANK_8 | A_FILE | B_FILE)) << 10) | 
+        ((SQUARE_TO_BB[i] & ~(RANK_1 | RANK_2 | A_FILE)) >> 15) | 
+        ((SQUARE_TO_BB[i] & ~(RANK_1 | RANK_2 | H_FILE)) >> 17) |
+        ((SQUARE_TO_BB[i] & ~(RANK_8 | RANK_7 | H_FILE)) << 15) |
+        ((SQUARE_TO_BB[i] & ~(RANK_8 | RANK_7 | A_FILE)) << 17)
+        );
+        
+        KING_MOVES[i] = (
+        ((SQUARE_TO_BB[i] & ~(RANK_8 | A_FILE)) << 9) |
+        ((SQUARE_TO_BB[i] & ~(RANK_8)) << 8) |
+        ((SQUARE_TO_BB[i] & ~(RANK_8 | H_FILE)) << 7) |
+        ((SQUARE_TO_BB[i] & ~(A_FILE)) << 1) |
+        ((SQUARE_TO_BB[i] & ~(H_FILE)) >> 1) |
+        ((SQUARE_TO_BB[i] & ~(RANK_1 | A_FILE)) >> 7) |
+        ((SQUARE_TO_BB[i] & ~(RANK_1)) >> 8) |
+        ((SQUARE_TO_BB[i] & ~(RANK_1 | H_FILE)) >> 9)
+        );
+    }
 }

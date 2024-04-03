@@ -34,7 +34,7 @@ int main() { // http://www.rocechess.ch/perft.html n1n5/PPPk4/8/8/8/8/4Kppp/5N1N
     // b.play_move(uci_to_move("f3f6", b));
     // print_BB(b.pieces[PAWN]);
     // print_BB(b.pieces[FULL]);
-    std::cout << perft(b, 6, 6);
+    std::cout << perft(b, 5);
     // b.print_square_data();
     // print_BB(b.pieces[FULL]);
     // b.undo_move(m1);

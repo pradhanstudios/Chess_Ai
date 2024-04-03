@@ -26,8 +26,8 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
     BB pins = get_and_set_pins(chess_board);
     chess_board.next_turn(); // go back
     BB king = chess_board.pieces[KING] & chess_board.pieces[same_team];
-    piece_moves = king_moves(king, chess_board.pieces[same_team], chess_board.pieces[OTHER_TEAM_ATTACKS]);
-    int king_pos = pop_first_one(king);
+    int king_pos = zeroes_start(king);
+    piece_moves = king_moves(king_pos, chess_board.pieces[same_team], chess_board.pieces[OTHER_TEAM_ATTACKS]);
     while (piece_moves) {
         new_pos = pop_first_one(piece_moves);
         moves.push_back((Move(king_pos, new_pos, NORMAL_MOVE)));
@@ -71,7 +71,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
         pos = pop_first_one(same_team_pawns);
         // std::cout << pos << " is pos" << std::endl;
         // std::cout << pos << " ";
-        piece_moves = pawn_moves(SQUARE_TO_BB[pos], chess_board.pieces[other_team], chess_board.pieces[EMPTY], chess_board.turn ? 8 : -8) & chess_board.check_ray;
+        piece_moves = pawn_moves(pos, chess_board.pieces[other_team], chess_board.pieces[EMPTY], chess_board.turn) & chess_board.check_ray;
         // print_BB(chess_board.pieces[other_team]);
         // std::cout << piece_moves << std::endl;
         if (SQUARE_TO_BB[pos] & pins) {
@@ -98,7 +98,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
         // }
         if ((cur_history.en_pessant != 0) && (abs(cur_history.en_pessant - pos) < 2) && (real_count((SQUARE_TO_BB[cur_history.en_pessant] | SQUARE_TO_BB[pos]) & EDGES) != 2)) { // if it is one off of the en pessant pawn
             // std::cout << () << std::endl;
-            en_pessant_move = Move(pos, cur_history.en_pessant - (chess_board.turn ? -8 : 8), EN_PESSANT);
+            en_pessant_move = Move(pos, cur_history.en_pessant + PAWN_DIRECTION_LOOKUP[chess_board.turn], EN_PESSANT);
             // std::cout << "got here" << std::endl;
             // check if it results in a check
             chess_board.play_move(en_pessant_move);
@@ -116,7 +116,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
 
     while (same_team_knights) {
         pos = pop_first_one(same_team_knights); // from
-        piece_moves = knight_moves(SQUARE_TO_BB[pos], chess_board.pieces[same_team]) & chess_board.check_ray;
+        piece_moves = knight_moves(pos, chess_board.pieces[same_team]) & chess_board.check_ray;
 
         if (SQUARE_TO_BB[pos] & pins) {
             pins_idx = chess_board.pins[same_team_pins_idx][pos];
@@ -245,7 +245,7 @@ BB generate_attacks(Board &chess_board) {
     BB same_team_knights = chess_board.pieces[KNIGHT] & chess_board.pieces[same_team];
     while (same_team_knights) {
         pos = pop_first_one(same_team_knights);
-        cur_attacks = knight_moves(SQUARE_TO_BB[pos], chess_board.pieces[same_team]); 
+        cur_attacks = knight_moves(pos, chess_board.pieces[same_team]); 
         if (cur_attacks & other_team_king) {
             num_of_checks += 1;
             chess_board.check_ray = in_between(pos, other_team_king_pos) | SQUARE_TO_BB[pos];
@@ -258,10 +258,10 @@ BB generate_attacks(Board &chess_board) {
     }
     // pawns
     BB same_team_pawns = chess_board.pieces[PAWN] & chess_board.pieces[same_team];
-    int direction = chess_board.turn ? 8 : -8;
+    int direction = PAWN_DIRECTION_LOOKUP[chess_board.turn];
     while (same_team_pawns) {
         pos = pop_first_one(same_team_pawns); 
-        cur_attacks = ((shift_back(SQUARE_TO_BB[pos] & ~A_FILE, direction+1) | shift_back(SQUARE_TO_BB[pos] & ~H_FILE, direction-1)));
+        cur_attacks = PAWN_MOVES[chess_board.turn+2][pos];
         if (cur_attacks & other_team_king) {
             // num_of_checks += 1;
             // print_BB(SQUARE_TO_BB[pos]);
@@ -270,18 +270,10 @@ BB generate_attacks(Board &chess_board) {
         attacks |= cur_attacks;
     }
     // king
-    // king can not check the other king so we dont need to consider it
     BB king = chess_board.pieces[KING] & chess_board.pieces[same_team];
-    attacks |= 
-    (((king & ~(RANK_8 | A_FILE)) << 9) |
-    ((king & ~(RANK_8)) << 8) |
-    ((king & ~(RANK_8 | H_FILE)) << 7) |
-    ((king & ~(A_FILE)) << 1) |
-    ((king & ~(H_FILE)) >> 1) |
-    ((king & ~(RANK_1 | A_FILE)) >> 7) |
-    ((king & ~(RANK_1)) >> 8) |
-    ((king & ~(RANK_1 | H_FILE)) >> 9));
+    attacks |= KING_MOVES[zeroes_start(king)];
 
+    // king can not check the other king so we dont need to consider it
     chess_board.is_double_check = num_of_checks == 2;
 
     chess_board.pieces[FULL] ^= other_team_king; // undoing the thing from the start of the function

@@ -94,7 +94,7 @@ Board::Board(std::string fen) {
 
     this->turn = fensplit[1][0] == 'w';
 
-    cur_history.en_pessant -= (this->turn ? 8 : -8);
+    cur_history.en_pessant -= PAWN_DIRECTION_LOOKUP[this->turn];
 
     this->history.push_back(cur_history);
 
@@ -452,14 +452,14 @@ void Board::undo_move(Move move) {
             this->pieces[capture & 7] ^= t;
         }
         // std::cout << to << std::endl;
-        this->piece_data[from] = PAWN + (this->turn ? 0 : 8);
+        this->piece_data[from] = PAWN + (!this->turn*8);
         this->piece_data[to] = capture;
     }
     else if (type == EN_PESSANT) {
         BB t = (SQUARE_TO_BB[from]) ^ (SQUARE_TO_BB[to]);
         BB c = SQUARE_TO_BB[cur_en_pessant];
         // std::cout << cur_en_pessant << std::endl;
-        this->piece_data[cur_en_pessant] = PAWN + (!this->turn ? 0 : 8);
+        this->piece_data[cur_en_pessant] = PAWN + (this->turn*8);
         // std::cout << (PAWN + !this->turn ? 0 : 8) << std::endl;
         this->piece_data[from] = this->piece_data[to];
         this->piece_data[to] = EMPTY;

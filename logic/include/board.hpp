@@ -4,6 +4,7 @@
 #include "constants.hpp"
 #include "bit_operations.hpp"
 #include "move.hpp"
+#include "non_sliding_moves.hpp"
 
 enum PIECE {
     EMPTY = 0,
