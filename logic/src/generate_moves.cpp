@@ -51,7 +51,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
     int color_to_position = !chess_board.turn * 56;
     // kingside castle
     int shift = !chess_board.turn << 1;
-    if (!((0b0111ULL << color_to_position) & (not_king | chess_board.pieces[OTHER_TEAM_ATTACKS])) && (cur_check_allowance & (1 << shift))) {
+    if (!((0b0110ULL << color_to_position) & (not_king | chess_board.pieces[OTHER_TEAM_ATTACKS])) && (cur_check_allowance & SQUARE_TO_BB[shift])) {
         // std::cout << "got here" << std::endl;
         // print_BB((0b0110ULL << color_to_position));
         moves.push_back((Move(3 + color_to_position, 1 + color_to_position, CASTLE, EMPTY, KINGSIDE_CASTLE)));
@@ -59,10 +59,13 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
 
     // queenside castle
     shift++; // because queenside castles are after in the mask
-    if (!((0b01110000ULL << color_to_position) & not_king) && (cur_check_allowance & (1 << shift)) && !((0b00111000 << color_to_position) & chess_board.pieces[OTHER_TEAM_ATTACKS])) {
+    // print_BB(0b00111000 << color_to_position);
+    // std::cout << !((0b00111000ULL << color_to_position) & chess_board.pieces[OTHER_TEAM_ATTACKS]) << std::endl;
+    if (!((0b01110000ULL << color_to_position) & not_king) && (cur_check_allowance & SQUARE_TO_BB[shift]) && !((0b00111000ULL << color_to_position) & chess_board.pieces[OTHER_TEAM_ATTACKS])) {
+        // print_move_fancy((Move(3 + color_to_position, 5 + color_to_position, CASTLE, EMPTY, QUEENSIDE_CASTLE)));
         moves.push_back((Move(3 + color_to_position, 5 + color_to_position, CASTLE, EMPTY, QUEENSIDE_CASTLE)));
     }
-
+    // print_BB(chess_board.check_ray);
 
     while (same_team_pawns) {
         pos = pop_first_one(same_team_pawns);
@@ -93,7 +96,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
         // if (pos == 32) {
         //     std::cout << abs(cur_history.en_pessant - pos) << std::endl;
         // }
-        if (cur_history.en_pessant != 0 && abs(cur_history.en_pessant - pos) < 2) { // if it is one off of the en pessant pawn
+        if ((cur_history.en_pessant != 0) && (abs(cur_history.en_pessant - pos) < 2) && (real_count((SQUARE_TO_BB[cur_history.en_pessant] | SQUARE_TO_BB[pos]) & EDGES) != 2)) { // if it is one off of the en pessant pawn
             // std::cout << () << std::endl;
             en_pessant_move = Move(pos, cur_history.en_pessant - (chess_board.turn ? -8 : 8), EN_PESSANT);
             // std::cout << "got here" << std::endl;
@@ -239,21 +242,33 @@ BB generate_attacks(Board &chess_board) {
         attacks |= cur_attacks;
     }
     // knights
-    cur_attacks = knight_moves(chess_board.pieces[KNIGHT] & chess_board.pieces[same_team], chess_board.pieces[same_team]); 
-    if (cur_attacks & other_team_king) {
-        num_of_checks += 1;
-        chess_board.check_ray = in_between(pos, other_team_king_pos) | SQUARE_TO_BB[pos];
+    BB same_team_knights = chess_board.pieces[KNIGHT] & chess_board.pieces[same_team];
+    while (same_team_knights) {
+        pos = pop_first_one(same_team_knights);
+        cur_attacks = knight_moves(SQUARE_TO_BB[pos], chess_board.pieces[same_team]); 
+        if (cur_attacks & other_team_king) {
+            num_of_checks += 1;
+            chess_board.check_ray = in_between(pos, other_team_king_pos) | SQUARE_TO_BB[pos];
+            // print_BB(chess_board.check_ray);
+            // std::cout << "got here" << std::endl;
+            // std::cout << pos << std::endl;
+            // print_BB(SQUARE_TO_BB[pos]);
+        }
+        attacks |= cur_attacks;
     }
-    attacks |= cur_attacks;
     // pawns
     BB same_team_pawns = chess_board.pieces[PAWN] & chess_board.pieces[same_team];
     int direction = chess_board.turn ? 8 : -8;
-    cur_attacks = ((shift_back(same_team_pawns & ~A_FILE, direction+1) | shift_back(same_team_pawns & ~H_FILE, direction-1)));
-    if (cur_attacks & other_team_king) {
-        num_of_checks += 1;
-        chess_board.check_ray = in_between(pos, other_team_king_pos) | SQUARE_TO_BB[pos];
+    while (same_team_pawns) {
+        pos = pop_first_one(same_team_pawns); 
+        cur_attacks = ((shift_back(SQUARE_TO_BB[pos] & ~A_FILE, direction+1) | shift_back(SQUARE_TO_BB[pos] & ~H_FILE, direction-1)));
+        if (cur_attacks & other_team_king) {
+            // num_of_checks += 1;
+            // print_BB(SQUARE_TO_BB[pos]);
+            chess_board.check_ray = in_between(pos, other_team_king_pos) | SQUARE_TO_BB[pos];
+        }
+        attacks |= cur_attacks;
     }
-    attacks |= cur_attacks;
     // king
     // king can not check the other king so we dont need to consider it
     BB king = chess_board.pieces[KING] & chess_board.pieces[same_team];
@@ -266,6 +281,7 @@ BB generate_attacks(Board &chess_board) {
     ((king & ~(RANK_1 | A_FILE)) >> 7) |
     ((king & ~(RANK_1)) >> 8) |
     ((king & ~(RANK_1 | H_FILE)) >> 9));
+
     chess_board.is_double_check = num_of_checks == 2;
 
     chess_board.pieces[FULL] ^= other_team_king; // undoing the thing from the start of the function
@@ -287,7 +303,7 @@ BB get_and_set_pins(Board &chess_board) {
     BB same_team_rooks = chess_board.pieces[ROOK] & chess_board.pieces[same_team];
     BB no_other_team_pieces = ~(chess_board.pieces[other_team] ^ other_team_king) ^ chess_board.pieces[EMPTY];
     int other_team_pins_idx = !chess_board.turn;
-    std::fill(chess_board.pins[other_team_pins_idx].begin(), chess_board.pins[other_team_pins_idx].end(), -1);
+    // std::fill(chess_board.pins[other_team_pins_idx].begin(), chess_board.pins[other_team_pins_idx].end(), -1);
     // BB not_same_team = ~chess_board.pieces[same_team];
     BB cur_attacks, ray;
     int pin_pos;

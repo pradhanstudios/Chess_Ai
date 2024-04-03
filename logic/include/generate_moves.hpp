@@ -10,7 +10,7 @@
 #include "magic_values.hpp"
 
 inline std::array<BB, 4096> in_between_lookup;
-inline BB in_between(int i, int j) {
+constexpr BB in_between(int i, int j) {
     return in_between_lookup[i*64 + j];
 }
 

@@ -26,10 +26,15 @@ int main() { // http://www.rocechess.ch/perft.html n1n5/PPPk4/8/8/8/8/4Kppp/5N1N
     // print_BB(SQUARE_TO_BB[30]);
     // 
     // rnbqkbnr/ppppppp1/8/7p/8/7P/PPPPPPP1/RNBQKBNR w KQkq - 0 2
-    Board b = Board("rnbqkbnr/ppppppp1/8/7p/P7/7P/1PPPPPP1/RNBQKBNR b KQkq - 0 2");
-    b.play_move(uci_to_move("a2a4", b));
-    print_BB(b.pieces[PAWN]);
-    std::cout << perft(b, 1, 1);
+    // r3k2r/p1ppqpb1/bn2pQp1/3PN3/1p2P3/2N4p/PPPBBPPP/R3K2R b KQkq - 0 1
+    // rnbqkbnr/pppp1pp1/8/4p2p/P7/8/1PPPPPPP/RNBQKBNR w KQkq - 0 3
+    Board b = Board(DEFAULT_FEN); // 
+    // b.play_move(uci_to_move("h7h5", b));
+    // b.undo_move(uci_to_move("e1g1", b));
+    // b.play_move(uci_to_move("f3f6", b));
+    // print_BB(b.pieces[PAWN]);
+    // print_BB(b.pieces[FULL]);
+    std::cout << perft(b, 6, 6);
     // b.print_square_data();
     // print_BB(b.pieces[FULL]);
     // b.undo_move(m1);

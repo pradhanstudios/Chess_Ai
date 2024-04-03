@@ -31,13 +31,13 @@ repeat
 // extern std::array<magic_structure, 64> BISHOP_MAGICS;
 // extern std::array<BB, 64> BISHOP_SHIFTS;
 inline std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
-BB random_BB_helper();
-BB random_BB();
-int calculate_index(BB input_bitboard, BB magic, int shift);
-magic_structure _find_magics_rook(int pos);
-magic_structure _find_magics_bishop(int pos);
-// void _write_magic_structure(magic_structure structure, std::ofstream &file);
-void generate_magics_and_save();
+// BB random_BB_helper();
+// BB random_BB();
+// int calculate_index(BB input_bitboard, BB magic, int shift);
+// magic_structure _find_magics_rook(int pos);
+// magic_structure _find_magics_bishop(int pos);
+// // void _write_magic_structure(magic_structure structure, std::ofstream &file);
+// void generate_magics_and_save();
 // void _save(std::array<magic_structure, 64> array, std::string filename);
 void load_magics();
 constexpr BB get_sliding_moves(BB current_position, BB friendlies, magic_structure magic) {

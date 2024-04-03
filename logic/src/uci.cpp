@@ -16,9 +16,9 @@ std::string move_to_uci(Move move) {
     if (type & PROMOTION) {
         output += num_to_piece[type >> 1];
     }
-    else if (type & CASTLE) {
-        output += (type >> 3) ? 'k' : 'q';
-    }
+    // else if (type & CASTLE) {
+    //     output += (type >> 3) ? 'k' : 'q';
+    // }
     return output;
 }
 
@@ -52,7 +52,7 @@ Move uci_to_move(std::string uci, Board chess_board) {
     }
 
     else if (piece == KING && abs(from - to) == 2) { // king has moved two spaces = castle
-        int castle_side = (from - to) > 0 ? 1 : 0;
+        int castle_side = ((from - to) > 0) ? 1 : 0;
         return Move(from, to, CASTLE, EMPTY, castle_side);
     }
     // std::cout << "here";
