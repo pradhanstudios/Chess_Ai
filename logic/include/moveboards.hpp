@@ -1,4 +1,6 @@
-#pragma once
+#ifndef MOVEBOARDS_HPP
+#define MOVEBOARDS_HPP
+
 #include "constants.hpp"
 #include "sliding_moves.hpp"
 
@@ -22,3 +24,4 @@ void init_moveboards(std::array<BB, 64> &rook_masks, std::array<BB, 64> &bishop_
 // void init_moveboards() {
 //     _init_moveboards_helper()
 // }
+#endif // MOVEBOARDS_HPP

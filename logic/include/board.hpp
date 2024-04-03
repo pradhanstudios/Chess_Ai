@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BOARD_HPP
+#define BOARD_HPP
 
 #include "constants.hpp"
 #include "bit_operations.hpp"
@@ -23,21 +24,47 @@ enum CASTLE_TYPE {
     KINGSIDE_CASTLE = 1
 };
 
+enum BOARD_STATE {
+    RUNNING = 0,
+    DRAW = 1,
+    CHECKMATE = 2
+};
+
 extern const std::string DEFAULT_FEN;
 extern const std::map<char, int> col_letter_to_num;
 
-int turn_to_index(bool turn);
-int no_color(int piece);
+inline int turn_to_index(bool turn) { // turn 1 or 0 into 7 (WHITE) or 8 (BLACK)
+    return BLACK - turn;
+}
+
+inline int no_color(int piece) {
+    return piece & 7;
+}
+
 void print_vector(std::vector<int> v);
+void print_vector(std::vector<std::string> v);
 
 std::vector<std::string> split(std::string s, char delim);
 
+struct History {
+    unsigned int en_pessant : 6;
+    unsigned int castle : 4;
+    unsigned int capture : 3;
+    unsigned int fifty_move_rule : 6;
+
+    History(unsigned int en_pessant=0, unsigned int castle=0b0000, unsigned int capture=0, unsigned int fifty_move_rule=0);
+};
+
 class Board {
     public:
-        std::array<int, 64> piece_data;
-        std::array<BB, 11> pieces;
+        std::array<int, 64> piece_data = {EMPTY};
+        std::array<BB, 11> pieces = {EMPTY};
+        std::array<std::array<int, 64>, 2> pins;
+        bool is_double_check;
+        BB check_ray;
+        BOARD_STATE state;
         // int castles;
-        std::vector<int> enpessent_history, castle_history, capture_history;
+        std::vector<History> history;
         bool turn; // true for white false for black
         Board(std::string fen);
         void print_square_data();
@@ -103,3 +130,4 @@ class Board {
 
 //         }
 };
+#endif // BOARD_HPP

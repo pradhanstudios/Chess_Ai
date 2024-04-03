@@ -212,14 +212,14 @@ void load_magics() {
     // }
 }
 
-BB get_sliding_moves(BB current_position, BB friendlies, int pos, magic_structure magic) {
-    // fast_reverse_bit(current_position, pos); // get rid of the piece itself
-    // for (BB b : magic.attacks) {
-    //     if (b) {
-    //         return b;
-    //     }
-    // }
-    // print_BB(current_position);
-    // print_BB((current_position ^ (1 << pos)));
-    return magic.attacks[((current_position & magic.mask) * magic.magic) >> magic.shift] & ~friendlies;
-}
+// BB get_sliding_moves(BB current_position, BB friendlies, int pos, magic_structure magic) {
+//     // fast_reverse_bit(current_position, pos); // get rid of the piece itself
+//     // for (BB b : magic.attacks) {
+//     //     if (b) {
+//     //         return b;
+//     //     }
+//     // }
+//     // print_BB(current_position);
+//     // print_BB((current_position ^ (1 << pos)));
+//     return magic.attacks[((current_position & magic.mask) * magic.magic) >> magic.shift] & ~friendlies;
+// }

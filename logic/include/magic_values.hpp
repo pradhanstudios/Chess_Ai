@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAGIC_VALUES_HPP
+#define MAGIC_VALUES_HPP
 
 #include "constants.hpp"
 #include "sliding_moves.hpp"
@@ -39,4 +40,15 @@ magic_structure _find_magics_bishop(int pos);
 void generate_magics_and_save();
 // void _save(std::array<magic_structure, 64> array, std::string filename);
 void load_magics();
-BB get_sliding_moves(BB current_position, BB friendlies, int pos, magic_structure magic);
+constexpr BB get_sliding_moves(BB current_position, BB friendlies, magic_structure magic) {
+    // fast_reverse_bit(current_position, pos); // get rid of the piece itself
+    // for (BB b : magic.attacks) {
+    //     if (b) {
+    //         return b;
+    //     }
+    // }
+    // print_BB(current_position);
+    // print_BB((current_position ^ (1 << pos)));
+    return magic.attacks[((current_position & magic.mask) * magic.magic) >> magic.shift] & ~friendlies;
+}
+#endif // MAGIC_VALUES_HPP

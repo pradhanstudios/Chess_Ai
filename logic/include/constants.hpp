@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CONSTANTS_HPP
+#define CONSTANTS_HPP
 
 #include <stdint.h>
 #include <string>
@@ -8,7 +9,6 @@
 
 // eventually maybe try int_fast_64_t and fastint16_t
 typedef uint64_t BB; // short for Bitboard
-typedef uint16_t Move;
 
 
 enum MOVE_TYPES {
@@ -19,10 +19,6 @@ enum MOVE_TYPES {
 };
 
 extern const int MAX_LEGAL_MOVES;
-
-extern const Move FIRST_FOUR;
-extern const Move FIRST_SIX;
-
 // bitboards
 
 extern const BB MAX_VALUE;
@@ -48,3 +44,4 @@ extern const BB EDGES;
 
 extern const BB TOPLEFTTORIGHT;
 extern const BB BOTLEFTTORIGHT;
+#endif // CONSTANTS_HPP

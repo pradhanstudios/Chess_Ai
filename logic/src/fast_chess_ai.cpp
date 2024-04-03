@@ -9,99 +9,57 @@
 #include "board.hpp"
 #include "move.hpp"
 #include "generate_moves.hpp"
+#include "search.hpp"
+#include "initialize.hpp"
 
-int main() {
+int main() { // http://www.rocechess.ch/perft.html n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1 
+    // 8/8/6p1/K4pPr/8/8/8/8 w - f5 0 1
+    // 1k1R4/1pp5/p7/8/8/8/8/8 w - - 0 1
+    initialize_engine();
+    if (!ENGINE_INITIALIZED) {
+        std::cerr << "ENGINE HAS NOT BEEN INITIALIZED, THEREFORE IT WILL NOT WORK PROPERLY" << std::endl;
+        std::cerr << "TO INITIALIZE, AT THE START OF MAIN(), RUN 'initialize_engine();'" << std::endl;
+        return 1;
+    }
+    // 8/8/7p/6pP/8/8/5kr1/7K w - g5 0 1
     // print_BB(MAX_VALUE);
-    // std::array<BB, 64> ROOK_MASKS, BISHOP_MASKS;
-    // std::array<std::array<BB, 4096>, 64> ROOK_MOVES, BISHOP_MOVES;
-    // init_moveboards(ROOK_MASKS, BISHOP_MASKS, ROOK_MOVES, BISHOP_MOVES);
-    // // int i = 0;
-    // int count = 0;
-    // print_BB(ROOK_MOVES[0][90]);
-    // std::cout << "Empty bb's: " << std::endl;
-    // for (BB bitboard : ROOK_MOVES[2]) {
-    //     if (!bitboard) {
-    //         // if (i < 100) {
-    //         // print_BB(bitboard);
-    //         // std::cout << i << ", ";
-    //         // }
-    //         count++;
-    //     }
-    //     i++;
-    // }
-    // std::cout << std::endl << "Count: " << count << "/" << i << std::endl;
-
-    // BB rook_blck = 0b110ULL;
-
-    // BB newbb = moveboard_rook(rook_blck, 0);
-
-    // print_BB(newbb);
-
-    // generate_magics_and_save();
-
-    // print_BB(ROOK_MOVES[0][26]);
+    // print_BB(SQUARE_TO_BB[30]);
+    Board b = Board(DEFAULT_FEN);
+    // b.play_move(uci_to_move("d8h4", b));
+    // print_BB(pawn_moves(b.pieces[FULL] & SQUARE_TO_BB[8], b.pieces[BLACK], b.pieces[EMPTY], 8));
     // std::vector<Move> moves;
     // moves.reserve(MAX_LEGAL_MOVES);
-    // std::array<magic_structure, 64> t;
-    // Board chess_board = Board(DEFAULT_FEN);
-    // print_BB(blocker_mask_rook(10));
-    // std::cout << real_count(blocker_mask_rook(10));
-    // load_magics();
-    // std::cout << chess_board.piece_data[11];
-    // print_BB(generate_attacks(chess_board));
-    // std::cout << "\n" << chess_board.piece_data[63] << std::endl;
-    // load_magics();
-    // Move m = generate_move(3, 1, CASTLE, EMPTY, 0);
-
-    // // Move m2 = generate_move(55, 47, NORMAL_MOVE);
-    // Move m2 = generate_move(24, 32, NORMAL_MOVE);
-    // // Move m4 = generate_move(47, 39, NORMAL_MOVE);
-    // Move m3 = generate_move(32, 40, NORMAL_MOVE);
-    // Move m4 = generate_move(40, 49, NORMAL_MOVE);
-    // Move m5 = generate_move(49, 56, PROMOTION, QUEEN);
-    // chess_board.play_move(m);
-    // chess_board.undo_move(m);
-    // chess_board.play_move(m1);
-    // chess_board.next_turn();
-    // chess_board.play_move(m2);
-    // chess_board.next_turn(); // skip a turn
-    // chess_board.play_move(m3);
-    // chess_board.next_turn();
-    // chess_board.play_move(m4);
-    // chess_board.next_turn();
-    // chess_board.play_move(m5);
-    // chess_board.undo_move(m5);
-    // chess_board.print_square_data();
-    // std::cout << ROOK_MAGICS[20].magic << std::endl;
-    // chess_board.print_square_data();
-    // generate_legal_moves(chess_board, moves);
-    // for (Move m : moves) {
-        // print_move_fancy(m);
+    // generate_legal_moves(b, moves);
+    // for (Move move : moves) {
+    //     std::cout << move_to_uci(move) << std::endl;
     // }
-    // print_BB(blocker_mask_bishop(0));
-    // generate_magics_and_save();
-    // extern std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
-    // std::cout << ROOK_MAGICS[0].magic << std::endl;
-    // int *temp;
-    // std::cout << "ok" << std::endl;
-    // int temp2 = temp[3];
-    // std::cout << (7 & temp[2]) << std::endl;
-    // chess.print_square_data();
-    // std::cout << "here";
-    // t = ROOK_MAGICS;
-    // std::cout << chess.pieces[WHITE] << std::endl;
-    // generate_legal_moves(chess_board, ROOK_MAGICS, BISHOP_MAGICS, moves);
-    
     // std::cout << moves.size() << std::endl;
-    // std::cout << ROOK_MAGICS[0].magic;
-    // print_BB(chess_board.pieces[FULL]);
-    // print_BB(get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[WHITE], 20, BISHOP_MAGICS[20]));
-    // Searcher s;
-    // s.ROOK_MAGICS = ROOK_MAGICS;
-    // s.BISHOP_MAGICS = BISHOP_MAGICS;
-    // s->ROOK_MAGICS = &ROOK_MAGICS;
-    // s->BISHOP_MAGICS = &BISHOP_MAGICS;
+    // std::cout << b.state << std::endl;
+    // BB pawns_to_move = b.pieces[WHITE] & b.pieces[PAWN];
+    std::cout << perft(b, 5, 5);
+    // print_BB(shift_back(pawns_to_move & ~H_FILE, 8-1));
+    // b.next_turn();
+    // print_BB(get_and_set_pins(b));
+    // b.next_turn();
+    // std::cout << perft(b, 3, 3) << std::endl;
+    // generate_legal_moves(b, moves);
+    // for (Move move : moves) {
+    //     std::cout << move_to_uci(move) << std::endl;
+    // }
+    // std::cout << moves.size() << std::endl;
 
-    // s.generate_legal_moves(chess_board, moves);
+    // std::cout << b.is_double_check << std::endl;
+    // b.play_move(uci_to_move("h2h4", b));
+    // b.play_move(uci_to_move("g7g5", b));
+    // print_move_fancy(uci_to_move("h2h4", b));
+    // b.print_square_data();
+    // std::cout << perft(b, 4, 4) << std::endl;
+    // print_BB(b.pieces[PAWN]);
+    // Move m = uci_to_move("g2h1r", b);
+    // Move m2 = Move(9, 0, PROMOTION, ROOK);
+    // // std::cout << (m == m2) << std::endl;
+    // b.play_move(m);
+    // b.undo_move(m);
+    // print_BB(b.pieces[KNIGHT] & b.pieces[WHITE]);
     return 0;
 }

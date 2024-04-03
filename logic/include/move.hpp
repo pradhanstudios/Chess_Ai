@@ -1,10 +1,22 @@
-#pragma once
+#ifndef MOVE_HPP
+#define MOVE_HPP
 
 #include "constants.hpp"
 
-// Move Structure 16-bit
-// upto move_type(3-bit) + piece_type(3-bit) | to(6-bit) | from(6-bit)
-// for castle and en_pessant, typing is implied so it becomes just the move type
 
-Move generate_move(int from, int to, int type, int promotion = 0, int castle_side = 0);
+struct Move {
+    unsigned int from : 6;
+    unsigned int to : 6;
+    unsigned int type : 4; 
+    Move(unsigned int from = 0, unsigned int to = 0, unsigned int type = 0b0000, int promotion = 0, int castle_side = 0);
+    inline bool operator==(Move other_move) {
+        return (other_move.from == this->from) && (other_move.to == this->to) && (other_move.type == this->type);
+    }
+    inline bool operator!=(Move other_move) {
+        return !this->operator==(other_move);
+    }
+};
+const inline Move NULL_MOVE = Move();
 void print_move_fancy(Move m);
+
+#endif // MOVE_HPP

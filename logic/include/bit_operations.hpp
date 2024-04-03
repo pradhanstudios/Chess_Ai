@@ -1,31 +1,79 @@
-#pragma once
+#ifndef BIT_OPERATIONS_HPP
+#define BIT_OPERATIONS_HPP
+
+
 #include "constants.hpp"
+#include "move.hpp"
 
-BB shift_back(BB bitboard, int back);
+// #define cool(x, y)
+inline std::array<BB, 64> SQUARE_TO_BB;
+// #define shift_back(bitboard, back)
+// #define set_bit_on(bitboard, index)
+// #define set_bit_off(bitboard, index)
+// #define fast_reverse_bit(bitboard, index)
+// #define get_bit(bitboard, index)
+// #define zeroes_end(bitboard)
+// #define zeroes_start(bitboard)
+// #define is_within_board(pos)
+// #define rank(pos)
+// #define file(pos)
 
-void set_bit_on(BB &bitboard, int index);
+constexpr int real_count(BB bitboard) {
+    return __builtin_popcountll(bitboard);
+}
 
-void set_bit_off(BB &bitboard, int index);
+constexpr int zeroes_start(BB bitboard) {
+    return __builtin_ctzll(bitboard);
+}
 
-void fast_reverse_bit(BB &bitboard, int index);
+constexpr int pop_first_one(BB &bitboard) {
+    int first = zeroes_start(bitboard);
+    bitboard &= bitboard - 1;
+    return first;
+}
 
-BB get_bit(BB bitboard, int index);
-
-int zeroes_end(BB bitboard);
-
-int zeroes_start(BB bitboard);
-
-int pop_first_one(BB &bitboard);
-
-int real_count(BB bitboard);
-
-bool is_within_board(int pos);
-
+/// not constexprd
 void print_BB(BB bitboard);
+///
 
-void print_Move_bits(Move move);
+constexpr BB shift_back(BB bitboard, int back) { // used for pawn move generation
+    return back > 0 ? (bitboard << back): (bitboard >> -back);
+}
 
-int file(int pos);
+constexpr void set_bit_on(BB &bitboard, int index) {
+    bitboard |= SQUARE_TO_BB[index];
+}
 
-int rank(int pos);
+constexpr void set_bit_off(BB &bitboard, int index) {
+    bitboard &= ~SQUARE_TO_BB[index];
+}
 
+constexpr void fast_reverse_bit(BB &bitboard, int index) {
+    bitboard ^= SQUARE_TO_BB[index];
+}
+
+constexpr BB get_bit(BB bitboard, int index) {
+    return bitboard & SQUARE_TO_BB[index];
+    // return (bitboard >> index) & 1ULL;
+}
+
+constexpr int zeroes_end(BB bitboard) {
+    return __builtin_clzll(bitboard);
+}
+
+constexpr bool is_within_board(int pos) {
+    return pos >= 0 && pos < 64;
+}
+
+// pos = 0b11111 = 63
+// first three bits tell use file, last three tell us rank
+
+constexpr int file(int pos) {
+    return pos & 7; // last three bits
+}
+
+constexpr int rank(int pos) {
+    return pos >> 3; // first three bits
+}
+
+#endif // BIT_OPERATIONS_HPP
