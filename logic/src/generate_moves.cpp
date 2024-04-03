@@ -35,6 +35,14 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
 
     if (chess_board.is_double_check) {
         // std::cout << "here" << std::endl;
+        if (moves.size() == 0) {
+            if (king & chess_board.pieces[OTHER_TEAM_ATTACKS]) { // checkmate
+                chess_board.state = CHECKMATE;
+            }
+            else { // stalemate
+                chess_board.state = DRAW;
+            }
+        }
         return; // if it is double check there is no point in checking other moves
     }
 
@@ -173,7 +181,12 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
         }
     }
     if (moves.size() == 0) {
-        chess_board.state = CHECKMATE;
+        if (king & chess_board.pieces[OTHER_TEAM_ATTACKS]) { // checkmate
+            chess_board.state = CHECKMATE;
+        }
+        else { // stalemate
+            chess_board.state = DRAW;
+        }
     }
     // moves = filter_illegal_moves(chess_board, moves);
 }

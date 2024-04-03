@@ -36,7 +36,7 @@ int main() { // http://www.rocechess.ch/perft.html n1n5/PPPk4/8/8/8/8/4Kppp/5N1N
     // std::cout << moves.size() << std::endl;
     // std::cout << b.state << std::endl;
     // BB pawns_to_move = b.pieces[WHITE] & b.pieces[PAWN];
-    std::cout << perft(b, 5, 5);
+    std::cout << perft(b, 5);
     // print_BB(shift_back(pawns_to_move & ~H_FILE, 8-1));
     // b.next_turn();
     // print_BB(get_and_set_pins(b));

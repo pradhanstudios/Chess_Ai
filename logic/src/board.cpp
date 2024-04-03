@@ -411,6 +411,7 @@ void Board::undo_move(Move move) {
     cur_en_pessant = old_history.en_pessant;
     capture = old_history.capture;
     castle = old_history.castle;
+    this->state = RUNNING;
     same_team = turn_to_index(this->turn);
     other_team = turn_to_index(!this->turn);
     from = move.from;
