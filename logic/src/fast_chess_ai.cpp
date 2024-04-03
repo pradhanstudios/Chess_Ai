@@ -24,19 +24,21 @@ int main() { // http://www.rocechess.ch/perft.html n1n5/PPPk4/8/8/8/8/4Kppp/5N1N
     // 8/8/7p/6pP/8/8/5kr1/7K w - g5 0 1
     // print_BB(MAX_VALUE);
     // print_BB(SQUARE_TO_BB[30]);
-    Board b = Board(DEFAULT_FEN);
-    // b.play_move(uci_to_move("d8h4", b));
+    // 
+    // rnbqkbnr/ppppppp1/8/7p/8/7P/PPPPPPP1/RNBQKBNR w KQkq - 0 2
+    Board b = Board("rnbqkbnr/ppppppp1/8/7p/P7/7P/1PPPPPP1/RNBQKBNR b KQkq - 0 2");
+    b.play_move(uci_to_move("a2a4", b));
+    print_BB(b.pieces[PAWN]);
+    std::cout << perft(b, 1, 1);
+    // b.print_square_data();
+    // print_BB(b.pieces[FULL]);
+    // b.undo_move(m1);
+    // b.print_square_data();
+    // print_BB(b.pieces[PAWN]);
     // print_BB(pawn_moves(b.pieces[FULL] & SQUARE_TO_BB[8], b.pieces[BLACK], b.pieces[EMPTY], 8));
-    // std::vector<Move> moves;
-    // moves.reserve(MAX_LEGAL_MOVES);
-    // generate_legal_moves(b, moves);
-    // for (Move move : moves) {
-    //     std::cout << move_to_uci(move) << std::endl;
-    // }
-    // std::cout << moves.size() << std::endl;
+    
     // std::cout << b.state << std::endl;
     // BB pawns_to_move = b.pieces[WHITE] & b.pieces[PAWN];
-    std::cout << perft(b, 5);
     // print_BB(shift_back(pawns_to_move & ~H_FILE, 8-1));
     // b.next_turn();
     // print_BB(get_and_set_pins(b));

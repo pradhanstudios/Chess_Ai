@@ -90,13 +90,17 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
             }
         }
         // en_pessant
+        // if (pos == 32) {
+        //     std::cout << abs(cur_history.en_pessant - pos) << std::endl;
+        // }
         if (cur_history.en_pessant != 0 && abs(cur_history.en_pessant - pos) < 2) { // if it is one off of the en pessant pawn
             // std::cout << () << std::endl;
             en_pessant_move = Move(pos, cur_history.en_pessant - (chess_board.turn ? -8 : 8), EN_PESSANT);
+            // std::cout << "got here" << std::endl;
             // check if it results in a check
             chess_board.play_move(en_pessant_move);
             cur_attacks = generate_attacks(chess_board);
-            if (king & cur_attacks) {
+            if (!(king & cur_attacks)) {
                 moves.push_back(en_pessant_move);
             }
             chess_board.undo_move(en_pessant_move);

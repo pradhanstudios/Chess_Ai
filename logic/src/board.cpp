@@ -63,6 +63,7 @@ Board::Board(std::string fen) {
     std::vector<std::string> fensplit = split(fen, ' ');
     // print_vector(fensplit);
     // std::cout << fensplit[3] << std::endl;
+    // std::cout << (7-col_letter_to_num.at(fensplit[3][0]) + (std::stoi(&fensplit[3][1])-1)*8) << std::endl;
     if (fensplit[3][0] != '-'){
         cur_history.en_pessant = (7-col_letter_to_num.at(fensplit[3][0]) + (std::stoi(&fensplit[3][1])-1)*8);
     }
@@ -90,9 +91,12 @@ Board::Board(std::string fen) {
     cur_history.castle = castles;
     cur_history.fifty_move_rule = 0;
 
-    this->history.push_back(cur_history);
 
     this->turn = fensplit[1][0] == 'w';
+
+    cur_history.en_pessant -= (this->turn ? 8 : -8);
+
+    this->history.push_back(cur_history);
 
     int color;
     int board_ptr = 0;
@@ -227,6 +231,7 @@ void Board::play_move(Move move) {
     from = move.from;
     to = move.to;
     type = move.type;
+    // std::cout << type << std::endl;
     History cur_history = this->history.back();
     int cur_castle = cur_history.castle;
     int fifty_move_rule = cur_history.fifty_move_rule + 1;
@@ -367,6 +372,7 @@ void Board::play_move(Move move) {
         fifty_move_rule = 0;
         // int N = this->enpessent_history.size();
         int enpessant = cur_history.en_pessant;
+        // std::cout << enpessant << std::endl;
         // print_vector(this->enpessent_history);
         // std::cout << enpessent << std::endl;
         // std::cout << this->enpessent_history[N-1] << "\t" << this->enpessent_history[N-2] << std::endl;
