@@ -2,6 +2,7 @@
 
 // bitboards
 
+const unsigned int FIRST_SIX = 0b111111;
 const int MAX_LEGAL_MOVES = 218;
 
 const BB MAX_VALUE = ~0ULL;

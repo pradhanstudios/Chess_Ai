@@ -18,6 +18,7 @@ enum MOVE_TYPES {
 };
 
 extern const int MAX_LEGAL_MOVES;
+extern const unsigned int FIRST_SIX;
 // bitboards
 
 extern const BB MAX_VALUE;

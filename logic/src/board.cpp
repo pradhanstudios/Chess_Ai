@@ -412,7 +412,6 @@ void Board::undo_move(const Move move) {
     this->history.pop_back();
     int cur_en_pessant = old_history.en_pessant;
     int capture = old_history.capture;
-    int castle = old_history.castle;
     this->state = RUNNING;
     int same_team = turn_to_index[this->turn];
     int other_team = turn_to_index[!this->turn];
@@ -462,7 +461,8 @@ void Board::undo_move(const Move move) {
         this->pieces[other_team] ^= SQUARE_TO_BB[cur_en_pessant];
     }
     else if (type & CASTLE) {
-        bool is_queenside_castle = ((castle & (!this->turn ? 0b0011ULL : 0b1100ULL)) & 0b1010ULL);
+        // std::cout << "here" << std::endl;
+        bool is_queenside_castle = !(type >> 3);
         // std::cout << "is queenside castle:\t" << is_queenside_castle << std::endl;
         int color_to_pos = !this->turn * 56;
         BB t = (is_queenside_castle ? 0b10111000ULL : 0b1111ULL) << (color_to_pos); // checking if it is a queenside or kingside castle

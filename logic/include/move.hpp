@@ -8,6 +8,7 @@ struct Move {
     unsigned int from : 6;
     unsigned int to : 6;
     unsigned int type : 4; 
+    int score : 16;
     Move(const unsigned int from = 0, const unsigned int to = 0, const unsigned int type = 0b0000, const int promotion = 0, const int castle_side = 0);
     inline bool operator==(Move other_move) {
         return (other_move.from == this->from) && (other_move.to == this->to) && (other_move.type == this->type);
