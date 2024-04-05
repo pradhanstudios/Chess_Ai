@@ -19,14 +19,14 @@ const std::map<char, int> col_letter_to_num = {
 // int no_color(int piece) {
 //     return piece & 7;
 // }
-void print_vector(std::vector<int> v) {
+void print_vector(const std::vector<int> v) {
     for (int i : v) {
         std::cout << i << ",  ";
     }
     std::cout << std::endl;
 } 
 
-void print_vector(std::vector<std::string> v) {
+void print_vector(const std::vector<std::string> v) {
     for (std::string i : v) {
         std::cout << i << ",  ";
     }
@@ -34,7 +34,7 @@ void print_vector(std::vector<std::string> v) {
 } 
 
 
-std::vector<std::string> split(std::string s, char delim) {
+std::vector<std::string> split(const std::string s, const char delim) {
     std::vector<std::string> result;
     std::stringstream ss (s);
     std::string item;
@@ -46,14 +46,14 @@ std::vector<std::string> split(std::string s, char delim) {
     return result;
 }
 
-History::History(unsigned int en_pessant, unsigned int castle, unsigned int capture, unsigned int fifty_move_rule) {
+History::History(const unsigned int en_pessant, const unsigned int castle, const unsigned int capture, const unsigned int fifty_move_rule) {
     this->en_pessant = en_pessant;
     this->castle = castle;
     this->capture = capture;
     this->fifty_move_rule = fifty_move_rule;
 }
 
-Board::Board(std::string fen) {
+Board::Board(const std::string fen) {
 
     // char cur;
     // int i = fen.length() - 1;
@@ -210,27 +210,25 @@ void Board::print_square_data() {
 }
 
 inline bool Board::is_in_check() {
-    return (this->pieces[KING] & this->pieces[turn_to_index(this->turn)]) & this->pieces[OTHER_TEAM_ATTACKS];
+    return (this->pieces[KING] & this->pieces[turn_to_index[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
 }
 
-inline void Board::next_turn() {
-    this->turn = !this->turn;
-}
+// inline void Board::next_turn() {
+//     this->turn = !this->turn;
+// }
 
 inline void Board::update_bitboards() { // update bitboards which are dependant on other bitboards
     this->pieces[FULL] = (this->pieces[WHITE] | this->pieces[BLACK]);
     this->pieces[EMPTY] = ~this->pieces[FULL];
 }
 
-void Board::play_move(Move move) {
-    int from, to, type;
-    int same_team, other_team, piece;
+void Board::play_move(const Move move) {
     int cur_en_pessant = -1;
-    same_team = turn_to_index(this->turn);
-    other_team = turn_to_index(!this->turn);
-    from = move.from;
-    to = move.to;
-    type = move.type;
+    int same_team = turn_to_index[this->turn];
+    int other_team = turn_to_index[!this->turn];
+    int from = move.from;
+    int to = move.to;
+    int type = move.type;
     // std::cout << type << std::endl;
     History cur_history = this->history.back();
     int cur_castle = cur_history.castle;
@@ -243,7 +241,7 @@ void Board::play_move(Move move) {
         // std::cout << to << "\t" << from << std::endl;
         // piece = type >> 1;
         BB capture = 1ULL << to;
-        piece = no_color(this->piece_data[from]);
+        int piece = no_color(this->piece_data[from]);
         BB t = capture ^ (SQUARE_TO_BB[from]);
         // std::cout << ind << std::endl;
         // print_BB((1 << to) ^ (1 << from));
@@ -307,7 +305,7 @@ void Board::play_move(Move move) {
     else if (type & PROMOTION) {
         fifty_move_rule = 0;
         // std::cout << "got here" << std::endl;
-        piece = type >> 1; // promotion piece
+        int piece = type >> 1; // promotion piece
         // std::cout << piece << std::endl;
         fast_reverse_bit(this->pieces[PAWN], from); // off
         fast_reverse_bit(this->pieces[same_team], from);
@@ -344,17 +342,17 @@ void Board::play_move(Move move) {
 
     else if (type & CASTLE) {
         // std::cout << "Here" << std::endl;
-        piece = type >> 3; // more like side; 1 is kingside 0 is queenside
+        int side = type >> 3; // 1 is kingside 0 is queenside
         cur_castle &= 0b0011 ^ (0b1111 * this->turn); // if u castle once u cant castle again
         int color_to_pos = (!this->turn * 56);
 
-        BB t = (piece ? 0b1111ULL : 0b10111000ULL) << color_to_pos;
+        BB t = (side ? 0b1111ULL : 0b10111000ULL) << color_to_pos;
 
         // starting positions
-        int rookStart = (piece == 0) ? (7 + color_to_pos) : (color_to_pos);
+        int rookStart = (side == 0) ? (7 + color_to_pos) : (color_to_pos);
         int kingStart = 3 + color_to_pos;
-        int rookEnd = 2 + (!piece << 1) + color_to_pos;
-        int kingEnd = 1 + (!piece << 2) + color_to_pos; // x << 1 == x * 2
+        int rookEnd = 2 + (!side << 1) + color_to_pos;
+        int kingEnd = 1 + (!side << 2) + color_to_pos; // x << 1 == x * 2
         // int kingEnd = 6 - (piece * 4) + (!this->turn * 56);
         
         fast_reverse_bit(this->pieces[ROOK], rookStart); // off
@@ -384,7 +382,7 @@ void Board::play_move(Move move) {
         // std::cout << same_team << std::endl;
         this->pieces[same_team] ^= t;
         fast_reverse_bit(this->pieces[PAWN], enpessant);
-        fast_reverse_bit(this->pieces[turn_to_index(!turn)], enpessant);
+        fast_reverse_bit(this->pieces[turn_to_index[!turn]], enpessant);
         this->piece_data[to] = this->piece_data[from];
         this->piece_data[from] = EMPTY;
         this->piece_data[enpessant] = EMPTY;
@@ -408,21 +406,19 @@ void Board::play_move(Move move) {
     this->next_turn();
 }
 
-void Board::undo_move(Move move) {
+void Board::undo_move(const Move move) {
     this->next_turn(); // technically previous turn, but whatever
-    int from, to, type;
-    int same_team, other_team, piece, cur_en_pessant, capture, castle;
     History old_history = this->history.back();
     this->history.pop_back();
-    cur_en_pessant = old_history.en_pessant;
-    capture = old_history.capture;
-    castle = old_history.castle;
+    int cur_en_pessant = old_history.en_pessant;
+    int capture = old_history.capture;
+    int castle = old_history.castle;
     this->state = RUNNING;
-    same_team = turn_to_index(this->turn);
-    other_team = turn_to_index(!this->turn);
-    from = move.from;
-    to = move.to;
-    type = move.type;
+    int same_team = turn_to_index[this->turn];
+    int other_team = turn_to_index[!this->turn];
+    int from = move.from;
+    int to = move.to;
+    int type = move.type;
 
     if (type == NORMAL_MOVE) {
         BB capture_place = SQUARE_TO_BB[to];
@@ -438,18 +434,16 @@ void Board::undo_move(Move move) {
         this->piece_data[to] = capture;
     }
     else if (type & PROMOTION) {
-        BB t = SQUARE_TO_BB[to];
-        BB f = SQUARE_TO_BB[from];
-        this->pieces[PAWN] ^= f;
-        this->pieces[same_team] ^= (f | t);
+        this->pieces[PAWN] ^= SQUARE_TO_BB[from];
+        this->pieces[same_team] ^= (SQUARE_TO_BB[from] | SQUARE_TO_BB[to]);
         // std::cout << capture << std::endl;
         if (capture) {
             // std::cout << "here" << std::endl;
             // print_BB(this->pieces[other_team]);
-            this->pieces[other_team] ^= t;
+            this->pieces[other_team] ^= SQUARE_TO_BB[to];
             // print_BB(this->pieces[other_team]);
             // std::cout << (capture & 7) << std::endl;
-            this->pieces[capture & 7] ^= t;
+            this->pieces[capture & 7] ^= SQUARE_TO_BB[to];
         }
         // std::cout << to << std::endl;
         this->piece_data[from] = PAWN + (!this->turn*8);
@@ -457,15 +451,15 @@ void Board::undo_move(Move move) {
     }
     else if (type == EN_PESSANT) {
         BB t = (SQUARE_TO_BB[from]) ^ (SQUARE_TO_BB[to]);
-        BB c = SQUARE_TO_BB[cur_en_pessant];
+        // BB c = SQUARE_TO_BB[cur_en_pessant];
         // std::cout << cur_en_pessant << std::endl;
         this->piece_data[cur_en_pessant] = PAWN + (this->turn*8);
         // std::cout << (PAWN + !this->turn ? 0 : 8) << std::endl;
         this->piece_data[from] = this->piece_data[to];
         this->piece_data[to] = EMPTY;
-        this->pieces[PAWN] ^= t | c;
+        this->pieces[PAWN] ^= t | SQUARE_TO_BB[cur_en_pessant];
         this->pieces[same_team] ^= t;
-        this->pieces[other_team] ^= c;
+        this->pieces[other_team] ^= SQUARE_TO_BB[cur_en_pessant];
     }
     else if (type & CASTLE) {
         bool is_queenside_castle = ((castle & (!this->turn ? 0b0011ULL : 0b1100ULL)) & 0b1010ULL);

@@ -10,7 +10,7 @@
 #include "magic_values.hpp"
 
 inline std::array<BB, 4096> in_between_lookup;
-constexpr BB in_between(int i, int j) {
+constexpr BB in_between(const int i, const int j) {
     return in_between_lookup[i*64 + j];
 }
 
@@ -18,6 +18,12 @@ constexpr BB in_between(int i, int j) {
     // public:
         // std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
         // Searcher(std::array<magic_structure, 64> ROOK_MAGICS, std::array<magic_structure, 64> BISHOP_MAGICS);
+// void get_king_moves(Board &chess_board, std::vector<Move> &moves);
+// void get_pawn_moves(Board &chess_board, std::vector<Move> &moves, History cur_history, BB pins, BB king, int king_pos);
+// void get_knight_moves(Board &chess_board, std::vector<Move> &moves);
+// void get_bishop_moves(Board &chess_board, std::vector<Move> &moves);
+// void get_rook_moves(Board &chess_board, std::vector<Move> &moves);
+// void get_queen_moves(Board &chess_board, std::vector<Move> &moves);
 void generate_legal_moves(Board &chess_board, std::vector<Move> &moves);
 BB generate_attacks(Board &chess_board);
 void set_attack_bitboard(Board &chess_board);

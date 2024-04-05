@@ -1,6 +1,9 @@
 #ifndef BIT_OPERATIONS_HPP
 #define BIT_OPERATIONS_HPP
 
+#ifdef _WIN32
+#include <intrin.h>
+#endif
 
 #include "constants.hpp"
 #include "move.hpp"
@@ -18,12 +21,21 @@ inline std::array<BB, 64> SQUARE_TO_BB;
 // #define rank(pos)
 // #define file(pos)
 
-constexpr int real_count(BB bitboard) {
+constexpr int real_count(const BB bitboard) {
+    #ifndef _WIN32 // not windows
     return __builtin_popcountll(bitboard);
+    #else
+    return __popcnt64(bitboard);
+    #endif
+    
 }
 
-constexpr int zeroes_start(BB bitboard) {
+constexpr int zeroes_start(const BB bitboard) {
+    #ifndef _WIN32 // not windows
     return __builtin_ctzll(bitboard);
+    #else
+    return _tzcnt_u64(bitboard); 
+    #endif
 }
 
 constexpr int pop_first_one(BB &bitboard) {
@@ -32,47 +44,43 @@ constexpr int pop_first_one(BB &bitboard) {
     return first;
 }
 
-/// not constexprd
+// not constexprd
 void print_BB(BB bitboard);
-///
+//
 
-constexpr BB shift_back(BB bitboard, int back) { // used for pawn move generation
+constexpr BB shift_back(const BB bitboard, const int back) { // used for pawn move generation
     return back > 0 ? (bitboard << back): (bitboard >> -back);
 }
 
-constexpr void set_bit_on(BB &bitboard, int index) {
+constexpr void set_bit_on(BB &bitboard, const int index) {
     bitboard |= SQUARE_TO_BB[index];
 }
 
-constexpr void set_bit_off(BB &bitboard, int index) {
+constexpr void set_bit_off(BB &bitboard, const int index) {
     bitboard &= ~SQUARE_TO_BB[index];
 }
 
-constexpr void fast_reverse_bit(BB &bitboard, int index) {
+constexpr void fast_reverse_bit(BB &bitboard, const int index) {
     bitboard ^= SQUARE_TO_BB[index];
 }
 
-constexpr BB get_bit(BB bitboard, int index) {
+constexpr BB get_bit(const BB bitboard, const int index) {
     return bitboard & SQUARE_TO_BB[index];
     // return (bitboard >> index) & 1ULL;
 }
 
-constexpr int zeroes_end(BB bitboard) {
-    return __builtin_clzll(bitboard);
-}
-
-constexpr bool is_within_board(int pos) {
+constexpr bool is_within_board(const int pos) {
     return pos >= 0 && pos < 64;
 }
 
 // pos = 0b11111 = 63
 // first three bits tell use file, last three tell us rank
 
-constexpr int file(int pos) {
+constexpr int file(const int pos) {
     return pos & 7; // last three bits
 }
 
-constexpr int rank(int pos) {
+constexpr int rank(const int pos) {
     return pos >> 3; // first three bits
 }
 

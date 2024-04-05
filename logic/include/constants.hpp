@@ -10,7 +10,6 @@
 // eventually maybe try int_fast_64_t and fastint16_t
 typedef uint64_t BB; // short for Bitboard
 
-
 enum MOVE_TYPES {
     NORMAL_MOVE = 0b0000,
     PROMOTION = 0b0001,

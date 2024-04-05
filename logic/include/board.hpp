@@ -34,18 +34,20 @@ enum BOARD_STATE {
 extern const std::string DEFAULT_FEN;
 extern const std::map<char, int> col_letter_to_num;
 
-inline int turn_to_index(bool turn) { // turn 1 or 0 into 7 (WHITE) or 8 (BLACK)
-    return BLACK - turn;
-}
+inline std::array<PIECE, 2> turn_to_index = {BLACK, WHITE};
 
-inline int no_color(int piece) {
+// inline int turn_to_index(bool turn) { // turn 1 or 0 into 7 (WHITE) or 8 (BLACK)
+//     return BLACK - turn;
+// }
+
+inline int no_color(const int piece) {
     return piece & 7;
 }
 
-void print_vector(std::vector<int> v);
-void print_vector(std::vector<std::string> v);
+void print_vector(const std::vector<int> v);
+void print_vector(const std::vector<std::string> v);
 
-std::vector<std::string> split(std::string s, char delim);
+std::vector<std::string> split(const std::string s, const char delim);
 
 struct History {
     unsigned int en_pessant : 6;
@@ -53,7 +55,7 @@ struct History {
     unsigned int capture : 3;
     unsigned int fifty_move_rule : 6;
 
-    History(unsigned int en_pessant=0, unsigned int castle=0b0000, unsigned int capture=0, unsigned int fifty_move_rule=0);
+    History(const unsigned int en_pessant=0, const unsigned int castle=0b0000, const unsigned int capture=0, const unsigned int fifty_move_rule=0);
 };
 
 class Board {
@@ -67,13 +69,15 @@ class Board {
         // int castles;
         std::vector<History> history;
         bool turn; // true for white false for black
-        Board(std::string fen);
+        Board(const std::string fen);
         void print_square_data();
         bool is_in_check();
-        inline void next_turn();
+        constexpr void next_turn() {
+            this->turn = !this->turn;
+        };
         inline void update_bitboards();
-        void play_move(Move move);
-        void undo_move(Move move);
+        void play_move(const Move move);
+        void undo_move(const Move move);
         // this needs some more thinking
 //         void play_move(Move move) { // this is assuming that the moves are legal
 //             int piece;

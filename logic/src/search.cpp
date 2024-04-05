@@ -1,6 +1,6 @@
 #include "search.hpp"
 
-uint64_t perft(Board &chess_board, int depth) {
+uint64_t perft(Board &chess_board, const int depth) {
     if (depth == 0) {
         return 1ULL;
     }
@@ -10,7 +10,7 @@ uint64_t perft(Board &chess_board, int depth) {
     uint64_t nodes = 0ULL;
 
     generate_legal_moves(chess_board, moves);
-    for (Move move : moves) {
+    for (const Move &move : moves) {
         chess_board.play_move(move);
         nodes += perft(chess_board, depth - 1);
         chess_board.undo_move(move);
@@ -18,7 +18,7 @@ uint64_t perft(Board &chess_board, int depth) {
     return nodes;
 }
 
-uint64_t perft(Board &chess_board, int depth, int original_depth) {
+uint64_t perft(Board &chess_board, const int depth, const int original_depth) {
     // std::cout << "depth " << depth << std::endl;
     // chess_board.print_square_data();
     if (depth == 0) {
@@ -31,7 +31,7 @@ uint64_t perft(Board &chess_board, int depth, int original_depth) {
     uint64_t nodes = 0ULL;
 
     generate_legal_moves(chess_board, moves);
-    for (Move move : moves) {
+    for (const Move &move : moves) {
         chess_board.play_move(move);
         cur_node_count = perft(chess_board, depth - 1, depth);
         nodes += cur_node_count;
