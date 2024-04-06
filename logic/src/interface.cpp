@@ -26,6 +26,7 @@ void interface() {
                         return a + " " + b;
                     }
                     ); // https://stackoverflow.com/questions/5689003/how-to-implode-a-vector-of-strings-into-a-string-the-elegant-way
+                    std::cout << fen << std::endl;
                     b = Board(fen);
                 }
                 else {
@@ -34,6 +35,7 @@ void interface() {
             }
             else if (cur_input_args[1] == "play") {
                 b.play_move(uci_to_move(cur_input_args[2], b));
+                print_move_fancy(uci_to_move(cur_input_args[2], b));
             }
 
             else if (cur_input_args[1] == "undo") {
@@ -43,7 +45,7 @@ void interface() {
         else if (cur_input_args[0] == "go") {
             if (cur_input_args[1] == "perft") {
                 if (N < 3) {
-                    std::cout << "nah cant do infinite perft, my program is to slow" << std::endl;
+                    std::cout << "nah cant do infinite perft, my program is too slow" << std::endl;
                 }
                 else {
                     std::cout << perft(b, std::stoi(cur_input_args[2]), std::stoi(cur_input_args[2])) << " total nodes" << std::endl; 

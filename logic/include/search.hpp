@@ -4,8 +4,8 @@
 #include "generate_moves.hpp"
 #include "uci.hpp"
 
-uint64_t perft(Board &chess_board, const int depth);
-uint64_t perft(Board &chess_board, const int depth, const int original_depth);
+uint64_t perft(Board &chess_board, const int &depth);
+uint64_t perft(Board &chess_board, const int &depth, const int &original_depth);
 
 // https://www.chessprogramming.org/Perft_Results
 

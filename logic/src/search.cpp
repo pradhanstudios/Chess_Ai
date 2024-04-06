@@ -1,6 +1,6 @@
 #include "search.hpp"
 
-uint64_t perft(Board &chess_board, const int depth) {
+uint64_t perft(Board &chess_board, const int &depth) {
     if (depth == 0) {
         return 1ULL;
     }
@@ -18,7 +18,7 @@ uint64_t perft(Board &chess_board, const int depth) {
     return nodes;
 }
 
-uint64_t perft(Board &chess_board, const int depth, const int original_depth) {
+uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) {
     // std::cout << "depth " << depth << std::endl;
     // chess_board.print_square_data();
     if (depth == 0) {

@@ -30,9 +30,10 @@ int main() { // http://www.rocechess.ch/perft.html n1n5/PPPk4/8/8/8/8/4Kppp/5N1N
     // r3k2r/p1ppqpb1/bn2pQp1/3PN3/1p2P3/2N4p/PPPBBPPP/R3K2R b KQkq - 0 1
     // rnbqkbnr/pppp1pp1/8/4p2p/P7/8/1PPPPPPP/RNBQKBNR w KQkq - 0 3
     // std::cout << "here" << std::endl;
-    interface();
+    // interface();
     // std::cout << sizeof(Move) << std::endl;
-    // Board b = Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"); //
+    Board b = Board(DEFAULT_FEN); //
+    std::cout << perft(b, 6) << std::endl;
     // // Move m1 = uci_to_move("e1c1", b);
     // // b.play_move(m1);
     // // b.undo_move(m1);

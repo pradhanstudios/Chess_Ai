@@ -19,14 +19,14 @@ const std::map<char, int> col_letter_to_num = {
 // int no_color(int piece) {
 //     return piece & 7;
 // }
-void print_vector(const std::vector<int> v) {
+void print_vector(const std::vector<int> &v) {
     for (int i : v) {
         std::cout << i << ",  ";
     }
     std::cout << std::endl;
 } 
 
-void print_vector(const std::vector<std::string> v) {
+void print_vector(const std::vector<std::string> &v) {
     for (std::string i : v) {
         std::cout << i << ",  ";
     }
@@ -34,7 +34,7 @@ void print_vector(const std::vector<std::string> v) {
 } 
 
 
-std::vector<std::string> split(const std::string s, const char delim) {
+std::vector<std::string> split(const std::string &s, const char &delim) {
     std::vector<std::string> result;
     std::stringstream ss (s);
     std::string item;
@@ -46,14 +46,14 @@ std::vector<std::string> split(const std::string s, const char delim) {
     return result;
 }
 
-History::History(const unsigned int en_pessant, const unsigned int castle, const unsigned int capture, const unsigned int fifty_move_rule) {
+History::History(const unsigned int &en_pessant, const unsigned int &castle, const unsigned int &capture, const unsigned int &fifty_move_rule) {
     this->en_pessant = en_pessant;
     this->castle = castle;
     this->capture = capture;
     this->fifty_move_rule = fifty_move_rule;
 }
 
-Board::Board(const std::string fen) {
+Board::Board(const std::string &fen) {
 
     // char cur;
     // int i = fen.length() - 1;
@@ -222,7 +222,7 @@ inline void Board::update_bitboards() { // update bitboards which are dependant 
     this->pieces[EMPTY] = ~this->pieces[FULL];
 }
 
-void Board::play_move(const Move move) {
+void Board::play_move(const Move &move) {
     int cur_en_pessant = -1;
     int same_team = turn_to_index[this->turn];
     int other_team = turn_to_index[!this->turn];
@@ -406,7 +406,7 @@ void Board::play_move(const Move move) {
     this->next_turn();
 }
 
-void Board::undo_move(const Move move) {
+void Board::undo_move(const Move &move) {
     this->next_turn(); // technically previous turn, but whatever
     History old_history = this->history.back();
     this->history.pop_back();

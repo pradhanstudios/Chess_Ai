@@ -60,7 +60,7 @@
 //     return pos >= 0 && pos < 64;
 // }
 
-void print_BB(const BB bitboard) {
+void print_BB(const BB &bitboard) {
     for (int i = 63; i >= 0; i--) {
         int cur = bitboard >> i;
 

@@ -3,7 +3,7 @@
 
 // Move Structure 16-bit
 
-Move::Move(const unsigned int from, const unsigned int to, const unsigned int type, const int promotion, const int castle_side) {
+Move::Move(const unsigned int &from, const unsigned int &to, const unsigned int &type, const int &promotion, const int &castle_side) {
     this->from = from;
     this->to = to;
     unsigned int cur_type = type;
@@ -16,6 +16,6 @@ Move::Move(const unsigned int from, const unsigned int to, const unsigned int ty
     this->type = cur_type;
 }
 
-void print_move_fancy(const Move m) {
+void print_move_fancy(const Move &m) {
     std::cout << "Move(from=" << m.from << ", to=" << m.to << ")\n";
 }

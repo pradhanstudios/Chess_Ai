@@ -3,7 +3,7 @@
 const std::array<char, 8> num_to_col = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
 const std::array<char, 6> num_to_piece = {'F', 'F', 'n', 'b', 'r', 'q'};
 
-std::string move_to_uci(const Move move) {
+std::string move_to_uci(const Move &move) {
     int from = move.from;
     int to = move.to;
     int type = move.type;
@@ -21,7 +21,7 @@ std::string move_to_uci(const Move move) {
     return output;
 }
 
-Move uci_to_move(const std::string uci, const Board chess_board) {
+Move uci_to_move(const std::string &uci, const Board &chess_board) {
     // std::cout << (8*(std::stoi(&uci[3]) - 1)) << std::endl;
     int from = (7 - col_letter_to_num.at(uci[0])) + 8*(std::stoi(&uci[1]) - 1);
     int to = (7 - col_letter_to_num.at(uci[2])) + 8*(std::stoi(&uci[3]) - 1);

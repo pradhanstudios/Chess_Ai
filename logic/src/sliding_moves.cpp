@@ -1,6 +1,6 @@
 #include "sliding_moves.hpp"
 
-BB blocker_mask_rook(const int position)
+BB blocker_mask_rook(const int &position)
 {
     BB blocker_mask_up = H_FILE << (position % 8);
     blocker_mask_up &= ~(RANK_1 | RANK_8);
@@ -13,7 +13,7 @@ BB blocker_mask_rook(const int position)
     return blocker_mask;
 }
 
-BB blocker_mask_bishop(const int position)
+BB blocker_mask_bishop(const int &position)
 {
     BB bitboard = 0ULL;
     int i;
@@ -57,7 +57,7 @@ BB blocker_mask_bishop(const int position)
     // return bitboard;
 }
 
-std::array<BB, 4096> blocker_boards(const BB blocker_mask)
+std::array<BB, 4096> blocker_boards(const BB &blocker_mask)
 {
     // std::cout << "\tfunc start" << std::endl;
     std::vector<int> poss;
@@ -102,7 +102,7 @@ std::array<BB, 4096> blocker_boards(const BB blocker_mask)
     return output;
 }
 
-BB moveboard_bishop(const BB blocker_board, const int position)
+BB moveboard_bishop(const BB &blocker_board, const int &position)
 {
     BB moveboard = 0ULL;
     int i;
@@ -134,7 +134,7 @@ BB moveboard_bishop(const BB blocker_board, const int position)
     return moveboard;
 }
 
-BB moveboard_rook(const BB blocker_board, const int position)
+BB moveboard_rook(const BB &blocker_board, const int &position)
 {
     BB moveboard = 0ULL;
     int i, bad_rank;

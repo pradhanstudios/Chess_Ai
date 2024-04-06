@@ -21,7 +21,7 @@ inline std::array<BB, 64> SQUARE_TO_BB;
 // #define rank(pos)
 // #define file(pos)
 
-constexpr int real_count(const BB bitboard) {
+constexpr int real_count(const BB &bitboard) {
     #ifndef _WIN32 // not windows
     return __builtin_popcountll(bitboard);
     #else
@@ -30,7 +30,7 @@ constexpr int real_count(const BB bitboard) {
     
 }
 
-constexpr int zeroes_start(const BB bitboard) {
+constexpr int zeroes_start(const BB &bitboard) {
     #ifndef _WIN32 // not windows
     return __builtin_ctzll(bitboard);
     #else
@@ -44,43 +44,42 @@ constexpr int pop_first_one(BB &bitboard) {
     return first;
 }
 
-// not constexprd
-void print_BB(BB bitboard);
-//
+void print_BB(const BB &bitboard);
 
-constexpr BB shift_back(const BB bitboard, const int back) { // used for pawn move generation
+
+constexpr BB shift_back(const BB &bitboard, const int &back) { // used for pawn move generation
     return back > 0 ? (bitboard << back): (bitboard >> -back);
 }
 
-constexpr void set_bit_on(BB &bitboard, const int index) {
+constexpr void set_bit_on(BB &bitboard, const int &index) {
     bitboard |= SQUARE_TO_BB[index];
 }
 
-constexpr void set_bit_off(BB &bitboard, const int index) {
+constexpr void set_bit_off(BB &bitboard, const int &index) {
     bitboard &= ~SQUARE_TO_BB[index];
 }
 
-constexpr void fast_reverse_bit(BB &bitboard, const int index) {
+constexpr void fast_reverse_bit(BB &bitboard, const int &index) {
     bitboard ^= SQUARE_TO_BB[index];
 }
 
-constexpr BB get_bit(const BB bitboard, const int index) {
+constexpr BB get_bit(const BB &bitboard, const int &index) {
     return bitboard & SQUARE_TO_BB[index];
     // return (bitboard >> index) & 1ULL;
 }
 
-constexpr bool is_within_board(const int pos) {
+constexpr bool is_within_board(const int &pos) {
     return pos >= 0 && pos < 64;
 }
 
 // pos = 0b11111 = 63
 // first three bits tell use file, last three tell us rank
 
-constexpr int file(const int pos) {
+constexpr int file(const int &pos) {
     return pos & 7; // last three bits
 }
 
-constexpr int rank(const int pos) {
+constexpr int rank(const int &pos) {
     return pos >> 3; // first three bits
 }
 
