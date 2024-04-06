@@ -47,7 +47,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
     int color_to_position = !chess_board.turn * 56;
     // kingside castle
     int shift = !chess_board.turn << 1;
-    if (!((0b0110ULL << color_to_position) & (not_king | chess_board.pieces[OTHER_TEAM_ATTACKS])) && (cur_check_allowance & SQUARE_TO_BB[shift])) {
+    if (!((0b1110ULL << color_to_position) & (not_king | chess_board.pieces[OTHER_TEAM_ATTACKS])) && (cur_check_allowance & SQUARE_TO_BB[shift])) {
         // std::cout << "got here" << std::endl;
         // print_BB((0b0110ULL << color_to_position));
         moves.emplace_back((Move(3 + color_to_position, 1 + color_to_position, CASTLE, EMPTY, KINGSIDE_CASTLE)));

@@ -105,6 +105,7 @@ Board::Board(const std::string &fen) {
     std::vector<std::string> fen_lines = split(fensplit[0], '/');
     std::reverse(fen_lines.begin(), fen_lines.end());
     int row = 0;
+    // std::cout << row << std::endl;
     // std::string pieces_fen = fensplit[0];
     for (std::string line : fen_lines) {
         // std::cout << line << std::endl;
@@ -114,7 +115,8 @@ Board::Board(const std::string &fen) {
             // std::cout << cur << " ";
             if (isdigit(cur))
             {
-                board_ptr += std::stoi(&cur);
+                // std::cout << board_ptr << std::endl;
+                board_ptr += cur - '0'; // convert char to int
             }
             else if (cur == '/')
             {
@@ -126,6 +128,7 @@ Board::Board(const std::string &fen) {
                 // actual_pos = 63-board_ptr;
                 color ? set_bit_on(this->pieces[BLACK], board_ptr) : set_bit_on(this->pieces[WHITE], board_ptr);
                 cur = char(std::tolower(cur));
+                // std::cout << cur << " " << board_ptr << std::endl;
                 if (cur == 'k') {
                     set_bit_on(this->pieces[KING], board_ptr);
                     this->piece_data[board_ptr] = KING + color;

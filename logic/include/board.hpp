@@ -78,7 +78,7 @@ class Board {
         inline void update_bitboards();
         void play_move(const Move &move);
         void undo_move(const Move &move);
-        // this needs some more thinking
+        // this needs some more thinking 
 //         void play_move(Move move) { // this is assuming that the moves are legal
 //             int piece;
 //             int to = (move & MOVE_TO) >> 6;

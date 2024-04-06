@@ -7,7 +7,7 @@
 #include <vector>
 #include <bits/stdc++.h>
 
-// eventually maybe try int_fast_64_t and fastint16_t
+
 typedef uint64_t BB; // short for Bitboard
 
 enum MOVE_TYPES {
