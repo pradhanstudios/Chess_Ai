@@ -1,0 +1,20 @@
+TODO:
+    when you run perft 3 or higher, it turns all of the black pieces to white pieces
+    also something is very wrong with play move and undo move
+
+
+    make a repetition table with zobrist hashing  
+    https://en.wikipedia.org/wiki/Threefold_repetition
+
+
+whenever you write a function
+if it has parameters:
+    if you do not change the parameter:
+        write it as:
+            const type &x
+    if you do change it:
+        write it as:
+            type &x
+this is to stop c++ from creating a copy of the variable every single time our function runs
+ex.
+void function(const int &unchanged_variable, int &changing_variable)
