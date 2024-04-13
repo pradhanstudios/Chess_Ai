@@ -249,6 +249,7 @@ void Board::play_move(const Move &move) {
     if (type == NORMAL_MOVE) { // normal move
         // std::cout << to << "\t" << from << std::endl;
         // piece = type >> 1;
+        // int no_color_capture_piece = no_color(this->piece_data[to]);
         BB capture = 1ULL << to;
         int piece = no_color(this->piece_data[from]);
         BB t = capture ^ (SQUARE_TO_BB[from]);
@@ -256,7 +257,8 @@ void Board::play_move(const Move &move) {
         // print_BB((1 << to) ^ (1 << from));
         this->pieces[piece] ^= t;
         this->pieces[same_team] ^= t;
-        if (piece_data[to] == ROOK) { // rook is captured
+        if ((this->piece_data[to] & 7) == ROOK) { // rook is captured
+            // std::cout << "got here" << std::endl;
             if (to == 63) { // blck qside
                 cur_castle &= 0b0111;
             }
@@ -281,7 +283,7 @@ void Board::play_move(const Move &move) {
         }
         this->piece_data[to] = this->piece_data[from];
         this->piece_data[from] = EMPTY;
-        if (piece == ROOK) {
+        if ((this->piece_data[to] & 7) == ROOK) {
             if (from == 63) { // blck qside
                 cur_castle &= 0b0111;
             }
@@ -298,14 +300,14 @@ void Board::play_move(const Move &move) {
                 cur_castle &= 0b1110;
             }
         }
-        else if (piece == PAWN) {
+        else if ((this->piece_data[to] & 7) == PAWN) {
             fifty_move_rule = 0;
             if (abs(from - to) == 16) { // if it moved two rows
                 cur_en_pessant = to;
                 // std::cout << "original en_pessant: " << cur_en_pessant << "\t" << "to: " << to << "\tfrom: " << from << "\t";
             }
         }
-        else if (piece == KING) {
+        else if ((this->piece_data[to] & 7) == KING) {
             cur_castle &= 0b0011 ^ (0b1111 * this->turn); // if u castle once u cant castle again
         }
         // std::cout << piece << std::endl;
@@ -313,6 +315,7 @@ void Board::play_move(const Move &move) {
 
     else if (type & PROMOTION) {
         fifty_move_rule = 0;
+        // int no_color_capture_piece = no_color(this->piece_data[to]);
         // std::cout << "got here" << std::endl;
         int piece = type >> 1; // promotion piece
         // std::cout << piece << std::endl;
@@ -320,7 +323,7 @@ void Board::play_move(const Move &move) {
         fast_reverse_bit(this->pieces[same_team], from);
         fast_reverse_bit(this->pieces[same_team], to); // on
         fast_reverse_bit(this->pieces[piece], to);
-        if (piece_data[to] == ROOK) { // rook is captured
+        if ((this->piece_data[to] & 7) == ROOK) { // rook is captured
             if (to == 63) { // blck qside
                 cur_castle &= 0b0111;
             }
