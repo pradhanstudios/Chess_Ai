@@ -61,8 +61,9 @@
 // }
 
 void print_BB(const BB &bitboard) {
+    int cur;
     for (int i = 63; i >= 0; i--) {
-        int cur = bitboard >> i;
+        cur = bitboard >> i;
 
         if ((i+1) % 8 == 0) {
             std::cout << std::endl;

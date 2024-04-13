@@ -14,12 +14,13 @@
 #include "interface.hpp"
 
 int main() {
+    initialize_engine();
+    assert(ENGINE_INITIALIZED);
     // Board b = Board("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
     // b.print_square_data();
-    initialize_engine();
+    // run_test_suite();
 
-    assert(ENGINE_INITIALIZED);
-
+    // std::cout << sizeof(History) << std::endl;
     interface();
 
     return 0;

@@ -1,6 +1,7 @@
 #ifndef SEARCH_HPP
 #define SEARCH_HPP
 
+#include "board.hpp"
 #include "generate_moves.hpp"
 #include "uci.hpp"
 

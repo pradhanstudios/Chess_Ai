@@ -54,11 +54,11 @@ History::History(const unsigned int &en_pessant, const unsigned int &castle, con
 }
 
 Board::Board(const std::string &fen) {
-
+    std::fill(this->pieces.begin(), this->pieces.end(), 0ULL);
     // char cur;
     // int i = fen.length() - 1;
     History cur_history = History();
-    int castles = 0;
+    unsigned int castles = 0u;
     
     std::vector<std::string> fensplit = split(fen, ' ');
     // print_vector(fensplit);
@@ -68,7 +68,7 @@ Board::Board(const std::string &fen) {
         cur_history.en_pessant = (7-col_letter_to_num.at(fensplit[3][0]) + (std::stoi(&fensplit[3][1])-1)*8);
     }
     else {
-        cur_history.en_pessant = 0; // you can never have an en pessant at position 0
+        cur_history.en_pessant = 0u; // you can never have an en pessant at position 0
     }
     // i--;
 
@@ -89,7 +89,7 @@ Board::Board(const std::string &fen) {
         // i--;
     }
     cur_history.castle = castles;
-    cur_history.fifty_move_rule = 0;
+    cur_history.fifty_move_rule = 0u;
 
 
     this->turn = fensplit[1][0] == 'w';
@@ -99,7 +99,7 @@ Board::Board(const std::string &fen) {
     this->history.push_back(cur_history);
 
     int color;
-    int board_ptr = 0;
+    int board_ptr = 0u;
     // int actual_pos;
     char cur;
     std::vector<std::string> fen_lines = split(fensplit[0], '/');
@@ -126,31 +126,35 @@ Board::Board(const std::string &fen) {
             {
                 color = isupper(cur) ? 0 : 8;
                 // actual_pos = 63-board_ptr;
-                color ? set_bit_on(this->pieces[BLACK], board_ptr) : set_bit_on(this->pieces[WHITE], board_ptr);
+                color ? fast_reverse_bit(this->pieces[BLACK], board_ptr) : fast_reverse_bit(this->pieces[WHITE], board_ptr);
                 cur = char(std::tolower(cur));
+                // std::cout << cur << std::endl;
                 // std::cout << cur << " " << board_ptr << std::endl;
                 if (cur == 'k') {
-                    set_bit_on(this->pieces[KING], board_ptr);
+                    // std::cout << "got here" << std::endl;
+                    // print_BB(this->pieces[KING]);
+                    fast_reverse_bit(this->pieces[KING], board_ptr);
+                    // print_BB(this->pieces[KING]);
                     this->piece_data[board_ptr] = KING + color;
                 }
                 else if (cur == 'q') {
-                    set_bit_on(this->pieces[QUEEN], board_ptr);
+                    fast_reverse_bit(this->pieces[QUEEN], board_ptr);
                     this->piece_data[board_ptr] = QUEEN + color;
                 }
                 else if (cur == 'r') {
-                    set_bit_on(this->pieces[ROOK], board_ptr);
+                    fast_reverse_bit(this->pieces[ROOK], board_ptr);
                     this->piece_data[board_ptr] = ROOK + color;
                 }
                 else if (cur == 'b') {
-                    set_bit_on(this->pieces[BISHOP], board_ptr);
+                    fast_reverse_bit(this->pieces[BISHOP], board_ptr);
                     this->piece_data[board_ptr] = BISHOP + color;
                 }
                 else if (cur == 'n') {
-                    set_bit_on(this->pieces[KNIGHT], board_ptr);
+                    fast_reverse_bit(this->pieces[KNIGHT], board_ptr);
                     this->piece_data[board_ptr] = KNIGHT + color;
                 }
                 else if (cur == 'p') {
-                    set_bit_on(this->pieces[PAWN], board_ptr);
+                    fast_reverse_bit(this->pieces[PAWN], board_ptr);
                     this->piece_data[board_ptr] = PAWN + color;
                 }
                 board_ptr++;
@@ -158,6 +162,8 @@ Board::Board(const std::string &fen) {
         }
         row++;
     }
+
+    // print_BB(this->pieces[WHITE]);
 
     this->update_bitboards();
     
@@ -226,16 +232,16 @@ inline void Board::update_bitboards() { // update bitboards which are dependant 
 }
 
 void Board::play_move(const Move &move) {
-    int cur_en_pessant = -1;
+    unsigned int cur_en_pessant = 0u;
     int same_team = turn_to_index[this->turn];
     int other_team = turn_to_index[!this->turn];
-    int from = move.from;
-    int to = move.to;
-    int type = move.type;
+    unsigned int from = move.from;
+    unsigned int to = move.to;
+    unsigned int type = move.type;
     // std::cout << type << std::endl;
     History cur_history = this->history.back();
-    int cur_castle = cur_history.castle;
-    int fifty_move_rule = cur_history.fifty_move_rule + 1;
+    unsigned int cur_castle = cur_history.castle;
+    unsigned int fifty_move_rule = cur_history.fifty_move_rule + 1;
     History new_history = History();
     new_history.capture = this->piece_data[to];
     // print_Move_bits(move);
@@ -410,17 +416,17 @@ void Board::play_move(const Move &move) {
 }
 
 void Board::undo_move(const Move &move) {
-    this->next_turn(); // technically previous turn, but whatever
+    this->next_turn(); // technically previous turn
     History old_history = this->history.back();
     this->history.pop_back();
     int cur_en_pessant = old_history.en_pessant;
-    int capture = old_history.capture;
+    int capture = old_history.capture; 
     this->state = RUNNING;
     int same_team = turn_to_index[this->turn];
     int other_team = turn_to_index[!this->turn];
-    int from = move.from;
-    int to = move.to;
-    int type = move.type;
+    unsigned int from = move.from;
+    unsigned int to = move.to;
+    unsigned int type = move.type;
 
     if (type == NORMAL_MOVE) {
         BB capture_place = SQUARE_TO_BB[to];
