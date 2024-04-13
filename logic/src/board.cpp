@@ -444,13 +444,14 @@ void Board::undo_move(const Move &move) {
     else if (type & PROMOTION) {
         this->pieces[PAWN] ^= SQUARE_TO_BB[from];
         this->pieces[same_team] ^= (SQUARE_TO_BB[from] | SQUARE_TO_BB[to]);
+        this->pieces[type >> 1] ^= SQUARE_TO_BB[to];
         // std::cout << capture << std::endl;
         if (capture) {
             // std::cout << "here" << std::endl;
             // print_BB(this->pieces[other_team]);
             this->pieces[other_team] ^= SQUARE_TO_BB[to];
             // print_BB(this->pieces[other_team]);
-            // std::cout << (capture & 7) << std::endl;
+            // std::cout << ((capture & 7) == BISHOP) << " " << ((capture & 7) == QUEEN) << " " << QUEEN << " " << ((capture & 7)) << std::endl;
             this->pieces[capture & 7] ^= SQUARE_TO_BB[to];
         }
         // std::cout << to << std::endl;

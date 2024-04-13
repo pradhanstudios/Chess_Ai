@@ -27,11 +27,12 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
     chess_board.next_turn(); // go back
     BB king = chess_board.pieces[KING] & chess_board.pieces[same_team];
     int king_pos = zeroes_start(king);
+    // print_BB(chess_board.pieces[OTHER_TEAM_ATTACKS]);
     BB piece_moves = king_moves(king_pos, chess_board.pieces[same_team], chess_board.pieces[OTHER_TEAM_ATTACKS]);
     int new_pos = 0;
     while (piece_moves) {
         new_pos = pop_first_one(piece_moves);
-        moves.emplace_back((Move(king_pos, new_pos, NORMAL_MOVE)));
+        moves.push_back((Move(king_pos, new_pos, NORMAL_MOVE)));
     }
     if (chess_board.is_double_check) {
         // std::cout << "here" << std::endl;
@@ -50,7 +51,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
     if (!((0b1110ULL << color_to_position) & (not_king | chess_board.pieces[OTHER_TEAM_ATTACKS])) && (cur_check_allowance & SQUARE_TO_BB[shift])) {
         // std::cout << "got here" << std::endl;
         // print_BB((0b0110ULL << color_to_position));
-        moves.emplace_back((Move(3 + color_to_position, 1 + color_to_position, CASTLE, EMPTY, KINGSIDE_CASTLE)));
+        moves.push_back((Move(3 + color_to_position, 1 + color_to_position, CASTLE, EMPTY, KINGSIDE_CASTLE)));
     }
 
     // queenside castle
@@ -59,7 +60,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
     // std::cout << !((0b00111000ULL << color_to_position) & chess_board.pieces[OTHER_TEAM_ATTACKS]) << std::endl;
     if (!((0b01110000ULL << color_to_position) & not_king) && (cur_check_allowance & SQUARE_TO_BB[shift]) && !((0b00111000ULL << color_to_position) & chess_board.pieces[OTHER_TEAM_ATTACKS])) {
         // print_move_fancy((Move(3 + color_to_position, 5 + color_to_position, CASTLE, EMPTY, QUEENSIDE_CASTLE)));
-        moves.emplace_back((Move(3 + color_to_position, 5 + color_to_position, CASTLE, EMPTY, QUEENSIDE_CASTLE)));
+        moves.push_back((Move(3 + color_to_position, 5 + color_to_position, CASTLE, EMPTY, QUEENSIDE_CASTLE)));
     }
     // print_BB(chess_board.check_ray);
     BB same_team_pieces = chess_board.pieces[PAWN] & chess_board.pieces[same_team];
@@ -79,14 +80,14 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
             // print_BB(1 << (63-new_pos));
             rank_ = rank(new_pos);
             if (rank_ != 0 && rank_ != 7) {
-                moves.emplace_back((Move(pos, new_pos, NORMAL_MOVE)));
+                moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
             }
             else { // then it has to be a promotion
                 // add all possible promotions
-                moves.emplace_back((Move(pos, new_pos, PROMOTION, QUEEN)));
-                moves.emplace_back((Move(pos, new_pos, PROMOTION, ROOK)));
-                moves.emplace_back((Move(pos, new_pos, PROMOTION, KNIGHT)));
-                moves.emplace_back((Move(pos, new_pos, PROMOTION, BISHOP)));
+                moves.push_back((Move(pos, new_pos, PROMOTION, QUEEN)));
+                moves.push_back((Move(pos, new_pos, PROMOTION, ROOK)));
+                moves.push_back((Move(pos, new_pos, PROMOTION, KNIGHT)));
+                moves.push_back((Move(pos, new_pos, PROMOTION, BISHOP)));
             }
         }
         // en_pessant
@@ -98,7 +99,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
             chess_board.play_move(en_pessant_move);
             BB cur_attacks = generate_attacks(chess_board);
             if (!(king & cur_attacks)) {
-                moves.emplace_back(en_pessant_move);
+                moves.push_back(en_pessant_move);
             }
             chess_board.undo_move(en_pessant_move);
         }
@@ -118,7 +119,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
 
         while (piece_moves) {
             new_pos = pop_first_one(piece_moves);
-            moves.emplace_back((Move(pos, new_pos, NORMAL_MOVE)));
+            moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
         }
     }
 
@@ -142,7 +143,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
 
         while (piece_moves) {
             new_pos = pop_first_one(piece_moves);
-            moves.emplace_back((Move(pos, new_pos, NORMAL_MOVE)));
+            moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
         }
     }
     // rooks
@@ -158,7 +159,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
 
         while (piece_moves) {
             new_pos = pop_first_one(piece_moves);
-            moves.emplace_back((Move(pos, new_pos, NORMAL_MOVE)));
+            moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
         }
     }
 
@@ -176,7 +177,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
         // std::cout << same_team_pins_idx << std::endl;
         while (piece_moves) {
             new_pos = pop_first_one(piece_moves);
-            moves.emplace_back((Move(pos, new_pos, NORMAL_MOVE)));
+            moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
         }
     }
     if (moves.size() == 0) {
@@ -237,7 +238,7 @@ BB generate_attacks(Board &chess_board) {
     same_team_pieces = chess_board.pieces[KNIGHT] & chess_board.pieces[same_team];
     while (same_team_pieces) {
         pos = pop_first_one(same_team_pieces);
-        cur_attacks = knight_moves(pos, chess_board.pieces[same_team]); 
+        cur_attacks = knight_moves(pos, 0ULL); 
         if (cur_attacks & other_team_king) {
             num_of_checks += 1;
             chess_board.check_ray = in_between(pos, other_team_king_pos) | SQUARE_TO_BB[pos];
