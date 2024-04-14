@@ -75,11 +75,16 @@ class Board {
         bool turn; // true for white false for black
         Board(const std::string &fen);
         void print_square_data();
-        bool is_in_check();
+        constexpr bool is_in_check() {
+            return (this->pieces[KING] & this->pieces[turn_to_index[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
+        }
         constexpr void next_turn() {
             this->turn = !this->turn;
         };
-        inline void update_bitboards();
+        constexpr void update_bitboards() {
+            this->pieces[FULL] = (this->pieces[WHITE] | this->pieces[BLACK]);
+            this->pieces[EMPTY] = ~this->pieces[FULL];
+        };
         void play_move(const Move &move);
         void undo_move(const Move &move);
 };

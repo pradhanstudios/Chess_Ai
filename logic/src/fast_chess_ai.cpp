@@ -16,8 +16,11 @@
 int main() {
     initialize_engine();
     assert(ENGINE_INITIALIZED);
-    
-    run_test_suite();
+    // run_test_suite();
+
+    // interface();
+    Board b = Board(DEFAULT_FEN);
+    std::cout << perft(b, 6, 6) << std::endl;
 
     return 0;
 }

@@ -36,12 +36,12 @@ void initialize_engine() {
         
         for (int j = 0; j < 2; j++) {
             direction = -8 + 16*(j); /*-8 for black 8 for white*/ 
-            PAWN_MOVES[j][i] = (shift_back(SQUARE_TO_BB[i], direction));
+            PAWN_MOVES[j][i] = (shift_up(SQUARE_TO_BB[i], direction));
         }
 
         for (int j = 2; j < 4; j++) {
             direction = -8 + 16*(j-2); /*-8 for black 8 for white*/ 
-            PAWN_MOVES[j][i] = (shift_back(SQUARE_TO_BB[i] & ~A_FILE, direction+1) | shift_back(SQUARE_TO_BB[i] & ~H_FILE, direction-1));
+            PAWN_MOVES[j][i] = (shift_up(SQUARE_TO_BB[i] & ~A_FILE, direction+1) | shift_up(SQUARE_TO_BB[i] & ~H_FILE, direction-1));
         }
         KNIGHT_MOVES[i] = (
         ((SQUARE_TO_BB[i] & ~(RANK_1 | A_FILE | B_FILE)) >> 6) |

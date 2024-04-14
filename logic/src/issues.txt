@@ -1,6 +1,5 @@
 TODO:
-    when you run perft 3 or higher, it turns all of the black pieces to white pieces
-    also something is very wrong with play move and undo move
+    on this fen: K7/b7/r7/8/8/8/8/8 b - - 0 1 there is a ghost rook on h1
 
 
     make a repetition table with zobrist hashing  
@@ -18,3 +17,8 @@ if it has parameters:
 this is to stop c++ from creating a copy of the variable every single time our function runs
 ex.
 void function(const int &unchanged_variable, int &changing_variable)
+
+
+IDEA:
+what if we made a strong evaluation, made and made a pst out of that to get a rough eval of position
+4.4.2

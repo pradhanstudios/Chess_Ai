@@ -46,9 +46,11 @@ constexpr int pop_first_one(BB &bitboard) {
 
 void print_BB(const BB &bitboard);
 
-
-constexpr BB shift_back(const BB &bitboard, const int &back) { // used for pawn move generation
-    return back > 0 ? (bitboard << back): (bitboard >> -back);
+constexpr BB shift_up(const BB &bitboard, const int &up) { // used for pawn move generation
+    if (up < 0) {
+        return bitboard >> -up;
+    }
+    return (bitboard << up);
 }
 
 constexpr void set_bit_on(BB &bitboard, const int &index) {

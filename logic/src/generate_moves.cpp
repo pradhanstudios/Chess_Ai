@@ -11,6 +11,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
     // pawns
     // print_BB(chess_board.pieces[WHITE]);
     History cur_history = chess_board.history.back();
+    // const bool turn = chess_board.turn;
     int same_team = turn_to_index[chess_board.turn];
     int other_team = turn_to_index[!chess_board.turn];
     // BB piece_moves;

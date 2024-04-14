@@ -11,7 +11,7 @@ inline std::array<BB, 64> KNIGHT_MOVES;
 inline std::array<BB, 64> KING_MOVES;
 
 constexpr BB pawn_moves(int pos, BB opposite_team, BB empties, bool turn) {
-    return (PAWN_MOVES[turn][pos] & empties) | (shift_back(shift_back(SQUARE_TO_BB[pos] & (PAWN_DOUBLE_RANK_LOOKUP[turn]), PAWN_DIRECTION_LOOKUP[turn]) & empties, PAWN_DIRECTION_LOOKUP[turn]) & empties) | (PAWN_MOVES[turn+2][pos] & opposite_team);
+    return (PAWN_MOVES[turn][pos] & empties) | (shift_up(shift_up(SQUARE_TO_BB[pos] & (PAWN_DOUBLE_RANK_LOOKUP[turn]), PAWN_DIRECTION_LOOKUP[turn]) & empties, PAWN_DIRECTION_LOOKUP[turn]) & empties) | (PAWN_MOVES[turn+2][pos] & opposite_team);
     // return (shift_back(pawns_to_move, direction) & empties) | (shift_back(shift_back(pawns_to_move & (direction < 0 ? RANK_7 : RANK_2), direction) & empties, direction) & empties) | ((shift_back(pawns_to_move & ~A_FILE, direction+1) | shift_back(pawns_to_move & ~H_FILE, direction-1)) & opposite_team);
 }
 
