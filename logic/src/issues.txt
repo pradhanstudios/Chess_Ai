@@ -1,4 +1,6 @@
 TODO:
+    In this position: rnbqkbnr/ppppp2p/6P1/5p2/8/8/PPPPPPP1/RNBQKBNR b KQkq - 0 3
+    our move generator thinks that 'f4g5' is a legal move after taking on h5g6 on this position rnbqkbnr/ppppp2p/8/5ppP/8/8/PPPPPPP1/RNBQKBNR w KQkq g6 0 3
     on this fen: K7/b7/r7/8/8/8/8/8 b - - 0 1 there is a ghost rook on h1
 
 
@@ -21,4 +23,3 @@ void function(const int &unchanged_variable, int &changing_variable)
 
 IDEA:
 what if we made a strong evaluation, made and made a pst out of that to get a rough eval of position
-4.4.2

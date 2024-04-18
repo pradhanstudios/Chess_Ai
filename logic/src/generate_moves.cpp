@@ -92,8 +92,10 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
             }
         }
         // en_pessant
-        if ((cur_history.en_pessant != 0) && (abs(cur_history.en_pessant - pos) < 2) && (real_count((SQUARE_TO_BB[cur_history.en_pessant] | SQUARE_TO_BB[pos]) & EDGES) != 2)) { // if it is one off of the en pessant pawn
+        // (chess_board.pieces[cur_history.en_pessant]) 
+        if ((chess_board.pieces[FULL] & SQUARE_TO_BB[cur_history.en_pessant]) && (cur_history.en_pessant != 0) && (abs(cur_history.en_pessant - pos) < 2) && (real_count((SQUARE_TO_BB[cur_history.en_pessant] | SQUARE_TO_BB[pos]) & EDGES) != 2)) { // if it is one off of the en pessant pawn
             // std::cout << () << std::endl;
+            // std::cout << "got here " << cur_history.en_pessant << std::endl;
             Move en_pessant_move = Move(pos, cur_history.en_pessant + PAWN_DIRECTION_LOOKUP[chess_board.turn], EN_PESSANT);
             // std::cout << "got here" << std::endl;
             // check if it results in a check

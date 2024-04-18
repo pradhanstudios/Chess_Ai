@@ -307,6 +307,7 @@ void Board::play_move(const Move &move) {
         else if ((this->piece_data[to] & 7) == PAWN) {
             fifty_move_rule = 0;
             if (abs(from - to) == 16) { // if it moved two rows
+                // std::cout << "got here " << from << " " << to << std::endl; 
                 cur_en_pessant = to;
                 // std::cout << "original en_pessant: " << cur_en_pessant << "\t" << "to: " << to << "\tfrom: " << from << "\t";
             }

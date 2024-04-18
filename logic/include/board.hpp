@@ -70,6 +70,7 @@ class Board {
         bool is_double_check;
         BB check_ray;
         BOARD_STATE state;
+        // unsigned int cur_en_pessant;
         // int castles;
         std::vector<History> history;
         bool turn; // true for white false for black

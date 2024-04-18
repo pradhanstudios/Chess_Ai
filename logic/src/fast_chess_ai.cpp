@@ -17,10 +17,20 @@ int main() {
     initialize_engine();
     assert(ENGINE_INITIALIZED);
     // run_test_suite();
-
-    // interface();
+    interface();
+    // h8h7
     Board b = Board(DEFAULT_FEN);
-    std::cout << perft(b, 6, 6) << std::endl;
+    // Board b = Board("rnbqkbnr/ppppppp1/8/7p/5P2/P7/1PPPP1PP/RNBQKBNR w KQkq - 0 3");
+    // b.play_move(uci_to_move("g1h3", b));
+    // b.undo_move(uci_to_move("g1h3", b));
+    // b.play_move(uci_to_move("g1h3", b));
+    // b.print_square_data();
+    // print_BB(b.pieces[FULL]);
+    // print_BB(b.pieces[BLACK]);
+    // print_BB(b.pieces[WHITE]);
+    // print_BB(b.pieces[ROOK]);
+
+    // std::cout << perft(b, 6, 6) << std::endl;
 
     return 0;
 }
