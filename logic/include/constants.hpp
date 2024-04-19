@@ -17,6 +17,9 @@ enum MOVE_TYPES {
     EN_PESSANT = 0b0100,
 };
 
+const extern int INF;
+const extern int NEGINF;
+
 extern const int MAX_LEGAL_MOVES;
 extern const unsigned int FIRST_SIX;
 // bitboards

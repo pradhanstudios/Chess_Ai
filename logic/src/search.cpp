@@ -67,3 +67,37 @@ uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) 
     }
     return nodes;
 }
+
+Searcher::Searcher() :
+    best_move(NULL_MOVE), 
+    best_eval(NEGINF) {}
+ 
+int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start) {
+    if (depth == 0) {
+        return simple_eval(chess_board); // eval
+    }
+
+    else if (chess_board.state == DRAW) {
+        return 0;
+    }
+
+    else if (chess_board.state == CHECKMATE){
+        return NEGINF + depth_from_start; // better to lose in the most amount of time
+    }
+
+    std::vector<Move> moves;
+    moves.reserve(MAX_LEGAL_MOVES);
+    int cur_eval = NEGINF;
+
+    generate_legal_moves(chess_board, moves);
+    for (const Move &move : moves) {
+        chess_board.play_move(move);
+        cur_eval = -this->run_negamax_search(chess_board, depth - 1, depth_from_start + 1);
+        chess_board.undo_move(move);
+        if (cur_eval >= this->best_eval && depth_from_start == 0) {
+            this->best_move = move;
+            this->best_eval = cur_eval;
+        }
+    }
+    return cur_eval;
+}

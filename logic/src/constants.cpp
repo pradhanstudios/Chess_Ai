@@ -1,5 +1,7 @@
 #include "constants.hpp"
 
+const int INF = (1 << 15) - 1; // 15 because singed
+const int NEGINF = -INF;
 // bitboards
 
 const unsigned int FIRST_SIX = 0b111111;
