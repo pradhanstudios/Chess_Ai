@@ -40,14 +40,14 @@ inline std::array<PIECE, 2> turn_to_index = {BLACK, WHITE};
 //     return BLACK - turn;
 // }
 
-inline int no_color(const int &piece) {
+inline int no_color(const int &piece) noexcept {
     return piece & 7;
 }
 
-void print_vector(const std::vector<int> &v);
-void print_vector(const std::vector<std::string> &v);
+void print_vector(const std::vector<int> &v) noexcept;
+void print_vector(const std::vector<std::string> &v) noexcept;
 
-std::vector<std::string> split(const std::string &s, const char &delim);
+std::vector<std::string> split(const std::string &s, const char &delim) noexcept;
 
 #pragma pack(1)
 
@@ -74,19 +74,19 @@ class Board {
         // int castles;
         std::vector<History> history;
         bool turn; // true for white false for black
-        Board(const std::string &fen);
-        void print_square_data();
-        constexpr bool is_in_check() {
+        Board(const std::string &fen) noexcept;
+        void print_square_data() noexcept;
+        constexpr bool is_in_check() noexcept {
             return (this->pieces[KING] & this->pieces[turn_to_index[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
         }
-        constexpr void next_turn() {
+        constexpr void next_turn() noexcept {
             this->turn = !this->turn;
         };
-        constexpr void update_bitboards() {
+        constexpr void update_bitboards() noexcept {
             this->pieces[FULL] = (this->pieces[WHITE] | this->pieces[BLACK]);
             this->pieces[EMPTY] = ~this->pieces[FULL];
         };
-        void play_move(const Move &move);
-        void undo_move(const Move &move);
+        void play_move(const Move &move) noexcept;
+        void undo_move(const Move &move) noexcept;
 };
 #endif // BOARD_HPP

@@ -7,5 +7,5 @@ inline bool ENGINE_INITIALIZED = false;
 #include "magic_values.hpp"
 #include "generate_moves.hpp"
 
-void initialize_engine();
+void initialize_engine() noexcept;
 #endif // INITIALIZE_HPP

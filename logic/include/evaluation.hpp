@@ -6,6 +6,6 @@
 #include "board.hpp"
 
 inline std::array<int, 7> piece_values = {0, 10, 33, 35, 50, 90, 0};
-int simple_eval(const Board &chess_board);
+int simple_eval(const Board &chess_board) noexcept;
 
 #endif // EVALUATION_HPP

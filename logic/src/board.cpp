@@ -19,14 +19,14 @@ const std::map<char, int> col_letter_to_num = {
 // int no_color(int piece) {
 //     return piece & 7;
 // }
-void print_vector(const std::vector<int> &v) {
+void print_vector(const std::vector<int> &v) noexcept {
     for (int i : v) {
         std::cout << i << ",  ";
     }
     std::cout << std::endl;
 } 
 
-void print_vector(const std::vector<std::string> &v) {
+void print_vector(const std::vector<std::string> &v) noexcept {
     for (std::string i : v) {
         std::cout << i << ",  ";
     }
@@ -34,7 +34,7 @@ void print_vector(const std::vector<std::string> &v) {
 } 
 
 
-std::vector<std::string> split(const std::string &s, const char &delim) {
+std::vector<std::string> split(const std::string &s, const char &delim) noexcept {
     std::vector<std::string> result;
     std::stringstream ss (s);
     std::string item;
@@ -53,7 +53,7 @@ History::History(const unsigned int &en_pessant, const unsigned int &castle, con
     this->fifty_move_rule = fifty_move_rule;
 }
 
-Board::Board(const std::string &fen) {
+Board::Board(const std::string &fen) noexcept {
     std::fill(this->pieces.begin(), this->pieces.end(), 0ULL);
     // char cur;
     // int i = fen.length() - 1;
@@ -169,7 +169,7 @@ Board::Board(const std::string &fen) {
     
 }
 
-void Board::print_square_data() {
+void Board::print_square_data() noexcept {
     std::string cur;
     int entry, cur_piece;
     for (int i = 63; i > -1; i--) {
@@ -231,7 +231,7 @@ void Board::print_square_data() {
 //     this->pieces[EMPTY] = ~this->pieces[FULL];
 // }
 
-void Board::play_move(const Move &move) {
+void Board::play_move(const Move &move) noexcept {
     unsigned int cur_en_pessant = 0u;
     int same_team = turn_to_index[this->turn];
     int other_team = turn_to_index[!this->turn];
@@ -431,7 +431,7 @@ void Board::play_move(const Move &move) {
     this->next_turn();
 }
 
-void Board::undo_move(const Move &move) {
+void Board::undo_move(const Move &move) noexcept {
     this->next_turn(); // technically previous turn
     History old_history = this->history.back();
     this->history.pop_back();

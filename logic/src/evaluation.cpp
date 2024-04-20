@@ -1,6 +1,6 @@
 #include "evaluation.hpp"
 
-int simple_eval(const Board &chess_board) {
+int simple_eval(const Board &chess_board) noexcept {
     int eval = 0;
     eval += real_count(chess_board.pieces[PAWN] & chess_board.pieces[WHITE]) * piece_values[PAWN];
     eval += real_count(chess_board.pieces[KNIGHT] & chess_board.pieces[WHITE]) * piece_values[KNIGHT];

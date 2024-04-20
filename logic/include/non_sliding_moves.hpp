@@ -10,12 +10,12 @@ inline std::array<std::array<BB, 64>, 4> PAWN_MOVES;
 inline std::array<BB, 64> KNIGHT_MOVES;
 inline std::array<BB, 64> KING_MOVES;
 
-constexpr BB pawn_moves(int pos, BB opposite_team, BB empties, bool turn) {
+constexpr BB pawn_moves(int pos, BB opposite_team, BB empties, bool turn) noexcept {
     return (PAWN_MOVES[turn][pos] & empties) | (shift_up(shift_up(SQUARE_TO_BB[pos] & (PAWN_DOUBLE_RANK_LOOKUP[turn]), PAWN_DIRECTION_LOOKUP[turn]) & empties, PAWN_DIRECTION_LOOKUP[turn]) & empties) | (PAWN_MOVES[turn+2][pos] & opposite_team);
     // return (shift_back(pawns_to_move, direction) & empties) | (shift_back(shift_back(pawns_to_move & (direction < 0 ? RANK_7 : RANK_2), direction) & empties, direction) & empties) | ((shift_back(pawns_to_move & ~A_FILE, direction+1) | shift_back(pawns_to_move & ~H_FILE, direction-1)) & opposite_team);
 }
 
-constexpr BB knight_moves(const int &pos, const BB &same_team) {
+constexpr BB knight_moves(const int &pos, const BB &same_team) noexcept {
     /*
     A>>6;B<<6;C>>10;D<<10;E>>15;F<<15;G>>17;H<<17;
     00H0F000
@@ -45,7 +45,7 @@ constexpr BB knight_moves(const int &pos, const BB &same_team) {
     //         ((knights_to_move & ~(RANK_8 | RANK_7 | A_FILE)) << 17)) & ~same_team;
 }
 
-constexpr BB king_moves(const int &pos, const BB &same_team, const BB &other_team_attacks) {
+constexpr BB king_moves(const int &pos, const BB &same_team, const BB &other_team_attacks) noexcept {
     /*
     A = <<9
     B = <<8

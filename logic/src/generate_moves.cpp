@@ -1,6 +1,6 @@
 #include "generate_moves.hpp"
 
-void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // should be reserved to size 218
+void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) noexcept { // should be reserved to size 218
     if (chess_board.state != RUNNING) {
         return;
     }
@@ -194,7 +194,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) { // sho
     // moves = filter_illegal_moves(chess_board, moves);
 }
 
-BB generate_attacks(Board &chess_board) {
+BB generate_attacks(Board &chess_board) noexcept {
     chess_board.check_ray = MAX_VALUE; // so we can and with normal moves to get all legal moves
     int num_of_checks = 0;
     int other_team = turn_to_index[!chess_board.turn];
@@ -276,11 +276,11 @@ BB generate_attacks(Board &chess_board) {
     return attacks;
 }
 
-void set_attack_bitboard(Board &chess_board) {
+void set_attack_bitboard(Board &chess_board) noexcept {
     chess_board.pieces[OTHER_TEAM_ATTACKS] = generate_attacks(chess_board);
 }
 
-BB get_and_set_pins(Board &chess_board) {
+BB get_and_set_pins(Board &chess_board) noexcept {
     BB pins = 0ULL;
     int same_team = turn_to_index[chess_board.turn];
     int other_team = turn_to_index[!chess_board.turn];

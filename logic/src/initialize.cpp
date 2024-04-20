@@ -18,7 +18,7 @@ BB _in_between(const int &sq1, const int &sq2) { // I copied from https://www.ch
 }
 
 
-void initialize_engine() {
+void initialize_engine() noexcept {
     load_magics();
     for (int i = 0; i < 64; i++) {
         SQUARE_TO_BB[i] = 1ULL << i;

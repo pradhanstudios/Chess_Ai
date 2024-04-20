@@ -1,6 +1,6 @@
 #include "search.hpp"
 
-void run_test_suite() {
+void run_test_suite() noexcept {
     Board b = Board(TEST_SUITE_FENS[0]);
     // std::cout << TEST_SUITE_FENS[0] << std::endl;
     // print_BB(b.pieces[FULL]);
@@ -23,7 +23,7 @@ void run_test_suite() {
     }
 }
 
-uint64_t perft(Board &chess_board, const int &depth) {
+uint64_t perft(Board &chess_board, const int &depth) noexcept {
     if (depth == 0) {
         return 1ULL;
     }
@@ -41,7 +41,7 @@ uint64_t perft(Board &chess_board, const int &depth) {
     return nodes;
 }
 
-uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) {
+uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) noexcept {
     // std::cout << "depth " << depth << std::endl;
     // chess_board.print_square_data();
     if (depth == 0) {
@@ -72,7 +72,7 @@ Searcher::Searcher() :
     best_move(NULL_MOVE), 
     best_eval(NEGINF) {}
  
-int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start) {
+int Searcher::negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept {
     if (depth == 0) {
         return simple_eval(chess_board); // eval
     }
@@ -92,12 +92,23 @@ int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int
     generate_legal_moves(chess_board, moves);
     for (const Move &move : moves) {
         chess_board.play_move(move);
-        cur_eval = -this->run_negamax_search(chess_board, depth - 1, depth_from_start + 1);
+        cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -beta, -alpha);
+        alpha = std::max(cur_eval, alpha);
         chess_board.undo_move(move);
         if (cur_eval >= this->best_eval && depth_from_start == 0) {
             this->best_move = move;
             this->best_eval = cur_eval;
         }
+        if (beta <= alpha) {
+            return beta;
+        }
     }
-    return cur_eval;
+    return alpha;
+}
+
+int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, const int &alpha, const int &beta) noexcept  {
+    this->best_move = NULL_MOVE;
+    this->best_eval = NEGINF;
+    
+    return this->negamax_search(chess_board, depth, depth_from_start, alpha, beta);
 }

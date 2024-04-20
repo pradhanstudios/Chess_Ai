@@ -40,7 +40,7 @@ inline std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
 // void generate_magics_and_save();
 // void _save(std::array<magic_structure, 64> array, std::string filename);
 void load_magics();
-constexpr BB get_sliding_moves(const BB &current_position, const BB &friendlies, const magic_structure &magic) {
+constexpr BB get_sliding_moves(const BB &current_position, const BB &friendlies, const magic_structure &magic) noexcept {
     // fast_reverse_bit(current_position, pos); // get rid of the piece itself
     // for (BB b : magic.attacks) {
     //     if (b) {

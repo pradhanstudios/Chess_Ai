@@ -11,10 +11,10 @@ const inline std::array<std::string, 23> TEST_SUITE_FENS = {"r6r/1b2k1bq/8/8/7B/
 const inline std::array<int, 23> TEST_SUITE_DEPTHS = {1, 1, 1, 1, 1, 1, 1, 3, 3, 6, 6, 6, 6, 6, 4, 4, 6, 5, 6, 6, 6, 7, 4};
 const inline std::array<int, 23> TEST_SUITE_NODE_COUNT = {8, 8, 19, 5, 44, 39, 9, 62379, 89890, 1134888, 1015133, 1440467, 661072, 803711, 1274206, 1720476, 3821001, 1004658, 217342, 92683, 2217, 567584, 23527};
 
-void run_test_suite();
+void run_test_suite() noexcept;
 
-uint64_t perft(Board &chess_board, const int &depth);
-uint64_t perft(Board &chess_board, const int &depth, const int &original_depth);
+uint64_t perft(Board &chess_board, const int &depth) noexcept;
+uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) noexcept;
 
 class Searcher {
     public:
@@ -22,7 +22,8 @@ class Searcher {
         int best_eval;
 
         Searcher();
-        int run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start = 0);
+        int negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;
+        int run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, const int &alpha, const int &beta) noexcept;
 };
 
 #endif // SEARCH_HPP

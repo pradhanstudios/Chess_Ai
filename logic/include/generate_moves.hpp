@@ -10,7 +10,7 @@
 #include "magic_values.hpp"
 
 inline std::array<BB, 4096> in_between_lookup;
-constexpr BB in_between(const int &i, const int &j) {
+constexpr BB in_between(const int &i, const int &j) noexcept {
     return in_between_lookup[i*64 + j];
 }
 
@@ -24,10 +24,10 @@ constexpr BB in_between(const int &i, const int &j) {
 // void get_bishop_moves(Board &chess_board, std::vector<Move> &moves);
 // void get_rook_moves(Board &chess_board, std::vector<Move> &moves);
 // void get_queen_moves(Board &chess_board, std::vector<Move> &moves);
-void generate_legal_moves(Board &chess_board, std::vector<Move> &moves);
-BB generate_attacks(Board &chess_board);
-void set_attack_bitboard(Board &chess_board);
-BB get_and_set_pins(Board &chess_board);
+void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) noexcept;
+BB generate_attacks(Board &chess_board) noexcept;
+void set_attack_bitboard(Board &chess_board) noexcept;
+BB get_and_set_pins(Board &chess_board) noexcept;
 // bool is_legal(Board &chess_board, Move move, BB king, BB other_team_bishops_and_queens, BB other_team_rooks_and_queens, int same_team);
 // bool is_legal(Board &chess_board, Move move);
 // std::vector<Move> filter_illegal_moves(Board chess_board, std::vector<Move> moves);
