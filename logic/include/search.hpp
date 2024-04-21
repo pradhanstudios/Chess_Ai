@@ -20,10 +20,11 @@ class Searcher {
     public:
         Move best_move;
         int best_eval;
+        uint64_t nodes;
 
         Searcher();
-        int negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;
-        int run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, const int &alpha, const int &beta) noexcept;
+        int negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int &alpha, int &beta) noexcept;
+        int run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;
 };
 
 #endif // SEARCH_HPP

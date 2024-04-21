@@ -70,43 +70,52 @@ uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) 
 
 Searcher::Searcher() :
     best_move(NULL_MOVE), 
-    best_eval(NEGINF) {}
+    best_eval(NEGINF),
+    nodes(0ULL) {}
  
-int Searcher::negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept {
-    if (depth == 0) {
-        return simple_eval(chess_board); // eval
+int Searcher::negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int &alpha, int &beta) noexcept {
+    nodes++;
+    std::vector<Move> moves;
+    moves.reserve(MAX_LEGAL_MOVES);
+    generate_legal_moves(chess_board, moves);
+    
+    if (chess_board.state == CHECKMATE) {
+        // std::cout << "gothere" << std::endl;
+        return (NEGINF + depth_from_start); // better to lose in the most amount of time
     }
-
+    
     else if (chess_board.state == DRAW) {
         return 0;
     }
-
-    else if (chess_board.state == CHECKMATE){
-        return NEGINF + depth_from_start; // better to lose in the most amount of time
+    
+    else if (depth == 0) {
+        return simple_eval(chess_board); // eval
     }
 
-    std::vector<Move> moves;
-    moves.reserve(MAX_LEGAL_MOVES);
     int cur_eval = NEGINF;
+    int negbeta, negalpha;
 
-    generate_legal_moves(chess_board, moves);
     for (const Move &move : moves) {
         chess_board.play_move(move);
-        cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -beta, -alpha);
-        alpha = std::max(cur_eval, alpha);
+        negalpha = -alpha;
+        negbeta = -beta;
+        cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, negbeta, negalpha);
+        alpha = std::max(alpha, cur_eval);
         chess_board.undo_move(move);
-        if (cur_eval >= this->best_eval && depth_from_start == 0) {
-            this->best_move = move;
+
+        if ((cur_eval > best_eval || this->best_move == NULL_MOVE) && depth_from_start == 0) {
             this->best_eval = cur_eval;
+            this->best_move = move;
         }
-        if (beta <= alpha) {
+
+        if (cur_eval >= beta) {
             return beta;
         }
     }
     return alpha;
 }
 
-int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, const int &alpha, const int &beta) noexcept  {
+int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept  {
     this->best_move = NULL_MOVE;
     this->best_eval = NEGINF;
     

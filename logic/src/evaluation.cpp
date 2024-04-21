@@ -13,5 +13,5 @@ int simple_eval(const Board &chess_board) noexcept {
     eval -= real_count(chess_board.pieces[ROOK] & chess_board.pieces[BLACK]) * piece_values[ROOK];
     eval -= real_count(chess_board.pieces[QUEEN] & chess_board.pieces[BLACK]) * piece_values[QUEEN];
 
-    return eval;
+    return chess_board.turn ? eval : -eval;
 }
