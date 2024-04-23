@@ -1,17 +1,16 @@
 #include "evaluation.hpp"
 
-int simple_eval(const Board &chess_board) noexcept {
+int evaluate(Board &chess_board) noexcept { // neutral evaluation of position
     int eval = 0;
-    eval += real_count(chess_board.pieces[PAWN] & chess_board.pieces[WHITE]) * piece_values[PAWN];
-    eval += real_count(chess_board.pieces[KNIGHT] & chess_board.pieces[WHITE]) * piece_values[KNIGHT];
-    eval += real_count(chess_board.pieces[BISHOP] & chess_board.pieces[WHITE]) * piece_values[BISHOP];
-    eval += real_count(chess_board.pieces[ROOK] & chess_board.pieces[WHITE]) * piece_values[ROOK];
-    eval += real_count(chess_board.pieces[QUEEN] & chess_board.pieces[WHITE]) * piece_values[QUEEN];
-    eval -= real_count(chess_board.pieces[PAWN] & chess_board.pieces[BLACK]) * piece_values[PAWN];
-    eval -= real_count(chess_board.pieces[KNIGHT] & chess_board.pieces[BLACK]) * piece_values[KNIGHT];
-    eval -= real_count(chess_board.pieces[BISHOP] & chess_board.pieces[BLACK]) * piece_values[BISHOP];
-    eval -= real_count(chess_board.pieces[ROOK] & chess_board.pieces[BLACK]) * piece_values[ROOK];
-    eval -= real_count(chess_board.pieces[QUEEN] & chess_board.pieces[BLACK]) * piece_values[QUEEN];
 
-    return chess_board.turn ? eval : -eval;
+    BB pieces = chess_board.pieces[FULL];
+    int pos, piece;
+    while (pieces) {
+        pos = pop_first_one(pieces);
+        piece = chess_board.piece_data[pos];
+        eval += multiply_based_on_color((PIECE_TABLES[no_color(piece)-1][orient(piece, pos)]), (chess_board.piece_data[pos]));
+        // std::cout << multiply_based_on_color((PIECE_TABLES[no_color(piece)-1][orient(piece, pos)]), (chess_board.piece_data[pos])) << std::endl;
+    }
+
+    return eval;
 }

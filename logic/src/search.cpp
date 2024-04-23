@@ -89,7 +89,7 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
     }
     
     else if (depth == 0) {
-        return simple_eval(chess_board); // eval
+        return get_perspective_eval(evaluate(chess_board), chess_board.turn); // eval
     }
 
     int cur_eval = NEGINF;
@@ -115,7 +115,8 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
     return alpha;
 }
 
-int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept  {
+int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept {
+    this->nodes = 0ULL;
     this->best_move = NULL_MOVE;
     this->best_eval = NEGINF;
     

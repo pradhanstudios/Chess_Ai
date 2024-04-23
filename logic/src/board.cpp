@@ -283,7 +283,6 @@ void Board::play_move(const Move &move) noexcept {
             this->pieces[FULL] ^= capture;
             this->pieces[other_team] ^= capture;
             this->pieces[this->piece_data[to] & 7] ^= capture;
-            // TODO: add fifty move rule
         }
         this->piece_data[to] = this->piece_data[from];
         this->piece_data[from] = EMPTY;

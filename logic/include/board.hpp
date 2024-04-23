@@ -40,7 +40,7 @@ inline std::array<PIECE, 2> turn_to_index = {BLACK, WHITE};
 //     return BLACK - turn;
 // }
 
-inline int no_color(const int &piece) noexcept {
+constexpr int no_color(const int &piece) noexcept {
     return piece & 7;
 }
 

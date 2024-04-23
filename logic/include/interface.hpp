@@ -4,6 +4,7 @@
 #include "uci.hpp"
 #include "search.hpp"
 #include "board.hpp"
+#include "search.hpp"
 
 void interface();
 

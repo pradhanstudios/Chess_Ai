@@ -20,17 +20,31 @@ int main() {
     // run_test_suite();
     // interface();
     // h8h7
-    // Board b = Board(DEFAULT_FEN);
     // std::cout << perft(b, 6) << std::endl;
-    Board b = Board("7k/5K2/4Q3/8/8/8/8/8 b - - 0 1");
+   /*
+    105
+    b1c3
+    ./fast_chess_ai  6.44s user 0.00s system 99% cpu 6.459 total
+   */
+    Board b = Board(DEFAULT_FEN);
     Searcher s = Searcher();
-    int eval = s.run_negamax_search(b, 5, 0, NEGINF, INF);
-    b.play_move(s.best_move);
+    s.run_negamax_search(b, 7, 0, NEGINF, INF);
+    std::cout << s.best_eval << std::endl;
     std::cout << move_to_uci(s.best_move) << std::endl;
-    s.run_negamax_search(b, 5, 0, NEGINF, INF);
-    std::cout << move_to_uci(s.best_move) << std::endl;
-    b.play_move(s.best_move);
-    std::cout << s.nodes << std::endl;
+    // std::cout << (multiply_based_on_color((PIECE_TABLES[no_color(BLACK | QUEEN)-1][orient(BLACK | QUEEN, 60)]), (b.pieces[60]))) << std::endl;
+    // Searcher s = Searcher();
+    // int eval = s.run_negamax_search(b, 5, 0, NEGINF, INF);
+    // b.play_move(s.best_move);
+    // std::cout << move_to_uci(s.best_move) << std::endl;
+    // pretty_eval(s);
+    // eval = s.run_negamax_search(b, 5, 0, NEGINF, INF);
+    // // b.play_move(s.best_move);
+    // std::cout << move_to_uci(s.best_move) << std::endl;
+    // pretty_eval(s);
+    // s.run_negamax_search(b, 5, 0, NEGINF, INF);
+    // std::cout << move_to_uci(s.best_move) << std::endl;
+    // b.play_move(s.best_move);
+    // std::cout << s.nodes << std::endl;
     // Board b = Board("rnbqkbnr/ppppppp1/8/7p/5P2/P7/1PPPP1PP/RNBQKBNR w KQkq - 0 3");
     // b.play_move(uci_to_move("g1h3", b));
     // b.undo_move(uci_to_move("g1h3", b));
