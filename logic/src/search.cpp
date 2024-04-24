@@ -71,13 +71,32 @@ uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) 
 Searcher::Searcher() :
     best_move(NULL_MOVE), 
     best_eval(NEGINF),
-    nodes(0ULL) {}
- 
+    search_over(false) {}
+    // nodes(0ULL) {}
+
+void Searcher::order_moves(std::vector<Move> &moves, const Board &chess_board) noexcept {
+    for (int i = 0; i < moves.size(); i++) { // give each move a score
+        moves[i].score = 
+        (moves[i] == this->previous_best_move) * 1e7 + // pv node
+        ((moves[i].type & PROMOTION) * (moves[i].type & 0b1110)) * 1e5 + // promotion
+        ((SQUARE_TO_BB[moves[i].to] & chess_board.pieces[FULL]) * (no_color(chess_board.piece_data[moves[i].to]) - no_color(chess_board.piece_data[moves[i].from]))) * 1e4 // MVV-LVA
+        ;
+    }
+    std::sort(moves.begin(), moves.end(), [](const Move &m1, const Move &m2) { return m1.score > m2.score; });
+}
+
+
 int Searcher::negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int &alpha, int &beta) noexcept {
-    nodes++;
+    // nodes++;
+    this->search_over = current_time() >= search_until;
+    if (this->search_over) {
+        return 0;
+    }
     std::vector<Move> moves;
     moves.reserve(MAX_LEGAL_MOVES);
     generate_legal_moves(chess_board, moves);
+    // std::cout << "here" << std::endl;
+    this->order_moves(moves, chess_board);
     
     if (chess_board.state == CHECKMATE) {
         // std::cout << "gothere" << std::endl;
@@ -102,6 +121,9 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
         cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, negbeta, negalpha);
         alpha = std::max(alpha, cur_eval);
         chess_board.undo_move(move);
+        if (this->search_over) {
+            return 0;
+        }
 
         if ((cur_eval > best_eval || this->best_move == NULL_MOVE) && depth_from_start == 0) {
             this->best_eval = cur_eval;
@@ -116,9 +138,38 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
 }
 
 int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept {
-    this->nodes = 0ULL;
+    // this->nodes = 0ULL;
     this->best_move = NULL_MOVE;
     this->best_eval = NEGINF;
+    // std::cout << "here" << std::endl;
     
     return this->negamax_search(chess_board, depth, depth_from_start, alpha, beta);
+}
+
+void Searcher::run_iterative_deepening(Board &chess_board, const int &time) noexcept {
+    this->search_until = current_time() + time;
+    this->best_move = NULL_MOVE;
+    this->best_eval = NEGINF;
+    int max_depth = 0;
+
+    for (int i = 0; i < 256; i++) {
+        this->search_over = false;
+        this->previous_best_move = best_move;
+        this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
+        max_depth = i;
+        if (search_over) {
+            break;
+        }
+    }
+    std::cout << "ran to depth: " << max_depth << std::endl;
+    if (best_move == NULL_MOVE) {
+        this->best_move = this->previous_best_move;
+    }
+
+    if (best_move == NULL_MOVE) { // if the previous move was also null
+        std::vector<Move> moves;
+        moves.reserve(MAX_LEGAL_MOVES);
+        generate_legal_moves(chess_board, moves);
+        this->best_move = moves[0]; // pick a random move
+    }
 }

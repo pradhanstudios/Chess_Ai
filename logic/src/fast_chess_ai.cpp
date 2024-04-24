@@ -28,7 +28,22 @@ int main() {
    */
     Board b = Board(DEFAULT_FEN);
     Searcher s = Searcher();
-    s.run_negamax_search(b, 7, 0, NEGINF, INF);
+    // std::vector<Move> moves;
+    // moves.reserve(MAX_LEGAL_MOVES);
+    // generate_legal_moves(b, moves);
+
+    // for (const Move &m : moves) {
+    //     std::cout << move_to_uci(m) << " ";
+    // }
+    // std::cout << std::endl;
+    // s.order_moves(moves, b);
+    // for (const Move &m : moves) {
+    //     std::cout << move_to_uci(m) << " ";
+    // }
+    // std::cout << std::endl;
+    s.run_iterative_deepening(b, 2000);
+
+    // s.run_iterative_deepening(b, 1000); // it doesnt work when set to 2000
     std::cout << s.best_eval << std::endl;
     std::cout << move_to_uci(s.best_move) << std::endl;
     // std::cout << (multiply_based_on_color((PIECE_TABLES[no_color(BLACK | QUEEN)-1][orient(BLACK | QUEEN, 60)]), (b.pieces[60]))) << std::endl;
