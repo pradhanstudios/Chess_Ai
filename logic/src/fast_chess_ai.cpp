@@ -26,8 +26,9 @@ int main() {
     b1c3
     ./fast_chess_ai  6.44s user 0.00s system 99% cpu 6.459 total
    */
-    Board b = Board(DEFAULT_FEN);
-    Searcher s = Searcher();
+    interface();
+    // Board b = Board(DEFAULT_FEN);
+    // Searcher s = Searcher();
     // std::vector<Move> moves;
     // moves.reserve(MAX_LEGAL_MOVES);
     // generate_legal_moves(b, moves);
@@ -41,11 +42,11 @@ int main() {
     //     std::cout << move_to_uci(m) << " ";
     // }
     // std::cout << std::endl;
-    s.run_iterative_deepening(b, 2000);
+    // s.run_iterative_deepening(b, 2500);
 
-    // s.run_iterative_deepening(b, 1000); // it doesnt work when set to 2000
-    std::cout << s.best_eval << std::endl;
-    std::cout << move_to_uci(s.best_move) << std::endl;
+    // // s.run_iterative_deepening(b, 1000); // it doesnt work when set to 2000
+    // std::cout << s.best_eval << std::endl;
+    // std::cout << move_to_uci(s.best_move) << std::endl;
     // std::cout << (multiply_based_on_color((PIECE_TABLES[no_color(BLACK | QUEEN)-1][orient(BLACK | QUEEN, 60)]), (b.pieces[60]))) << std::endl;
     // Searcher s = Searcher();
     // int eval = s.run_negamax_search(b, 5, 0, NEGINF, INF);

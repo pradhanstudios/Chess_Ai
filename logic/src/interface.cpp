@@ -55,9 +55,14 @@ void interface() {
                     std::cout << perft(b, std::stoi(cur_input_args[2]), std::stoi(cur_input_args[2])) << " total nodes" << std::endl; 
                 }
             }
-            else if (cur_input_args[1] == "depth") {
-                s.run_negamax_search(b, std::stoi(cur_input_args[2]), 0, NEGINF, INF);
-                std::cout << "bestmove " << move_to_uci(s.best_move) << "\nevaluation: " << s.best_eval << "\nnodes searched: " << s.nodes << std::endl;
+            // else if (cur_input_args[1] == "depth") {
+            //     s.run_negamax_search(b, std::stoi(cur_input_args[2]), 0, NEGINF, INF);
+            //     std::cout << "bestmove " << move_to_uci(s.best_move) << "\nevaluation: " << s.best_eval << std::endl;
+            // }
+
+            else if (cur_input_args[1] == "maxtime") {
+                s.run_iterative_deepening(b, std::stoi(cur_input_args[2]));
+                std::cout << "bestmove " << move_to_uci(s.best_move) << "\nevaluation: " << s.best_eval << std::endl;
             }
         }
         else if (cur_input_args[0] == "show") {

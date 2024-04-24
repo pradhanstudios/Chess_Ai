@@ -86,7 +86,7 @@ void Searcher::order_moves(std::vector<Move> &moves, const Board &chess_board) n
 }
 
 
-int Searcher::negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int &alpha, int &beta) noexcept {
+int Searcher::negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept {
     // nodes++;
     this->search_over = current_time() >= search_until;
     if (this->search_over) {
@@ -112,15 +112,23 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
     }
 
     int cur_eval = NEGINF;
-    int negbeta, negalpha;
+    bool search_pv = true;
 
     for (const Move &move : moves) {
         chess_board.play_move(move);
-        negalpha = -alpha;
-        negbeta = -beta;
-        cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, negbeta, negalpha);
-        alpha = std::max(alpha, cur_eval);
+        // cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, negbeta, negalpha);
+        if (search_pv) {
+            cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -beta, -alpha);
+        }
+        else {
+            cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -alpha-1, -alpha);
+            if (cur_eval > alpha && cur_eval < beta) {
+                cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -beta, -alpha);
+            }
+        }
+        
         chess_board.undo_move(move);
+
         if (this->search_over) {
             return 0;
         }
@@ -133,6 +141,12 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
         if (cur_eval >= beta) {
             return beta;
         }
+
+        if (cur_eval > alpha) {
+            alpha = cur_eval;
+            search_pv = false;
+        }
+
     }
     return alpha;
 }
