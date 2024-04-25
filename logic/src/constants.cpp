@@ -6,6 +6,7 @@ const int NEGINF = -INF;
 
 const unsigned int FIRST_SIX = 0b111111;
 const int MAX_LEGAL_MOVES = 218;
+const int MAX_CAPTURE_MOVES = 74;
 
 const BB MAX_VALUE = ~0ULL;
 const BB A_FILE = 0x8080808080808080ULL; // represent a file

@@ -85,6 +85,43 @@ void Searcher::order_moves(std::vector<Move> &moves, const Board &chess_board) n
     std::sort(moves.begin(), moves.end(), [](const Move &m1, const Move &m2) { return m1.score > m2.score; });
 }
 
+int Searcher::quiescence_search(Board &chess_board, int alpha, int beta) noexcept {
+    this->search_over = current_time() >= search_until;
+    if (this->search_over) {
+        return 0;
+    }
+    if (chess_board.state == CHECKMATE) {
+        return NEGINF;
+    }
+    if (chess_board.state == DRAW) {
+        return 0;
+    }
+    int eval = get_perspective_eval((evaluate(chess_board)), chess_board.turn);
+
+    if (eval >= beta) {
+        return beta;
+    }
+
+    if (alpha < eval) {
+        alpha = eval;
+    }
+    std::vector<Move> moves;
+    moves.reserve(MAX_CAPTURE_MOVES);
+    generate_captures(chess_board, moves);
+
+    for (const Move &move : moves) {
+        chess_board.play_move(move);
+        eval = -this->quiescence_search(chess_board, -beta, -alpha);
+        chess_board.undo_move(move);
+
+        if (eval >= beta) {
+            return beta;
+        }
+
+        alpha = std::max(alpha, eval);
+    }
+    return alpha;
+}
 
 int Searcher::negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept {
     // nodes++;
@@ -108,7 +145,7 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
     }
     
     else if (depth == 0) {
-        return get_perspective_eval(evaluate(chess_board), chess_board.turn); // eval
+        return this->quiescence_search(chess_board, alpha, beta); // eval
     }
 
     int cur_eval = NEGINF;
@@ -141,6 +178,7 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
         if (cur_eval >= beta) {
             return beta;
         }
+        
 
         if (cur_eval > alpha) {
             alpha = cur_eval;
@@ -168,19 +206,21 @@ void Searcher::run_iterative_deepening(Board &chess_board, const int &time) noex
 
     for (int i = 0; i < 256; i++) {
         this->search_over = false;
-        this->previous_best_move = best_move;
+        this->previous_best_move = this->best_move;
         this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
         max_depth = i;
+        // TODO: add: if the searcher found a checkmate, the search stops
         if (search_over) {
+            this->best_move = this->previous_best_move;
+            // we do not want moves from incomplete search
             break;
         }
     }
     std::cout << "ran to depth: " << max_depth << std::endl;
-    if (best_move == NULL_MOVE) {
-        this->best_move = this->previous_best_move;
-    }
-
-    if (best_move == NULL_MOVE) { // if the previous move was also null
+    // if (this->best_move == NULL_MOVE) {
+    //     this->best_move = this->previous_best_move;
+    // }
+    if (this->best_move == NULL_MOVE) { // if the previous move was also null
         std::vector<Move> moves;
         moves.reserve(MAX_LEGAL_MOVES);
         generate_legal_moves(chess_board, moves);

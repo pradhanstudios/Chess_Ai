@@ -166,7 +166,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) noexcept
         }
     }
 
-    // rooks
+    // queens
     same_team_pieces = chess_board.pieces[QUEEN] & chess_board.pieces[same_team];
 
     while (same_team_pieces) {
@@ -184,6 +184,167 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) noexcept
         }
     }
     if (moves.size() == 0) {
+        if (king & chess_board.pieces[OTHER_TEAM_ATTACKS]) { // checkmate
+            chess_board.state = CHECKMATE;
+        }
+        else { // stalemate
+            chess_board.state = DRAW;
+        }
+    }
+    // moves = filter_illegal_moves(chess_board, moves);
+}
+
+void generate_captures(Board &chess_board, std::vector<Move> &moves) noexcept {
+    if (chess_board.state != RUNNING) {
+        return;
+    }
+    // int length = 0;
+    // fprintf(stderr, "here\n");
+    // fflush(stderr);
+    // printf("oh yea\n");
+    // pawns
+    // print_BB(chess_board.pieces[WHITE]);
+    History cur_history = chess_board.history.back();
+    // const bool turn = chess_board.turn;
+    int same_team = turn_to_index[chess_board.turn];
+    int other_team = turn_to_index[!chess_board.turn];
+    bool is_one_quiet_move = false;
+    // BB piece_moves;
+    // int pos, new_pos, rank_;
+    // int same_team_pins_idx = chess_board.turn;
+    // BB cur_attacks;
+    // Move en_pessant_move = NULL_MOVE;
+
+    // BB pins = 0ULL;
+    // king
+    chess_board.next_turn(); // skip turn
+    set_attack_bitboard(chess_board);
+    BB pins = get_and_set_pins(chess_board);
+    chess_board.next_turn(); // go back
+    BB king = chess_board.pieces[KING] & chess_board.pieces[same_team];
+    int king_pos = zeroes_start(king);
+    // print_BB(chess_board.pieces[OTHER_TEAM_ATTACKS]);
+    BB piece_moves = king_moves(king_pos, chess_board.pieces[same_team], chess_board.pieces[OTHER_TEAM_ATTACKS]) & chess_board.pieces[other_team];
+    int new_pos = 0;
+    while (piece_moves) {
+        new_pos = pop_first_one(piece_moves);
+        moves.push_back((Move(king_pos, new_pos, NORMAL_MOVE)));
+    }
+    if (chess_board.is_double_check) {
+        // std::cout << "here" << std::endl;
+        if (real_count(king_moves(king_pos, chess_board.pieces[same_team], chess_board.pieces[OTHER_TEAM_ATTACKS])) == 0) {
+            if (king & chess_board.pieces[OTHER_TEAM_ATTACKS]) { // checkmate
+                chess_board.state = CHECKMATE;
+            }
+        }
+        return; // if it is double check there is no point in checking other moves
+    }
+    // print_BB(chess_board.check_ray);
+    BB same_team_pieces = chess_board.pieces[PAWN] & chess_board.pieces[same_team];
+    int pos;
+    while (same_team_pieces) {
+        pos = pop_first_one(same_team_pieces);
+        // en_pessant
+        // (chess_board.pieces[cur_history.en_pessant]) 
+        if ((chess_board.pieces[FULL] & SQUARE_TO_BB[cur_history.en_pessant]) && (cur_history.en_pessant != 0) && (abs(cur_history.en_pessant - pos) < 2) && (real_count((SQUARE_TO_BB[cur_history.en_pessant] | SQUARE_TO_BB[pos]) & EDGES) != 2)) { // if it is one off of the en pessant pawn
+            // std::cout << () << std::endl;
+            // std::cout << "got here " << cur_history.en_pessant << std::endl;
+            Move en_pessant_move = Move(pos, cur_history.en_pessant + PAWN_DIRECTION_LOOKUP[chess_board.turn], EN_PESSANT);
+            // std::cout << "got here" << std::endl;
+            // check if it results in a check
+            chess_board.play_move(en_pessant_move);
+            BB cur_attacks = generate_attacks(chess_board);
+            if (!(king & cur_attacks)) {
+                moves.push_back(en_pessant_move);
+            }
+            chess_board.undo_move(en_pessant_move);
+        }
+    }
+    // knights
+    same_team_pieces = chess_board.pieces[KNIGHT] & chess_board.pieces[same_team];
+    // print_BB(same_team_knights);
+    BB not_other_team_pieces = ~chess_board.pieces[other_team];
+    while (same_team_pieces) {
+        pos = pop_first_one(same_team_pieces); // from
+        piece_moves = (knight_moves(pos, chess_board.pieces[same_team]) & chess_board.check_ray);
+        is_one_quiet_move |= piece_moves & not_other_team_pieces;
+        piece_moves &= chess_board.pieces[other_team];
+
+        if (SQUARE_TO_BB[pos] & pins) {
+            chess_board.pins[chess_board.turn][pos] = chess_board.pins[chess_board.turn][pos];
+            piece_moves &= in_between(king_pos, chess_board.pins[chess_board.turn][pos]) | SQUARE_TO_BB[chess_board.pins[chess_board.turn][pos]];
+        }
+
+        while (piece_moves) {
+            new_pos = pop_first_one(piece_moves);
+            moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
+        }
+    }
+
+    // bishops
+    // std::cout << "got here" << std::endl;
+    same_team_pieces = chess_board.pieces[BISHOP] & chess_board.pieces[same_team];
+    // print_BB(same_team_pieces);
+
+    while (same_team_pieces) {
+        pos = pop_first_one(same_team_pieces); // from
+        piece_moves = (get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], (BISHOP_MAGICS)[pos]) & chess_board.check_ray);
+        is_one_quiet_move |= piece_moves & not_other_team_pieces;
+        piece_moves &= chess_board.pieces[other_team];
+        // print_BB(piece_moves);
+        // if (pos == 35) {
+        //     // print_BB(chess_board.pieces[FULL] & BISHOP_MAGICS[35].mask);
+        //     print_BB(piece_moves);
+        // }
+
+        if (SQUARE_TO_BB[pos] & pins) {
+            piece_moves &= in_between(king_pos, chess_board.pins[chess_board.turn][pos]) | SQUARE_TO_BB[chess_board.pins[chess_board.turn][pos]];
+        }
+
+        while (piece_moves) {
+            new_pos = pop_first_one(piece_moves);
+            moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
+        }
+    }
+    // rooks
+    same_team_pieces = chess_board.pieces[ROOK] & chess_board.pieces[same_team];
+
+    while (same_team_pieces) {
+        pos = pop_first_one(same_team_pieces); // from
+        piece_moves = (get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], (ROOK_MAGICS)[pos]) & chess_board.check_ray);
+        is_one_quiet_move |= piece_moves & not_other_team_pieces;
+        piece_moves &= chess_board.pieces[other_team];
+
+        if (SQUARE_TO_BB[pos] & pins) {
+            piece_moves &= in_between(king_pos, chess_board.pins[chess_board.turn][pos]) | SQUARE_TO_BB[chess_board.pins[chess_board.turn][pos]];
+        }
+
+        while (piece_moves) {
+            new_pos = pop_first_one(piece_moves);
+            moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
+        }
+    }
+
+    // queens
+    same_team_pieces = chess_board.pieces[QUEEN] & chess_board.pieces[same_team];
+
+    while (same_team_pieces) {
+        pos = pop_first_one(same_team_pieces); // from
+        // moves for rooks and bishops combined
+        piece_moves = ((get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], (ROOK_MAGICS)[pos]) | get_sliding_moves(chess_board.pieces[FULL], chess_board.pieces[same_team], (BISHOP_MAGICS)[pos])) & chess_board.check_ray);
+        is_one_quiet_move |= piece_moves & not_other_team_pieces;
+        piece_moves &= chess_board.pieces[other_team];
+        
+        if (SQUARE_TO_BB[pos] & pins) {
+            piece_moves &= in_between(king_pos, chess_board.pins[chess_board.turn][pos]) | SQUARE_TO_BB[chess_board.pins[chess_board.turn][pos]];
+        }
+        // std::cout << same_team_pins_idx << std::endl;
+        while (piece_moves) {
+            new_pos = pop_first_one(piece_moves);
+            moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
+        }
+    }
+    if (moves.size() == 0 && !is_one_quiet_move) {
         if (king & chess_board.pieces[OTHER_TEAM_ATTACKS]) { // checkmate
             chess_board.state = CHECKMATE;
         }

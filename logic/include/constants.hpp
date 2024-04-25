@@ -21,6 +21,7 @@ const extern int INF;
 const extern int NEGINF;
 
 extern const int MAX_LEGAL_MOVES;
+extern const int MAX_CAPTURE_MOVES;
 extern const unsigned int FIRST_SIX;
 // bitboards
 

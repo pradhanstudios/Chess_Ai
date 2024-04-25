@@ -25,6 +25,7 @@ constexpr BB in_between(const int &i, const int &j) noexcept {
 // void get_rook_moves(Board &chess_board, std::vector<Move> &moves);
 // void get_queen_moves(Board &chess_board, std::vector<Move> &moves);
 void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) noexcept;
+void generate_captures(Board &chess_board, std::vector<Move> &moves) noexcept;
 BB generate_attacks(Board &chess_board) noexcept;
 void set_attack_bitboard(Board &chess_board) noexcept;
 BB get_and_set_pins(Board &chess_board) noexcept;

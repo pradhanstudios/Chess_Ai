@@ -18,20 +18,17 @@ int main() {
     initialize_engine();
     assert(ENGINE_INITIALIZED);
     // run_test_suite();
-    // interface();
-    // h8h7
-    // std::cout << perft(b, 6) << std::endl;
-   /*
-    105
-    b1c3
-    ./fast_chess_ai  6.44s user 0.00s system 99% cpu 6.459 total
-   */
     interface();
+    // h8h7
+    // interface();
     // Board b = Board(DEFAULT_FEN);
     // Searcher s = Searcher();
+    // s.run_iterative_deepening(b, 2000);
+    // std::cout << move_to_uci(s.best_move) << " " << s.best_eval << std::endl;
+    // std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;
     // std::vector<Move> moves;
-    // moves.reserve(MAX_LEGAL_MOVES);
-    // generate_legal_moves(b, moves);
+    // moves.reserve(MAX_CAPTURE_MOVES);
+    // // generate_captures(b, moves);
 
     // for (const Move &m : moves) {
     //     std::cout << move_to_uci(m) << " ";
