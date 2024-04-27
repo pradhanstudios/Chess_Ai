@@ -31,11 +31,14 @@ uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) 
 class Searcher {
     public:
         Move previous_best_move;
+        int previous_best_eval;
         Move best_move;
         int best_eval;
         uint64_t nodes;
         Time search_until;
         bool search_over;
+        std::array<Move, 8> killers;
+        int killer_moves_idx;
 
         Searcher();
 
@@ -43,7 +46,7 @@ class Searcher {
         int quiescence_search(Board &chess_board, int alpha, int beta) noexcept;
         int negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;
         int run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;
-        void run_iterative_deepening(Board &chess_board, const int &time) noexcept;
+        void run_iterative_deepening(Board &chess_board, const int &time, const int &max_depth=255) noexcept;
 };
 
 #endif // SEARCH_HPP

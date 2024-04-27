@@ -21,4 +21,6 @@ void function(const int &unchanged_variable, int &changing_variable)
 
 
 IDEA:
-what if we made a strong evaluation, made and made a pst out of that to get a rough eval of position
+what if we had two piece square tables for each piece
+and use tapered eval to interpolate between them
+we can also use that for the nnue so that it is not stuck only looking at one game phase at a tim

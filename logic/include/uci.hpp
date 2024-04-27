@@ -9,4 +9,5 @@ const extern std::array<char, 6> num_to_piece;
 
 std::string move_to_uci(const Move &move);
 Move uci_to_move(const std::string &uci, const Board &chess_board);
+// Move san_to_move(const std::string &san, const Board &chess_board);
 #endif // UCI_HPP

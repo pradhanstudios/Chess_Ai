@@ -62,3 +62,24 @@ Move uci_to_move(const std::string &uci, const Board &chess_board) {
 
     return Move(from, to, NORMAL_MOVE);
 }
+
+// Move san_to_move(const std::string &san, const Board &chess_board) {
+//     Move new_move = Move();
+//     if (san == "O-O") { // short castle
+//         int color_to_position = !chess_board.turn * 56;
+//         new_move.from = 3 + color_to_position;
+//         new_move.to = 1 + color_to_position;
+//         return new_move;
+//     }
+
+//     else if (san == "O-O-O") { // long castle
+//         int color_to_position = !chess_board.turn * 56;
+//         new_move.from = 3 + color_to_position;
+//         new_move.to = 5 + color_to_position;
+//         return new_move;
+//     }
+
+//     else if (san[0] == 'N') { // knight
+
+//     }
+// };

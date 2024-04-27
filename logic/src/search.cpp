@@ -71,6 +71,7 @@ uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) 
 Searcher::Searcher() :
     best_move(NULL_MOVE), 
     best_eval(NEGINF),
+    killer_moves_idx(0),
     search_over(false) {}
     // nodes(0ULL) {}
 
@@ -79,14 +80,15 @@ void Searcher::order_moves(std::vector<Move> &moves, const Board &chess_board) n
         moves[i].score = 
         (moves[i] == this->previous_best_move) * 1e7 + // pv node
         ((moves[i].type & PROMOTION) * (moves[i].type & 0b1110)) * 1e5 + // promotion
-        ((SQUARE_TO_BB[moves[i].to] & chess_board.pieces[FULL]) * (no_color(chess_board.piece_data[moves[i].to]) - no_color(chess_board.piece_data[moves[i].from]))) * 1e4 // MVV-LVA
+        (std::find(this->killers.begin(), this->killers.end(), moves[i]) != this->killers.end()) * 1e4 +
+        ((SQUARE_TO_BB[moves[i].to] & chess_board.pieces[FULL]) * (no_color(chess_board.piece_data[moves[i].to]) - no_color(chess_board.piece_data[moves[i].from]))) * 1e3 // MVV-LVA
         ;
     }
     std::sort(moves.begin(), moves.end(), [](const Move &m1, const Move &m2) { return m1.score > m2.score; });
 }
 
 int Searcher::quiescence_search(Board &chess_board, int alpha, int beta) noexcept {
-    this->search_over = current_time() >= search_until;
+    this->search_over = current_time() > search_until;
     if (this->search_over) {
         return 0;
     }
@@ -125,7 +127,7 @@ int Searcher::quiescence_search(Board &chess_board, int alpha, int beta) noexcep
 
 int Searcher::negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept {
     // nodes++;
-    this->search_over = current_time() >= search_until;
+    this->search_over = current_time() > search_until;
     if (this->search_over) {
         return 0;
     }
@@ -176,6 +178,12 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
         }
 
         if (cur_eval >= beta) {
+
+            if (!chess_board.piece_data[move.to]) { // not capture
+                this->killers[++this->killer_moves_idx] = move;
+                this->killer_moves_idx &= 7;
+            }
+
             return beta;
         }
         
@@ -198,25 +206,35 @@ int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int
     return this->negamax_search(chess_board, depth, depth_from_start, alpha, beta);
 }
 
-void Searcher::run_iterative_deepening(Board &chess_board, const int &time) noexcept {
+void Searcher::run_iterative_deepening(Board &chess_board, const int &time, const int &max_depth) noexcept {
     this->search_until = current_time() + time;
     this->best_move = NULL_MOVE;
     this->best_eval = NEGINF;
-    int max_depth = 0;
+    int m_depth = 0;
 
-    for (int i = 0; i < 256; i++) {
+    for (int i = 0; i <= max_depth; i++) {
         this->search_over = false;
         this->previous_best_move = this->best_move;
+        this->previous_best_eval = this->best_eval;
+        // aspiration windows
+        // if (abs(this->previous_best_eval - this->run_negamax_search(chess_board, i, 0, this->previous_best_eval - 20, this->previous_best_eval + 20)) >= 20) {
+        //     this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
+        // }
+        // for some reason, aspiration windows seem to be making my program slower
         this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
-        max_depth = i;
+        m_depth = i;
         // TODO: add: if the searcher found a checkmate, the search stops
         if (search_over) {
-            this->best_move = this->previous_best_move;
+            if (m_depth > 1) {
+                this->best_move = this->previous_best_move;
+                this->best_eval = this->previous_best_eval;
+            }
+            m_depth--;
             // we do not want moves from incomplete search
             break;
         }
     }
-    std::cout << "ran to depth: " << max_depth << std::endl;
+    std::cout << "ran to depth: " << m_depth << std::endl;
     // if (this->best_move == NULL_MOVE) {
     //     this->best_move = this->previous_best_move;
     // }

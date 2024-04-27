@@ -18,13 +18,15 @@ int main() {
     initialize_engine();
     assert(ENGINE_INITIALIZED);
     // run_test_suite();
-    interface();
+    // Board b = Board("rnbqkb1r/ppp1ppp1/5n1p/3p2B1/3P4/5N2/PPP1PPPP/RN1QKB1R w KQkq - 0 4");
+
     // h8h7
     // interface();
-    // Board b = Board(DEFAULT_FEN);
-    // Searcher s = Searcher();
+    Board b = Board("r4rk1/ppp2ppp/2np1qb1/4p3/2B1P1P1/P1P2N1P/1PP2P2/R2Q1RK1 w - - 0 12");
+    Searcher s = Searcher();
+    s.run_iterative_deepening(b, 10000, 5);
     // s.run_iterative_deepening(b, 2000);
-    // std::cout << move_to_uci(s.best_move) << " " << s.best_eval << std::endl;
+    std::cout << move_to_uci(s.best_move) << " " << s.best_eval << std::endl;
     // std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;
     // std::vector<Move> moves;
     // moves.reserve(MAX_CAPTURE_MOVES);

@@ -105,7 +105,7 @@ void interface() {
         }
 
         else if (cur_input_args[0] == "eval") {
-            std::cout << evaluate(b) << std::endl;
+            std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;
         }
     }
 }
