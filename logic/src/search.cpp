@@ -87,6 +87,16 @@ void Searcher::order_moves(std::vector<Move> &moves, const Board &chess_board) n
     std::sort(moves.begin(), moves.end(), [](const Move &m1, const Move &m2) { return m1.score > m2.score; });
 }
 
+// void Searcher::order_captures(std::vector<Move> &moves, const Board &chess_board) noexcept {
+//     for (int i = 0; i < moves.size(); i++) { // give each move a score
+//         moves[i].score = 
+//         // (moves[i] == this->previous_best_move) * 1e7 + // pv node
+//         ((SQUARE_TO_BB[moves[i].to] & chess_board.pieces[FULL]) * (no_color(chess_board.piece_data[moves[i].to]) - no_color(chess_board.piece_data[moves[i].from]))) * 1e3 // MVV-LVA
+//         ;
+//     }
+//     std::sort(moves.begin(), moves.end(), [](const Move &m1, const Move &m2) { return m1.score > m2.score; });
+// }
+
 int Searcher::quiescence_search(Board &chess_board, int alpha, int beta) noexcept {
     this->search_over = current_time() > search_until;
     if (this->search_over) {
@@ -110,6 +120,8 @@ int Searcher::quiescence_search(Board &chess_board, int alpha, int beta) noexcep
     std::vector<Move> moves;
     moves.reserve(MAX_CAPTURE_MOVES);
     generate_captures(chess_board, moves);
+    // this->order_captures(moves, chess_board);
+    // this->order_moves(moves, chess_board);
 
     for (const Move &move : moves) {
         chess_board.play_move(move);
@@ -131,30 +143,33 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
     if (this->search_over) {
         return 0;
     }
+
+    if (depth == 0) {
+        return this->quiescence_search(chess_board, alpha, beta); // eval
+    }
     std::vector<Move> moves;
     moves.reserve(MAX_LEGAL_MOVES);
     generate_legal_moves(chess_board, moves);
     // std::cout << "here" << std::endl;
-    this->order_moves(moves, chess_board);
     
     if (chess_board.state == CHECKMATE) {
         // std::cout << "gothere" << std::endl;
         return (NEGINF + depth_from_start); // better to lose in the most amount of time
     }
     
-    else if (chess_board.state == DRAW) {
+    if (chess_board.state == DRAW) {
         return 0;
     }
     
-    else if (depth == 0) {
-        return this->quiescence_search(chess_board, alpha, beta); // eval
-    }
 
+    this->order_moves(moves, chess_board);
     int cur_eval = NEGINF;
     bool search_pv = true;
+    bool not_move_is_capture, lmr = false;
 
-    for (const Move &move : moves) {
-        chess_board.play_move(move);
+    for (int i = 0; i < moves.size(); i++) {
+        not_move_is_capture = chess_board.piece_data[moves[i].to] == 0;
+        chess_board.play_move(moves[i]);
         // cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, negbeta, negalpha);
         if (search_pv) {
             cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -beta, -alpha);
@@ -162,11 +177,18 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
         else {
             cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -alpha-1, -alpha);
             if (cur_eval > alpha && cur_eval < beta) {
-                cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -beta, -alpha);
+                // late move reductions
+                lmr = depth >= 3 && moves[i].type == NORMAL_MOVE && not_move_is_capture && i > 4;
+                if (lmr) {
+                    cur_eval = -this->negamax_search(chess_board, depth - 2, depth_from_start + 1, -beta, -alpha);
+                }
+                if (!lmr || (cur_eval > alpha)) {
+                    cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -beta, -alpha);
+                }
             }
         }
         
-        chess_board.undo_move(move);
+        chess_board.undo_move(moves[i]);
 
         if (this->search_over) {
             return 0;
@@ -174,14 +196,14 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
 
         if ((cur_eval > best_eval || this->best_move == NULL_MOVE) && depth_from_start == 0) {
             this->best_eval = cur_eval;
-            this->best_move = move;
+            this->best_move = moves[i];
         }
 
         if (cur_eval >= beta) {
 
-            if (!chess_board.piece_data[move.to]) { // not capture
-                this->killers[++this->killer_moves_idx] = move;
-                this->killer_moves_idx &= 7;
+            if (!chess_board.piece_data[moves[i].to]) { // not capture
+                this->killers[++this->killer_moves_idx] = moves[i];
+                this->killer_moves_idx &= 1;
             }
 
             return beta;
@@ -217,14 +239,15 @@ void Searcher::run_iterative_deepening(Board &chess_board, const int &time, cons
         this->previous_best_move = this->best_move;
         this->previous_best_eval = this->best_eval;
         // aspiration windows
-        // if (abs(this->previous_best_eval - this->run_negamax_search(chess_board, i, 0, this->previous_best_eval - 20, this->previous_best_eval + 20)) >= 20) {
+        // if (abs(this->previous_best_eval - this->run_negamax_search(chess_board, i, 0, this->previous_best_eval - 40, this->previous_best_eval + 40)) >= 40) {
+        //     std::cout << "got here: " << i << std::endl;
         //     this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
         // }
         // for some reason, aspiration windows seem to be making my program slower
         this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
         m_depth = i;
         // TODO: add: if the searcher found a checkmate, the search stops
-        if (search_over) {
+        if (this->search_over) {
             if (m_depth > 1) {
                 this->best_move = this->previous_best_move;
                 this->best_eval = this->previous_best_eval;

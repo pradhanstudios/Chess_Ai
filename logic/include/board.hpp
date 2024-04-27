@@ -44,6 +44,7 @@ constexpr int no_color(const int &piece) noexcept {
     return piece & 7;
 }
 
+uint64_t prandom();
 void print_vector(const std::vector<int> &v) noexcept;
 void print_vector(const std::vector<std::string> &v) noexcept;
 
@@ -62,6 +63,16 @@ struct History {
 
 #pragma pack()
 
+struct Zobrist {
+    std::array<std::array<BB, 64>, 6> pieces;
+    std::array<BB, 64> en_pessants;
+    std::array<BB, 16> castles;
+    BB black_turn;
+    Zobrist();
+};
+
+const inline Zobrist zobrist = Zobrist();
+
 class Board {
     public:
         std::array<int, 64> piece_data = {EMPTY};
@@ -70,6 +81,7 @@ class Board {
         bool is_double_check;
         BB check_ray;
         BOARD_STATE state;
+        uint64_t zobrist_key;
         // unsigned int cur_en_pessant;
         // int castles;
         std::vector<History> history;
@@ -79,7 +91,8 @@ class Board {
         constexpr bool is_in_check() noexcept {
             return (this->pieces[KING] & this->pieces[turn_to_index[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
         }
-        constexpr void next_turn() noexcept {
+        inline void next_turn() noexcept {
+            this->zobrist_key ^= zobrist.black_turn;
             this->turn = !this->turn;
         };
         constexpr void update_bitboards() noexcept {

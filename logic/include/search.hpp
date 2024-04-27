@@ -37,12 +37,14 @@ class Searcher {
         uint64_t nodes;
         Time search_until;
         bool search_over;
-        std::array<Move, 8> killers;
+        std::array<Move, 2> killers; // 2 is the most efficient
+        // Move killer;
         int killer_moves_idx;
 
         Searcher();
 
         void order_moves(std::vector<Move> &moves, const Board &chess_board) noexcept;
+        void order_captures(std::vector<Move> &moves, const Board &chess_board) noexcept;
         int quiescence_search(Board &chess_board, int alpha, int beta) noexcept;
         int negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;
         int run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;

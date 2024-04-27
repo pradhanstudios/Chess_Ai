@@ -24,7 +24,11 @@ void print_vector(const std::vector<int> &v) noexcept {
         std::cout << i << ",  ";
     }
     std::cout << std::endl;
-} 
+}
+
+uint64_t prandom() {
+    return random() | (random() << 32);
+}
 
 void print_vector(const std::vector<std::string> &v) noexcept {
     for (std::string i : v) {
@@ -51,6 +55,24 @@ History::History(const unsigned int &en_pessant, const unsigned int &castle, con
     this->castle = castle;
     this->capture = capture;
     this->fifty_move_rule = fifty_move_rule;
+}
+
+Zobrist::Zobrist() {
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 64; j++) {
+            this->pieces[i][j] = prandom();
+        }
+    }
+
+    for (int i = 0; i < 16; i++) {
+        this->castles[i] = prandom();
+    }
+
+    for (int i = 0; i < 64; i++) {
+        this->en_pessants[i] = prandom();
+    }
+
+    this->black_turn = prandom();
 }
 
 Board::Board(const std::string &fen) noexcept {
@@ -93,6 +115,7 @@ Board::Board(const std::string &fen) noexcept {
 
 
     this->turn = fensplit[1][0] == 'w';
+    zobrist_key = this->turn ? 0 : zobrist.black_turn;
 
     cur_history.en_pessant -= PAWN_DIRECTION_LOOKUP[this->turn];
 
@@ -166,7 +189,16 @@ Board::Board(const std::string &fen) noexcept {
     // print_BB(this->pieces[WHITE]);
 
     this->update_bitboards();
-    
+
+
+    BB pieces = this->pieces[FULL];
+    int pos;
+    while (pieces) {
+        pos = pop_first_one(pieces);
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[pos])-1][pos];
+    }
+
+    this->zobrist_key ^= zobrist.castles[this->history.back().castle];
 }
 
 void Board::print_square_data() noexcept {
@@ -218,19 +250,6 @@ void Board::print_square_data() noexcept {
     // std::cout << "Done printing square data." << std::endl;
 }
 
-// inline bool Board::is_in_check() {
-//     return (this->pieces[KING] & this->pieces[turn_to_index[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
-// }
-
-// inline void Board::next_turn() {
-//     this->turn = !this->turn;
-// }
-
-// inline void Board::update_bitboards() { // update bitboards which are dependant on other bitboards
-//     this->pieces[FULL] = (this->pieces[WHITE] | this->pieces[BLACK]);
-//     this->pieces[EMPTY] = ~this->pieces[FULL];
-// }
-
 void Board::play_move(const Move &move) noexcept {
     unsigned int cur_en_pessant = 0u;
     int same_team = turn_to_index[this->turn];
@@ -247,11 +266,12 @@ void Board::play_move(const Move &move) noexcept {
     // print_Move_bits(move);
 
     if (type == NORMAL_MOVE) { // normal move
+        int piece = no_color(this->piece_data[from]);
         // std::cout << to << "\t" << from << std::endl;
         // piece = type >> 1;
         // int no_color_capture_piece = no_color(this->piece_data[to]);
-        BB capture = 1ULL << to;
-        int piece = no_color(this->piece_data[from]);
+        this->zobrist_key ^= zobrist.pieces[piece-1][from];
+        BB capture = SQUARE_TO_BB[to];
         BB t = capture ^ (SQUARE_TO_BB[from]);
         // std::cout << ind << std::endl;
         // print_BB((1 << to) ^ (1 << from));
@@ -260,6 +280,7 @@ void Board::play_move(const Move &move) noexcept {
         this->pieces[FULL] ^= t;
         this->pieces[EMPTY] ^= t;
         if ((this->piece_data[to] & 7) == ROOK) { // rook is captured
+            this->zobrist_key ^= zobrist.castles[cur_castle];
             // std::cout << "got here" << std::endl;
             if (to == 63) { // blck qside
                 cur_castle &= 0b0111;
@@ -276,17 +297,22 @@ void Board::play_move(const Move &move) noexcept {
             else if (to == 0) { // wht kngside
                 cur_castle &= 0b1110;
             }
+            this->zobrist_key ^= zobrist.castles[cur_castle];
         }
         if (this->piece_data[to]) { // capture
             fifty_move_rule = 0;
+            this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
             this->pieces[EMPTY] ^= capture;
             this->pieces[FULL] ^= capture;
             this->pieces[other_team] ^= capture;
             this->pieces[this->piece_data[to] & 7] ^= capture;
         }
         this->piece_data[to] = this->piece_data[from];
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
+        // print_BB(this->zobrist_key);
         this->piece_data[from] = EMPTY;
         if ((this->piece_data[to] & 7) == ROOK) {
+            this->zobrist_key ^= zobrist.castles[cur_castle];
             if (from == 63) { // blck qside
                 cur_castle &= 0b0111;
             }
@@ -302,17 +328,21 @@ void Board::play_move(const Move &move) noexcept {
             else if (from == 0) { // wht kngside
                 cur_castle &= 0b1110;
             }
+            this->zobrist_key ^= zobrist.castles[cur_castle];
         }
         else if ((this->piece_data[to] & 7) == PAWN) {
             fifty_move_rule = 0;
             if (abs(from - to) == 16) { // if it moved two rows
                 // std::cout << "got here " << from << " " << to << std::endl; 
                 cur_en_pessant = to;
+                this->zobrist_key ^= zobrist.en_pessants[cur_en_pessant];
                 // std::cout << "original en_pessant: " << cur_en_pessant << "\t" << "to: " << to << "\tfrom: " << from << "\t";
             }
         }
         else if ((this->piece_data[to] & 7) == KING) {
+            this->zobrist_key ^= zobrist.castles[cur_castle];
             cur_castle &= 0b0011 ^ (0b1111 * this->turn); // if u castle once u cant castle again
+            this->zobrist_key ^= zobrist.castles[cur_castle];
         }
         // std::cout << piece << std::endl;
     }
@@ -321,6 +351,7 @@ void Board::play_move(const Move &move) noexcept {
         fifty_move_rule = 0;
         // int no_color_capture_piece = no_color(this->piece_data[to]);
         // std::cout << "got here" << std::endl;
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[from])-1][from];
         int piece = type >> 1; // promotion piece
         // std::cout << piece << std::endl;
         fast_reverse_bit(this->pieces[PAWN], from); // off
@@ -330,6 +361,7 @@ void Board::play_move(const Move &move) noexcept {
         this->pieces[FULL] ^= (from | to);
         this->pieces[EMPTY] ^= (from | to);
         if ((this->piece_data[to] & 7) == ROOK) { // rook is captured
+            this->zobrist_key ^= zobrist.castles[cur_castle];
             if (to == 63) { // blck qside
                 cur_castle &= 0b0111;
             }
@@ -345,8 +377,10 @@ void Board::play_move(const Move &move) noexcept {
             else if (to == 0) { // wht kngside
                 cur_castle &= 0b1110;
             }
+            this->zobrist_key ^= zobrist.castles[cur_castle];
         }
         if (piece_data[to]) { // capture
+            this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
             BB capture = SQUARE_TO_BB[to];
             this->pieces[EMPTY] ^= capture;
             this->pieces[FULL] ^= capture;
@@ -357,13 +391,16 @@ void Board::play_move(const Move &move) noexcept {
         }
         // std::cout << piece_data[to] << std::endl;
         this->piece_data[to] = piece + (!this->turn * 8);
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
         this->piece_data[from] = EMPTY;
     }
 
     else if (type & CASTLE) {
         // std::cout << "Here" << std::endl;
         int side = type >> 3; // 1 is kingside 0 is queenside
+        this->zobrist_key ^= zobrist.castles[cur_castle];
         cur_castle &= 0b0011 ^ (0b1111 * this->turn); // if u castle once u cant castle again
+        this->zobrist_key ^= zobrist.castles[cur_castle];
         int color_to_pos = (!this->turn * 56);
 
         BB t = (side ? 0b1111ULL : 0b10111000ULL) << color_to_pos;
@@ -374,6 +411,8 @@ void Board::play_move(const Move &move) noexcept {
         int rookEnd = 2 + (!side << 1) + color_to_pos;
         int kingEnd = 1 + (!side << 2) + color_to_pos; // x << 1 == x * 2
         // int kingEnd = 6 - (piece * 4) + (!this->turn * 56);
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[rookStart])-1][rookStart];
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[kingStart])-1][kingStart];
         
         fast_reverse_bit(this->pieces[ROOK], rookStart); // off
         fast_reverse_bit(this->pieces[KING], kingStart); // if its black add 56
@@ -386,10 +425,13 @@ void Board::play_move(const Move &move) noexcept {
         this->piece_data[kingEnd] = this->piece_data[kingStart];
         this->piece_data[rookStart] = EMPTY;
         this->piece_data[kingStart] = EMPTY;
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[rookEnd])-1][rookEnd];
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[kingEnd])-1][kingEnd];
     }
 
     else if (type == EN_PESSANT) {
         fifty_move_rule = 0;
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[from])-1][from];
         // int N = this->enpessent_history.size();
         int enpessant = cur_history.en_pessant;
         // std::cout << enpessant << std::endl;
@@ -409,8 +451,10 @@ void Board::play_move(const Move &move) noexcept {
         fast_reverse_bit(this->pieces[turn_to_index[!turn]], enpessant);
         this->piece_data[to] = this->piece_data[from];
         this->piece_data[from] = EMPTY;
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[enpessant])-1][enpessant];
         this->piece_data[enpessant] = EMPTY;
         cur_en_pessant = enpessant;
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
     }
 
     else {
@@ -433,8 +477,10 @@ void Board::play_move(const Move &move) noexcept {
 void Board::undo_move(const Move &move) noexcept {
     this->next_turn(); // technically previous turn
     History old_history = this->history.back();
+    this->zobrist_key ^= zobrist.castles[old_history.castle];
     this->history.pop_back();
     int cur_en_pessant = old_history.en_pessant;
+    this->zobrist_key ^= zobrist.en_pessants[cur_en_pessant];
     int capture = old_history.capture; 
     this->state = RUNNING;
     int same_team = turn_to_index[this->turn];
@@ -446,6 +492,7 @@ void Board::undo_move(const Move &move) noexcept {
     if (type == NORMAL_MOVE) {
         BB capture_place = SQUARE_TO_BB[to];
         BB t = (SQUARE_TO_BB[from]) ^ capture_place;
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
         this->pieces[this->piece_data[to] & 7] ^= t;
         this->pieces[same_team] ^= t;
         this->pieces[FULL] ^= t;
@@ -456,9 +503,12 @@ void Board::undo_move(const Move &move) noexcept {
             this->pieces[EMPTY] ^= capture_place;
             this->pieces[other_team] ^= capture_place;
             this->pieces[capture & 7] ^= capture_place;
+            this->zobrist_key ^= zobrist.pieces[no_color(capture)-1][to];
         }
         this->piece_data[from] = this->piece_data[to];
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[from])-1][from];
         this->piece_data[to] = capture;
+        // this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
     }
     else if (type & PROMOTION) {
         BB full_mask = (SQUARE_TO_BB[from] | SQUARE_TO_BB[to]);
@@ -478,19 +528,24 @@ void Board::undo_move(const Move &move) noexcept {
             // print_BB(this->pieces[other_team]);
             // std::cout << ((capture & 7) == BISHOP) << " " << ((capture & 7) == QUEEN) << " " << QUEEN << " " << ((capture & 7)) << std::endl;
             this->pieces[capture & 7] ^= SQUARE_TO_BB[to];
+            this->zobrist_key ^= zobrist.pieces[no_color(capture)-1][to];
         }
         // std::cout << to << std::endl;
         this->piece_data[from] = PAWN + (!this->turn*8);
         this->piece_data[to] = capture;
+        // this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
     }
     else if (type == EN_PESSANT) {
         BB t = (SQUARE_TO_BB[from]) ^ (SQUARE_TO_BB[to]);
         BB pawn_mask = t | SQUARE_TO_BB[cur_en_pessant];
         // BB c = SQUARE_TO_BB[cur_en_pessant];
         // std::cout << cur_en_pessant << std::endl;
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
         this->piece_data[cur_en_pessant] = PAWN + (this->turn*8);
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[cur_en_pessant])-1][cur_en_pessant];
         // std::cout << (PAWN + !this->turn ? 0 : 8) << std::endl;
         this->piece_data[from] = this->piece_data[to];
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[from])-1][from];
         this->piece_data[to] = EMPTY;
         this->pieces[PAWN] ^= pawn_mask;
         this->pieces[FULL] ^= pawn_mask;
@@ -513,6 +568,8 @@ void Board::undo_move(const Move &move) noexcept {
         int rookEnd = 2 + (is_queenside_castle << 1) + (color_to_pos);
         // int kingEnd = 1 + (is_queenside_castle << 2) + (color_to_pos); // x << 1 == x * 2
         // std::cout << "kingstart:\t" << kingStart; 
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[rookEnd])-1][rookEnd];
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
         fast_reverse_bit(this->pieces[ROOK], rookStart); // off
         fast_reverse_bit(this->pieces[KING], from);
         fast_reverse_bit(this->pieces[ROOK], rookEnd);
@@ -521,6 +578,8 @@ void Board::undo_move(const Move &move) noexcept {
         this->piece_data[from] = this->piece_data[to];
         this->piece_data[rookEnd] = EMPTY;
         this->piece_data[to] = EMPTY;
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[from])-1][from];
+        this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[rookStart])-1][rookStart];
     }
 
     // this->update_bitboards();

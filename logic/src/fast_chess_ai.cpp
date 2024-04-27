@@ -18,13 +18,25 @@ int main() {
     initialize_engine();
     assert(ENGINE_INITIALIZED);
     // run_test_suite();
-    // Board b = Board("rnbqkb1r/ppp1ppp1/5n1p/3p2B1/3P4/5N2/PPP1PPPP/RN1QKB1R w KQkq - 0 4");
+    Board b = Board("rnbqkbnr/8/8/8/8/8/8/RNBQKBNR w KQkq - 0 1");
 
     // h8h7
     // interface();
-    Board b = Board("r4rk1/ppp2ppp/2np1qb1/4p3/2B1P1P1/P1P2N1P/1PP2P2/R2Q1RK1 w - - 0 12");
+    // print_BB(SQUARE_TO_BB[h8]);
+    // Board b = Board("r3k2r/pppp2pp/4p3/5pP1/8/8/PPPPPP1P/R3K2R w KQkq f6 0 1");
+    // Move m1 = Move(h2, h4, NORMAL_MOVE);
+    // Board b = Board("r3k2r/pppp2pp/4p3/5pP1/8/8/PPPPPP1P/R3K2R w KQkq f6 0 1");
+    // BB orig = b.zobrist_key;
+    // BB expected = b.zobrist_key ^ zobrist.pieces[PAWN-1][h2] ^ zobrist.pieces[PAWN-1][h2];
+    // print_BB(expected);
+    // b.play_move(m1);
+    // print_BB(b.zobrist_key);
+    // std::cout << (b.zobrist_key == expected) << std::endl;
+    // b.undo_move(m1);
+    // std::cout << (b.zobrist_key == orig) << std::endl;
     Searcher s = Searcher();
-    s.run_iterative_deepening(b, 10000, 5);
+    s.run_iterative_deepening(b, 10000, 6);
+    // print_BB(b.zobrist_key);
     // s.run_iterative_deepening(b, 2000);
     std::cout << move_to_uci(s.best_move) << " " << s.best_eval << std::endl;
     // std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;
