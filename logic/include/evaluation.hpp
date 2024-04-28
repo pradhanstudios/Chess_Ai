@@ -13,7 +13,7 @@ constexpr int orient(int piece, int position) noexcept {
 }
 
 // https://www.chessprogramming.org/Simplified_Evaluation_Function
-inline const std::array<int, 7> piece_values = {0, 100, 320, 330, 500, 900, 0};
+inline const std::array<int, 7> piece_values = {0, 100, 300, 300, 500, 900, 0};
 
 inline constexpr int PIECE_TABLES[384] = {
     // pawns reversed

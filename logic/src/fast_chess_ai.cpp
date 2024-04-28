@@ -18,7 +18,8 @@ int main() {
     initialize_engine();
     assert(ENGINE_INITIALIZED);
     // run_test_suite();
-    Board b = Board("rnbqkbnr/8/8/8/8/8/8/RNBQKBNR w KQkq - 0 1");
+    // Board b = Board("rnbqkbnr/8/8/8/8/8/8/RNBQKBNR w KQkq - 0 1");
+    Board b = Board("8/7k/5K2/4Q3/8/8/8/8 w - - 0 1");
 
     // h8h7
     // interface();
@@ -38,7 +39,7 @@ int main() {
     s.run_iterative_deepening(b, 10000, 6);
     // print_BB(b.zobrist_key);
     // s.run_iterative_deepening(b, 2000);
-    std::cout << move_to_uci(s.best_move) << " " << s.best_eval << std::endl;
+    std::cout << move_to_uci(s.best_move) << " " << s.best_eval << " " << s.nodes << std::endl;
     // std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;
     // std::vector<Move> moves;
     // moves.reserve(MAX_CAPTURE_MOVES);

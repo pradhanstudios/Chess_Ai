@@ -15,7 +15,6 @@ inline Time current_time() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
-
 #define max_think_time(time_left) (time_left / 10)
 
 // https://gist.githubusercontent.com/peterellisjones/8c46c28141c162d1d8a0f0badbc9cff9/raw/b11af5a3dd978724ac2d4a531217133b9a3ad9ba/Chess%2520Perft%2520test%2520positions
@@ -45,7 +44,7 @@ class Searcher {
 
         void order_moves(std::vector<Move> &moves, const Board &chess_board) noexcept;
         void order_captures(std::vector<Move> &moves, const Board &chess_board) noexcept;
-        int quiescence_search(Board &chess_board, int alpha, int beta) noexcept;
+        int quiescence_search(Board &chess_board, int alpha, int beta, const bool &promotion = false) noexcept;
         int negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;
         int run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;
         void run_iterative_deepening(Board &chess_board, const int &time, const int &max_depth=255) noexcept;
