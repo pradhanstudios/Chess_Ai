@@ -192,6 +192,7 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
             cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -beta, -alpha);
         }
         else {
+            // TODO: if move is a check, add a one depth extension, same with promotions
             cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -alpha-1, -alpha);
             if (cur_eval > alpha && cur_eval < beta) {
                 // late move reductions

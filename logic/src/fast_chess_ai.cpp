@@ -36,10 +36,12 @@ int main() {
     // b.undo_move(m1);
     // std::cout << (b.zobrist_key == orig) << std::endl;
     Searcher s = Searcher();
-    s.run_iterative_deepening(b, 10000, 6);
+    for (int i = 1; i < 7; i++) {
+        s.run_iterative_deepening(b, 10000, i);
+        std::cout << move_to_uci(s.best_move) << " " << s.best_eval << " " << s.nodes << std::endl;
+    }
     // print_BB(b.zobrist_key);
     // s.run_iterative_deepening(b, 2000);
-    std::cout << move_to_uci(s.best_move) << " " << s.best_eval << " " << s.nodes << std::endl;
     // std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;
     // std::vector<Move> moves;
     // moves.reserve(MAX_CAPTURE_MOVES);
