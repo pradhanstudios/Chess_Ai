@@ -18,8 +18,25 @@ int main() {
     initialize_engine();
     assert(ENGINE_INITIALIZED);
     // run_test_suite();
-    // Board b = Board("rnbqkbnr/8/8/8/8/8/8/RNBQKBNR w KQkq - 0 1");
-    Board b = Board("8/7k/5K2/4Q3/8/8/8/8 w - - 0 1");
+    Board b = Board("rnbqkbnr/ppp2ppp/8/3pp3/8/N4N2/PPPPPPPP/R1BQKB1R w KQkq - 0 3");
+    // Board b = Board("rnbqkbnr/ppp2ppp/8/3pp3/8/N4N2/PPPPPPPP/1RBQKB1R b Kkq - 1 3");
+    Searcher s = Searcher();
+    // std::cout << evaluate(b) << std::endl;
+    // std::vector<Move> moves;
+    // moves.reserve(MAX_LEGAL_MOVES);
+    // generate_legal_moves(b, moves);
+    // s.previous_best_move = Move(f3, e5, NORMAL_MOVE);
+    // // std::cout << ((Move(f3, e5, NORMAL_MOVE) == s.previous_best_move) * 1e7) << std::endl;
+    // s.order_moves(moves, b);
+    // for (const Move &move : moves) {
+    //     std::cout << move_to_uci(move) << ", ";
+    // }
+    // std::cout << moves[6].score << " " << move_to_uci(moves[6]) << std::endl;
+    s.run_iterative_deepening(b, 2000);
+    std::cout << s.best_eval << " " << move_to_uci(s.best_move) << " " << s.nodes << " " << s.search_over << std::endl;
+    // std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;
+
+    // Board b = Board(DEFAULT_FEN);
 
     // h8h7
     // interface();
@@ -35,11 +52,10 @@ int main() {
     // std::cout << (b.zobrist_key == expected) << std::endl;
     // b.undo_move(m1);
     // std::cout << (b.zobrist_key == orig) << std::endl;
-    Searcher s = Searcher();
-    for (int i = 1; i < 7; i++) {
-        s.run_iterative_deepening(b, 10000, i);
-        std::cout << move_to_uci(s.best_move) << " " << s.best_eval << " " << s.nodes << std::endl;
-    }
+    // Searcher s = Searcher();
+    // s.run_iterative_deepening(b, 2000);
+    // // std::cout << (evaluate(b)) << std::endl;
+    // 
     // print_BB(b.zobrist_key);
     // s.run_iterative_deepening(b, 2000);
     // std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;

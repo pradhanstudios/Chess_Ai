@@ -78,12 +78,19 @@ Searcher::Searcher() :
 void Searcher::order_moves(std::vector<Move> &moves, const Board &chess_board) noexcept {
     for (int i = 0; i < moves.size(); i++) { // give each move a score
         moves[i].score = 
-        (moves[i] == this->previous_best_move) * 1e7 + // pv node
-        ((moves[i].type & PROMOTION) * (moves[i].type & 0b1110)) * 1e5 + // promotion
-        (std::find(this->killers.begin(), this->killers.end(), moves[i]) != this->killers.end()) * 1e4 + // killers
-        ((SQUARE_TO_BB[moves[i].to] & chess_board.pieces[FULL]) * (piece_values[no_color(chess_board.piece_data[moves[i].to])] - piece_values[no_color(chess_board.piece_data[moves[i].from])])) * 1e1 // MVV-LVA
+        (moves[i] == this->previous_best_move) * 20000 + // pv node
+        (std::find(this->killers.begin(), this->killers.end(), moves[i]) != this->killers.end()) * 2000 + // killers
+        ((moves[i].type & PROMOTION) * (moves[i].type & 0b1110)) * 1000 + // promotion (more score based on piece values)
+        ((SQUARE_TO_BB[moves[i].to] & chess_board.pieces[FULL]) * (piece_values[no_color(chess_board.piece_data[moves[i].to])] - piece_values[no_color(chess_board.piece_data[moves[i].from])])) // MVV-LVA
         ;
+        // moves[i].score = 1;
+        // std::cout << ((moves[i] == this->previous_best_move) * 20000 + // pv node
+        // (std::find(this->killers.begin(), this->killers.end(), moves[i]) != this->killers.end()) * 2000 + // killers
+        // ((moves[i].type & PROMOTION) * (moves[i].type & 0b1110)) * 1000 + // promotion (more score based on piece values)
+        // ((SQUARE_TO_BB[moves[i].to] & chess_board.pieces[FULL]) * (piece_values[no_color(chess_board.piece_data[moves[i].to])] - piece_values[no_color(chess_board.piece_data[moves[i].from])])) // MVV-LVA
+        // )<< " ";
     }
+    // std::cout << std::endl;
     std::sort(moves.begin(), moves.end(), [](const Move &m1, const Move &m2) { return m1.score > m2.score; });
 }
 
@@ -213,6 +220,11 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
         }
 
         if ((cur_eval > best_eval || this->best_move == NULL_MOVE) && depth_from_start == 0) {
+            std::cout << "got here " << move_to_uci(moves[i]) << " " << cur_eval << " " << depth << " Move ordering: ";
+            for (const Move &move : moves) {
+                std::cout << move_to_uci(move) << ", ";
+            }
+            std::cout << " || " << move_to_uci(this->previous_best_move) << std::endl;
             this->best_eval = cur_eval;
             this->best_move = moves[i];
         }
@@ -247,6 +259,7 @@ int Searcher::run_negamax_search(Board &chess_board, const int &depth, const int
 }
 
 void Searcher::run_iterative_deepening(Board &chess_board, const int &time, const int &max_depth) noexcept {
+    nodes = 0ULL;
     this->search_until = current_time() + time;
     this->best_move = NULL_MOVE;
     this->best_eval = NEGINF;
@@ -265,16 +278,18 @@ void Searcher::run_iterative_deepening(Board &chess_board, const int &time, cons
         this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
         m_depth = i;
         // TODO: add: if the searcher found a checkmate, the search stops
-        if (this->best_eval <= BLACK_MATE_SCORE || this->best_eval >= WHITE_MATE_SCORE) {
-            break;
-        }
         if (this->search_over) {
-            if (m_depth > 1) {
+            std::cout << "got here" << std::endl;
+            if (this->best_move == NULL_MOVE) {
                 this->best_move = this->previous_best_move;
                 this->best_eval = this->previous_best_eval;
             }
             m_depth--;
             // we do not want moves from incomplete search
+            break;
+        }
+        if (this->best_eval <= BLACK_MATE_SCORE || this->best_eval >= WHITE_MATE_SCORE) {
+            // std::cout << "got here" << std::endl;
             break;
         }
     }
