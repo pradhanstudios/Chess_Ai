@@ -18,7 +18,8 @@ int main() {
     initialize_engine();
     assert(ENGINE_INITIALIZED);
     // run_test_suite();
-    Board b = Board("rnbqkbnr/ppp2ppp/8/3pp3/8/N4N2/PPPPPPPP/R1BQKB1R w KQkq - 0 3");
+    // Board b = Board("3k4/3q4/8/8/r2R3r/2PKP3/2PPP3/8 w - - 0 1");
+    Board b = Board(DEFAULT_FEN);
     // Board b = Board("rnbqkbnr/ppp2ppp/8/3pp3/8/N4N2/PPPPPPPP/1RBQKB1R b Kkq - 1 3");
     Searcher s = Searcher();
     // std::cout << evaluate(b) << std::endl;
@@ -32,7 +33,7 @@ int main() {
     //     std::cout << move_to_uci(move) << ", ";
     // }
     // std::cout << moves[6].score << " " << move_to_uci(moves[6]) << std::endl;
-    s.run_iterative_deepening(b, 2000);
+    s.run_iterative_deepening(b, 3000);
     std::cout << s.best_eval << " " << move_to_uci(s.best_move) << " " << s.nodes << " " << s.search_over << std::endl;
     // std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;
 
