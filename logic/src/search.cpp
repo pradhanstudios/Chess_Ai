@@ -94,7 +94,23 @@ void Searcher::order_moves(std::vector<Move> &moves, const Board &chess_board) n
         // )<< " ";
     }
     // std::cout << std::endl;
-    std::sort(moves.begin(), moves.end(), [](const Move &m1, const Move &m2) { return m1.score > m2.score; });
+    // std::sort(moves.begin(), moves.end(), [](const Move &m1, const Move &m2) { return m1.score > m2.score; });
+
+    // std::sort is slow on small vectors (I tried it)
+    // https://www.geeksforgeeks.org/cpp-program-for-insertion-sort/
+    // insertion sort
+    int i, j;
+    Move key;
+    for (i = 1; i < moves.size(); i++) {
+        key = moves[i];
+        j = i - 1;
+
+        while (j >= 0 && moves[j].score < key.score) {
+            moves[j + 1] = moves[j];
+            j = j - 1;
+        }
+        moves[j + 1] = key;
+    }
 }
 
 // void Searcher::order_captures(std::vector<Move> &moves, const Board &chess_board) noexcept {
@@ -108,6 +124,7 @@ void Searcher::order_moves(std::vector<Move> &moves, const Board &chess_board) n
 // }
 
 int Searcher::quiescence_search(Board &chess_board, int alpha, int beta, const bool &promotion) noexcept {
+    nodes++;
     this->search_over = current_time() > search_until;
     if (this->search_over) {
         return 0;
@@ -266,19 +283,21 @@ void Searcher::run_iterative_deepening(Board &chess_board, const int &time, cons
     this->search_until = current_time() + time;
     this->best_move = NULL_MOVE;
     this->best_eval = NEGINF;
-    int m_depth = 0;
+    int m_depth = 0, aspiration_score = 0;
+    const int aspiration_window = 50;
+
 
     for (int i = 1; i <= max_depth; i++) {
         this->search_over = false;
         this->previous_best_move = this->best_move;
         this->previous_best_eval = this->best_eval;
         // aspiration windows
-        // if (abs(this->previous_best_eval - this->run_negamax_search(chess_board, i, 0, this->previous_best_eval - 31, this->previous_best_eval + 31)) >= 31) {
-        //     // std::cout << "got here: " << i << std::endl;
-        //     this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
-        // }
-        // for some reason, aspiration windows seem to be making my program slower
-        this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
+        aspiration_score = this->run_negamax_search(chess_board, i, 0, this->previous_best_eval - aspiration_window, this->previous_best_eval + aspiration_window);
+        if (abs(this->previous_best_eval - aspiration_score) >= aspiration_window) {
+            // std::cout << "got here: " << i << std::endl;
+            this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
+        }
+        // this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
         m_depth = i;
         if (this->search_over) {
             // std::cout << "got here" << std::endl;
