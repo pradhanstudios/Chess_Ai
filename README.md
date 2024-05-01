@@ -1,5 +1,5 @@
 # Chess_AI
-trying to make a chess ai in python
+trying to make a chess ai in c++
 
 ## Prerequisites
 
