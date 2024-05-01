@@ -105,7 +105,7 @@ void Searcher::order_moves(std::vector<Move> &moves, const Board &chess_board) n
         key = moves[i];
         j = i - 1;
 
-        while (j >= 0 && moves[j].score < key.score) {
+        while (j >= 0 && moves[j].score <= key.score) {
             moves[j + 1] = moves[j];
             j = j - 1;
         }
@@ -113,15 +113,25 @@ void Searcher::order_moves(std::vector<Move> &moves, const Board &chess_board) n
     }
 }
 
-// void Searcher::order_captures(std::vector<Move> &moves, const Board &chess_board) noexcept {
-//     for (int i = 0; i < moves.size(); i++) { // give each move a score
-//         moves[i].score = 
-//         // (moves[i] == this->previous_best_move) * 1e7 + // pv node
-//         ((SQUARE_TO_BB[moves[i].to] & chess_board.pieces[FULL]) * (no_color(chess_board.piece_data[moves[i].to]) - no_color(chess_board.piece_data[moves[i].from]))) * 1e3 // MVV-LVA
-//         ;
-//     }
-//     std::sort(moves.begin(), moves.end(), [](const Move &m1, const Move &m2) { return m1.score > m2.score; });
-// }
+void Searcher::order_captures(std::vector<Move> &moves, const Board &chess_board) noexcept {
+    for (int i = 0; i < moves.size(); i++) { // give each move a score
+        moves[i].score = 
+        ((SQUARE_TO_BB[moves[i].to] & chess_board.pieces[FULL]) * (no_color(chess_board.piece_data[moves[i].to]) - no_color(chess_board.piece_data[moves[i].from]))) // MVV-LVA
+        ;
+    }
+    int i, j;
+    Move key;
+    for (i = 1; i < moves.size(); i++) {
+        key = moves[i];
+        j = i - 1;
+
+        while (j >= 0 && moves[j].score <= key.score) {
+            moves[j + 1] = moves[j];
+            j = j - 1;
+        }
+        moves[j + 1] = key;
+    }
+}
 
 int Searcher::quiescence_search(Board &chess_board, int alpha, int beta, const bool &promotion) noexcept {
     nodes++;
@@ -156,7 +166,7 @@ int Searcher::quiescence_search(Board &chess_board, int alpha, int beta, const b
     std::vector<Move> moves;
     moves.reserve(MAX_CAPTURE_MOVES);
     generate_captures(chess_board, moves);
-    // this->order_captures(moves, chess_board);
+    this->order_captures(moves, chess_board);
     // this->order_moves(moves, chess_board);
 
     for (const Move &move : moves) {
