@@ -21,6 +21,14 @@ inline std::array<BB, 64> SQUARE_TO_BB;
 // #define rank(pos)
 // #define file(pos)
 
+// void print_weights(const float[384] v) noexcept {
+//     std::cout << std::setprecision(5);
+//     for (float i : v) {
+//         std::cout << i << ",  ";
+//     }
+//     std::cout << "-------------------------------------------\n" << std::endl;
+// }
+
 constexpr int real_count(const BB &bitboard) noexcept {
     #ifndef _WIN32 // not windows
     return __builtin_popcountll(bitboard);

@@ -21,7 +21,7 @@ void interface() {
 
         else if (cur_input_args[0] == "position") {
             if (cur_input_args[1] == "fen") {
-                if (cur_input_args[2] != "reset") {
+                if (cur_input_args[2] != "startpos") {
                     fen = std::accumulate(
                     std::next(cur_input_args.begin()+2), 
                     cur_input_args.end(), 

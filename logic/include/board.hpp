@@ -87,7 +87,13 @@ class Board {
         std::vector<History> history;
         bool turn; // true for white false for black
         Board(const std::string &fen) noexcept;
+        // void change_fen(const std::string &fen) noexcept;
         void print_square_data() noexcept;
+        void play_move(const Move &move) noexcept;
+        void undo_move(const Move &move) noexcept;
+
+
+
         constexpr bool is_in_check() noexcept {
             return (this->pieces[KING] & this->pieces[turn_to_index[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
         }
@@ -99,7 +105,5 @@ class Board {
             this->pieces[FULL] = (this->pieces[WHITE] | this->pieces[BLACK]);
             this->pieces[EMPTY] = ~this->pieces[FULL];
         };
-        void play_move(const Move &move) noexcept;
-        void undo_move(const Move &move) noexcept;
 };
 #endif // BOARD_HPP

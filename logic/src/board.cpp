@@ -201,6 +201,137 @@ Board::Board(const std::string &fen) noexcept {
     this->zobrist_key ^= zobrist.castles[this->history.back().castle];
 }
 
+// void Board::change_fen(const std::string &fen) noexcept {
+//     this->pins = {};
+//     this->is_double_check = false;
+//     this->check_ray = 0ULL;
+//     this->state = RUNNING;
+//     this->history.clear();
+//     std::fill(this->pieces.begin(), this->pieces.end(), 0ULL);
+//     // char cur;
+//     // int i = fen.length() - 1;
+//     History cur_history = History();
+//     unsigned int castles = 0u;
+    
+//     std::vector<std::string> fensplit = split(fen, ' ');
+//     // print_vector(fensplit);
+//     // std::cout << fensplit[3] << std::endl;
+//     // std::cout << (7-col_letter_to_num.at(fensplit[3][0]) + (std::stoi(&fensplit[3][1])-1)*8) << std::endl;
+//     if (fensplit[3][0] != '-'){
+//         cur_history.en_pessant = (7-col_letter_to_num.at(fensplit[3][0]) + (std::stoi(&fensplit[3][1])-1)*8);
+//     }
+//     else {
+//         cur_history.en_pessant = 0u; // you can never have an en pessant at position 0
+//     }
+//     // i--;
+
+//     for (char cur : fensplit[2]) {
+//         if (cur == 'q') {
+//             castles ^= 1 << 3;
+//         }
+//         else if (cur == 'k') {
+//             castles ^= 1 << 2;
+//         }
+//         else if (cur == 'Q') {
+//             castles ^= 1 << 1;
+//         }
+//         else if (cur == 'K') {
+//             castles ^= 1;
+//         }
+//         // std::cout << spaces << std::endl;
+//         // i--;
+//     }
+//     cur_history.castle = castles;
+//     cur_history.fifty_move_rule = 0u;
+
+
+//     this->turn = fensplit[1][0] == 'w';
+//     zobrist_key = this->turn ? 0 : zobrist.black_turn;
+
+//     cur_history.en_pessant -= PAWN_DIRECTION_LOOKUP[this->turn];
+
+//     this->history.push_back(cur_history);
+
+//     int color;
+//     int board_ptr = 0u;
+//     // int actual_pos;
+//     char cur;
+//     std::vector<std::string> fen_lines = split(fensplit[0], '/');
+//     std::reverse(fen_lines.begin(), fen_lines.end());
+//     int row = 0;
+//     // std::cout << row << std::endl;
+//     // std::string pieces_fen = fensplit[0];
+//     for (std::string line : fen_lines) {
+//         // std::cout << line << std::endl;
+//         board_ptr = 8*row;
+//         for (int i = line.length()-1; i > -1; i--) {
+//             cur = line[i];
+//             // std::cout << cur << " ";
+//             if (isdigit(cur))
+//             {
+//                 // std::cout << board_ptr << std::endl;
+//                 board_ptr += cur - '0'; // convert char to int
+//             }
+//             else if (cur == '/')
+//             {
+//                 break;
+//             }
+//             else
+//             {
+//                 color = isupper(cur) ? 0 : 8;
+//                 // actual_pos = 63-board_ptr;
+//                 color ? fast_reverse_bit(this->pieces[BLACK], board_ptr) : fast_reverse_bit(this->pieces[WHITE], board_ptr);
+//                 cur = char(std::tolower(cur));
+//                 // std::cout << cur << std::endl;
+//                 // std::cout << cur << " " << board_ptr << std::endl;
+//                 if (cur == 'k') {
+//                     // std::cout << "got here" << std::endl;
+//                     // print_BB(this->pieces[KING]);
+//                     fast_reverse_bit(this->pieces[KING], board_ptr);
+//                     // print_BB(this->pieces[KING]);
+//                     this->piece_data[board_ptr] = KING + color;
+//                 }
+//                 else if (cur == 'q') {
+//                     fast_reverse_bit(this->pieces[QUEEN], board_ptr);
+//                     this->piece_data[board_ptr] = QUEEN + color;
+//                 }
+//                 else if (cur == 'r') {
+//                     fast_reverse_bit(this->pieces[ROOK], board_ptr);
+//                     this->piece_data[board_ptr] = ROOK + color;
+//                 }
+//                 else if (cur == 'b') {
+//                     fast_reverse_bit(this->pieces[BISHOP], board_ptr);
+//                     this->piece_data[board_ptr] = BISHOP + color;
+//                 }
+//                 else if (cur == 'n') {
+//                     fast_reverse_bit(this->pieces[KNIGHT], board_ptr);
+//                     this->piece_data[board_ptr] = KNIGHT + color;
+//                 }
+//                 else if (cur == 'p') {
+//                     fast_reverse_bit(this->pieces[PAWN], board_ptr);
+//                     this->piece_data[board_ptr] = PAWN + color;
+//                 }
+//                 board_ptr++;
+//             }
+//         }
+//         row++;
+//     }
+
+//     // print_BB(this->pieces[WHITE]);
+
+//     this->update_bitboards();
+
+
+//     BB pieces = this->pieces[FULL];
+//     int pos;
+//     while (pieces) {
+//         pos = pop_first_one(pieces);
+//         this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[pos])-1][pos];
+//     }
+
+//     this->zobrist_key ^= zobrist.castles[this->history.back().castle];
+// }
+
 void Board::print_square_data() noexcept {
     std::string cur;
     int entry, cur_piece;
@@ -471,6 +602,22 @@ void Board::play_move(const Move &move) noexcept {
     new_history.en_pessant = cur_en_pessant;
     history.push_back(new_history);
     // this->update_bitboards();
+    BB not_king = this->pieces[FULL] ^ this->pieces[KING];
+    int white = real_count(not_king & this->pieces[WHITE]);
+    int black = real_count(not_king & this->pieces[BLACK]);
+    int white_knights = real_count(this->pieces[KNIGHT] & this->pieces[WHITE]);
+    int black_knights = real_count(this->pieces[KNIGHT] & this->pieces[BLACK]);
+    int white_bishops = real_count(this->pieces[BISHOP] & this->pieces[WHITE]);
+    int black_bishops = real_count(this->pieces[BISHOP] & this->pieces[BLACK]);
+    int non_minor_pieces = real_count(
+        this->pieces[PAWN] |
+        this->pieces[ROOK] |
+        this->pieces[QUEEN]
+    );
+    bool is_draw = 
+    (white_knights <= 2 || black_knights <= 2)
+
+    ;
     this->next_turn();
 }
 
