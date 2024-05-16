@@ -234,7 +234,7 @@ int Searcher::negamax_search(Board &chess_board, int depth, const int &depth_fro
     int R = 0;
 
     // internal iterative reductions
-    depth -= moves[0].score >= 170000 && !is_pvs_node; // if the pv is not there, then reduce the depth by one 
+    depth -= moves[0].score < 17000 && !is_pvs_node; // if the pv is not there, then reduce the depth by one 
 
     if (!is_check) {
         // reverse futility pruning

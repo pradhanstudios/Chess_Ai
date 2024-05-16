@@ -21,7 +21,7 @@ int main() {
     // run_test_suite();
     // Board b = Board("rnb1kbnr/ppppqppp/8/8/3p4/4K3/PPP1PPPP/RNBQ1BNR w kq - 0 4");
     Board b = Board(DEFAULT_FEN);
-    std::cout << perft(b, 7, 7) << std::endl;
+    // std::cout << perft(b, 7, 7) << std::endl;
     // b.play_move(uci_to_move("g7g5", b));
     // print_BB(b.pieces[FULL]);
     // print_BB(b.pieces[FULL]);
@@ -31,10 +31,10 @@ int main() {
     // Interface interface = Interface();
     // interface.run();
     // Board b = Board("rnbqkbnr/ppp1pppp/8/3p4/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 0 2");
-    // Searcher s = Searcher();
-    // // std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;
-    // s.run_iterative_deepening(b, 3000);
-    // std::cout <<  s.best_eval << " " << move_to_uci(s.best_move) << " " << s.nodes << std::endl;
+    Searcher s = Searcher();
+    // std::cout << s.quiescence_search(b, NEGINF, INF) << std::endl;
+    s.run_iterative_deepening(b, 300000, 8);
+    std::cout <<  s.best_eval << " " << move_to_uci(s.best_move) << " " << s.nodes << std::endl;
 
     // b.play_move(s.best_move);
     // s.run_iterative_deepening(b, 3000);
