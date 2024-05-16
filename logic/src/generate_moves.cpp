@@ -35,6 +35,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) noexcept
         new_pos = pop_first_one(piece_moves);
         moves.push_back((Move(king_pos, new_pos, NORMAL_MOVE)));
     }
+    // printf("%i\n", chess_board.is_double_check);
     if (chess_board.is_double_check) {
         // std::cout << "here" << std::endl;
         if (moves.size() == 0) {
@@ -100,10 +101,12 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) noexcept
             // std::cout << "got here" << std::endl;
             // check if it results in a check
             chess_board.play_move(en_pessant_move);
+            BB check_ray_copy = chess_board.check_ray;
             BB cur_attacks = generate_attacks(chess_board);
             if (!(king & cur_attacks)) {
                 moves.push_back(en_pessant_move);
             }
+            chess_board.check_ray = check_ray_copy;
             chess_board.undo_move(en_pessant_move);
         }
     }
@@ -253,10 +256,12 @@ void generate_captures(Board &chess_board, std::vector<Move> &moves) noexcept {
             // std::cout << "got here" << std::endl;
             // check if it results in a check
             chess_board.play_move(en_pessant_move);
+            BB check_ray_copy = chess_board.check_ray;
             BB cur_attacks = generate_attacks(chess_board);
             if (!(king & cur_attacks)) {
                 moves.push_back(en_pessant_move);
             }
+            chess_board.check_ray = check_ray_copy;
             chess_board.undo_move(en_pessant_move);
         }
     }
@@ -419,7 +424,7 @@ BB generate_attacks(Board &chess_board) noexcept {
         pos = pop_first_one(same_team_pieces); 
         cur_attacks = PAWN_MOVES[chess_board.turn+2][pos];
         if (cur_attacks & other_team_king) {
-            // num_of_checks += 1;
+            num_of_checks += 1;
             // print_BB(SQUARE_TO_BB[pos]);
             chess_board.check_ray = in_between(pos, other_team_king_pos) | SQUARE_TO_BB[pos];
         }
@@ -430,7 +435,7 @@ BB generate_attacks(Board &chess_board) noexcept {
     attacks |= KING_MOVES[zeroes_start(king)];
 
     // king can not check the other king so we dont need to consider it
-    chess_board.is_double_check = num_of_checks == 2;
+    chess_board.is_double_check = num_of_checks > 1;
 
     chess_board.pieces[FULL] ^= other_team_king; // undoing the thing from the start of the function
 

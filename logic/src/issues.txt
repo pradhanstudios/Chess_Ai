@@ -1,4 +1,5 @@
 TODO:
+    there are still some issues in move generation
     work on updating zobrist hashing in play_move and undo_move functions
     add insufficient material draw
     on this fen: K7/b7/r7/8/8/8/8/8 b - - 0 1 there is a ghost rook on h1

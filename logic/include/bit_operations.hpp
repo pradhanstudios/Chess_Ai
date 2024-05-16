@@ -1,10 +1,6 @@
 #ifndef BIT_OPERATIONS_HPP
 #define BIT_OPERATIONS_HPP
 
-#ifdef _WIN32
-#include <intrin.h>
-#endif
-
 #include "constants.hpp"
 #include "move.hpp"
 
@@ -30,20 +26,12 @@ inline std::array<BB, 64> SQUARE_TO_BB;
 // }
 
 constexpr int real_count(const BB &bitboard) noexcept {
-    #ifndef _WIN32 // not windows
     return __builtin_popcountll(bitboard);
-    #else
-    return __popcnt64(bitboard);
-    #endif
     
 }
 
 constexpr int zeroes_start(const BB &bitboard) noexcept {
-    #ifndef _WIN32 // not windows
     return __builtin_ctzll(bitboard);
-    #else
-    return _tzcnt_u64(bitboard); 
-    #endif
 }
 
 constexpr int pop_first_one(BB &bitboard) noexcept {

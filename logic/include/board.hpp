@@ -92,7 +92,9 @@ class Board {
         void play_move(const Move &move) noexcept;
         void undo_move(const Move &move) noexcept;
 
-
+        // Board &operator=(Board &b2) {
+        //     std::swap(*this, b);
+        // }
 
         constexpr bool is_in_check() noexcept {
             return (this->pieces[KING] & this->pieces[turn_to_index[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];

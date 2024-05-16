@@ -45,7 +45,7 @@ class Searcher {
         void order_moves(std::vector<Move> &moves, const Board &chess_board) noexcept;
         void order_captures(std::vector<Move> &moves, const Board &chess_board) noexcept;
         int quiescence_search(Board &chess_board, int alpha, int beta, const bool &promotion = false) noexcept;
-        int negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta, const bool &is_pvs_node = false) noexcept;
+        int negamax_search(Board &chess_board, int depth, const int &depth_from_start, int alpha, int beta, const bool &is_pvs_node = false) noexcept;
         int run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;
         void run_iterative_deepening(Board &chess_board, const int &time, const int &max_depth=255) noexcept;
 };

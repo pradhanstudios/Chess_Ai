@@ -14,6 +14,7 @@ void run_test_suite() noexcept {
     for (int i = 1; i < 23; i++) {
         // b.change_fen(TEST_SUITE_FENS[i]);
         b = Board(TEST_SUITE_FENS[i]);
+        print_BB(b.state);
         nodes = perft(b, TEST_SUITE_DEPTHS[i]);
         if (nodes == TEST_SUITE_NODE_COUNT[i]) {
             std::cout << "test " << (i+1) << " passed" << std::endl;
@@ -35,9 +36,12 @@ uint64_t perft(Board &chess_board, const int &depth) noexcept {
 
     generate_legal_moves(chess_board, moves);
     for (const Move &move : moves) {
+        if (depth != 1) {
         chess_board.play_move(move);
         nodes += perft(chess_board, depth - 1);
         chess_board.undo_move(move);
+        }
+        else nodes++;
     }
     return nodes;
 }
@@ -56,13 +60,16 @@ uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) 
 
     generate_legal_moves(chess_board, moves);
     for (const Move &move : moves) {
-        chess_board.play_move(move);
-        cur_node_count = perft(chess_board, depth - 1, depth);
-        nodes += cur_node_count;
-        if (depth == original_depth) {
-            std::cout << move_to_uci(move) << ": " << cur_node_count << std::endl;
+        if (depth != 1 || depth == original_depth) {
+            chess_board.play_move(move);
+            cur_node_count = perft(chess_board, depth - 1, depth);
+            nodes += cur_node_count;
+            if (depth == original_depth) {
+                std::cout << move_to_uci(move) << ": " << cur_node_count << std::endl;
+            }
+            chess_board.undo_move(move);
         }
-        chess_board.undo_move(move);
+        else nodes++;
         
         // break;
     }
@@ -186,8 +193,9 @@ int Searcher::quiescence_search(Board &chess_board, int alpha, int beta, const b
     return alpha;
 }
 
-int Searcher::negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta, const bool &is_pvs_node) noexcept {
+int Searcher::negamax_search(Board &chess_board, int depth, const int &depth_from_start, int alpha, int beta, const bool &is_pvs_node) noexcept {
     nodes++;
+    // TODO: if move is a check, add an extension
 
     alpha = std::max(alpha, NEGINF + depth_from_start);
     beta = std::min(beta, INF - depth_from_start);
@@ -201,7 +209,7 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
         return 0;
     }
 
-    if (depth == 0) {
+    if (depth <= 0) {
         return this->quiescence_search(chess_board, alpha, beta); // eval
     }
     std::vector<Move> moves;
@@ -211,19 +219,50 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
     
     if (chess_board.state == CHECKMATE) {
         // std::cout << "gothere" << std::endl;
-        return (NEGINF + depth_from_start); // better to lose in the most amount of time
+        return (NEGINF + depth_from_start);
     }
     
     if (chess_board.state == DRAW) {
         return 0;
     }
-    
 
     this->order_moves(moves, chess_board);
-    int R = 0;
+    
+    bool not_move_is_capture, lmr = false;
+    bool is_check = (chess_board.pieces[turn_to_index[chess_board.turn]] & chess_board.pieces[KING]) & chess_board.pieces[OTHER_TEAM_ATTACKS];
     int cur_eval = NEGINF;
+    int R = 0;
+
+    // internal iterative reductions
+    depth -= moves[0].score >= 170000 && !is_pvs_node; // if the pv is not there, then reduce the depth by one 
+
+    if (!is_check) {
+        // reverse futility pruning
+        int eval = evaluate(chess_board);
+        // move is too good
+        if (depth < 6 && (eval - (100 * depth)) >= beta) {
+            return eval;
+        }
+        // null move pruning
+        if (!is_pvs_node && eval >= beta && beta > BLACK_MATE_SCORE /*don't accidently prune checkmate*/ && depth > 1) {
+            chess_board.next_turn(); // null move
+
+            cur_eval = -this->negamax_search(chess_board, depth - 4, depth_from_start + 1, -beta, -alpha, is_pvs_node);
+
+            chess_board.next_turn(); // undo null move
+
+            if (cur_eval >= beta) {
+                return cur_eval;
+            }
+        }
+        // extended futility pruning does nothing in this engine
+
+        // move is really bad (extended futility pruning)
+        // extended_futility_pruning_allowed = depth < 5 && (eval + (depth * 106)) <= alpha;    
+        // extended_futility_pruning_allowed = false;
+    }
+
     bool search_pv = true;
-    bool not_move_is_capture, lmr, null_move_allowed, is_check = false;
 
     for (int i = 0; i < moves.size(); i++) {
         not_move_is_capture = chess_board.piece_data[moves[i].to] == 0;
@@ -233,16 +272,12 @@ int Searcher::negamax_search(Board &chess_board, const int &depth, const int &de
             cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -beta, -alpha, true);
         }
         else {
-            // TODO: if move is a check, add a one depth extension, same with promotions
-            // will leave for later
-            // is_check = ((chess_board.pieces[turn_to_index[chess_board.turn]] & chess_board.pieces[KING]) & generate_attacks(chess_board));
-            // R = -1 * is_check; // add extra time to search if there is a check
             cur_eval = -this->negamax_search(chess_board, depth - R - 1, depth_from_start + 1, -alpha-1, -alpha, is_pvs_node);
             if (cur_eval > alpha && cur_eval < beta) {
                 // late move reductions
                 lmr = depth >= 3 && moves[i].type == NORMAL_MOVE && not_move_is_capture && i > 4;
                 if (lmr) {
-                    cur_eval = -this->negamax_search(chess_board, depth - 2, depth_from_start + 1, -beta, -alpha, false);
+                    cur_eval = -this->negamax_search(chess_board, depth - 2, depth_from_start + 1, -beta, -alpha, is_pvs_node);
                 }
                 if (!lmr || (cur_eval > alpha)) {
                     cur_eval = -this->negamax_search(chess_board, depth - R - 1, depth_from_start + 1, -beta, -alpha, is_pvs_node);
@@ -301,20 +336,29 @@ void Searcher::run_iterative_deepening(Board &chess_board, const int &time, cons
     this->best_move = NULL_MOVE;
     this->best_eval = NEGINF;
     int m_depth = 0;
-    // const int aspiration_window = 1;
+    int soft_time_limit = current_time() + time / 11 /*around how much longer each depth takes*/;
+    // const int aspiration_window = 30;
     // int aspiration_score;
 
     for (int i = 1; i <= max_depth; i++) {
+        if (current_time() > soft_time_limit && i > 1) { // soft time limit reached
+            break;
+        }
         this->search_over = false;
         this->previous_best_move = this->best_move;
         this->previous_best_eval = this->best_eval;
         // aspiration windows
-        // aspiration_score = this->run_negamax_search(chess_board, i, 0, this->previous_best_eval - aspiration_window, this->previous_best_eval + aspiration_window);
-        // if (abs(this->previous_best_eval - aspiration_score) >= aspiration_window) {
-        //     this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
+        // TODO: test this since aspiration windows are very inconsitent
+        // if (i > 5) {
+            // aspiration_score = this->run_negamax_search(chess_board, i, 0, this->previous_best_eval - aspiration_window, this->previous_best_eval + aspiration_window);
+            // if (abs(this->previous_best_eval - aspiration_score) >= aspiration_window) {
+                // this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
+            // }
         // }
-        // aspiration windows are slower
+        // else {
+        // aspiration windows do nothing!
         this->run_negamax_search(chess_board, i, 0, NEGINF, INF);
+        // }
         m_depth = i;
         if (this->search_over) {
             // std::cout << "got here" << std::endl;
@@ -325,19 +369,13 @@ void Searcher::run_iterative_deepening(Board &chess_board, const int &time, cons
             // we do not want moves from incomplete search
             break;
         }
-        if (this->best_eval <= BLACK_MATE_SCORE || this->best_eval >= WHITE_MATE_SCORE) {
-            // std::cout << "got here" << std::endl;
-            break;
-        }
+        // if (this->best_eval <= BLACK_MATE_SCORE || this->best_eval >= WHITE_MATE_SCORE) {
+        //     // std::cout << "got here" << std::endl;
+        //     break;
+        // }
     }
     std::cout << "ran to depth: " << m_depth << std::endl;
     // if (this->best_move == NULL_MOVE) {
     //     this->best_move = this->previous_best_move;
     // }
-    if (this->best_move == NULL_MOVE) { // if the previous move was also null
-        std::vector<Move> moves;
-        moves.reserve(MAX_LEGAL_MOVES);
-        generate_legal_moves(chess_board, moves);
-        this->best_move = moves[0]; // pick a random move
-    }
 }
