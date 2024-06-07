@@ -221,11 +221,10 @@ int Searcher::negamax_search(Board &chess_board, int depth, const int depth_from
     if (!is_check) {
         // reverse futility pruning
         int eval = get_perspective_eval(evaluate(chess_board), chess_board.turn);
-        // int eval = quiescence_search(chess_board, alpha, beta, false);
         // move is too good
         // TODO: tune this so that it doesn't show bad moves, while still maintaining speed because of new eval
-        if (depth < 6 && (eval - 114 * depth) >= beta) {
-            return (eval + (beta - 114 * depth)) >> 1; // get the average
+        if (depth < 6 && (eval - 99 * depth) >= beta) {
+            return beta; // get the average
         }
         // null move pruning is buggy
         // if (!is_pvs_node && eval >= beta && beta > BLACK_MATE_SCORE /*don't accidently prune checkmate*/ && depth > 1) {
@@ -258,7 +257,6 @@ int Searcher::negamax_search(Board &chess_board, int depth, const int depth_from
                 if (lmr) {
                     R = 1 + (0.1 * (i + depth)) - is_check;
                     cur_eval = -this->negamax_search(chess_board, depth - R - 2, depth_from_start + 1, -beta, -alpha, false);
-                    R -= 0;
                 }
                 if (!lmr || (cur_eval > alpha)) {
                     cur_eval = -this->negamax_search(chess_board, depth - 1, depth_from_start + 1, -beta, -alpha, is_pvs_node);
