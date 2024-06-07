@@ -25,59 +25,58 @@ inline std::array<BB, 64> SQUARE_TO_BB;
 //     std::cout << "-------------------------------------------\n" << std::endl;
 // }
 
-constexpr int real_count(const BB &bitboard) noexcept {
+constexpr int count_bits(const BB bitboard) noexcept {
     return __builtin_popcountll(bitboard);
     
 }
 
-constexpr int zeroes_start(const BB &bitboard) noexcept {
+constexpr int lsb(const BB bitboard) noexcept {
     return __builtin_ctzll(bitboard);
 }
 
-constexpr int pop_first_one(BB &bitboard) noexcept {
-    int first = zeroes_start(bitboard);
+constexpr int pop_lsb(BB &bitboard) noexcept {
+    int first = lsb(bitboard);
     bitboard &= bitboard - 1;
     return first;
 }
 
-void print_BB(const BB &bitboard);
+void print_BB(const BB bitboard);
 
-constexpr BB shift_up(const BB &bitboard, const int &up) noexcept { // used for pawn move generation
+constexpr BB shift_up(const BB bitboard, const int up) noexcept { // used for pawn move generation
     if (up < 0) {
         return bitboard >> -up;
     }
     return (bitboard << up);
 }
 
-constexpr void set_bit_on(BB &bitboard, const int &index) noexcept {
+constexpr void set_bit_on(BB &bitboard, const int index) noexcept {
     bitboard |= SQUARE_TO_BB[index];
 }
 
-constexpr void set_bit_off(BB &bitboard, const int &index) noexcept {
+constexpr void set_bit_off(BB &bitboard, const int index) noexcept {
     bitboard &= ~SQUARE_TO_BB[index];
 }
 
-constexpr void fast_reverse_bit(BB &bitboard, const int &index) noexcept {
+constexpr void toggle_bit(BB &bitboard, const int index) noexcept {
     bitboard ^= SQUARE_TO_BB[index];
 }
 
-constexpr BB get_bit(const BB &bitboard, const int &index) noexcept {
+constexpr BB get_bit(const BB &bitboard, const int index) noexcept {
     return bitboard & SQUARE_TO_BB[index];
-    // return (bitboard >> index) & 1ULL;
 }
 
-constexpr bool is_within_board(const int &pos) noexcept {
+constexpr bool is_within_board(const int pos) noexcept {
     return pos >= 0 && pos < 64;
 }
 
 // pos = 0b11111 = 63
 // first three bits tell use file, last three tell us rank
 
-constexpr int file(const int &pos) noexcept {
+constexpr int file(const int pos) noexcept {
     return pos & 7; // last three bits
 }
 
-constexpr int rank(const int &pos) noexcept {
+constexpr int rank(const int pos) noexcept {
     return pos >> 3; // first three bits
 }
 

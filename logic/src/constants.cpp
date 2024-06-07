@@ -1,6 +1,6 @@
 #include "constants.hpp"
 
-const int INF = 30'000; // 15 because singed
+const int INF = 30'000;
 const int NEGINF = -INF;
 // bitboards
 

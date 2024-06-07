@@ -17,6 +17,7 @@ void Interface::isready() {
 void Interface::position() {
     if (this->args[1] == "startpos") {
         this->chess_board = Board(DEFAULT_FEN);
+        this->chess_board.state = RUNNING;
         if (this->N > 2) {
             for (int i = 2; i < this->N; i++) {
                 this->chess_board.play_move(uci_to_move(this->args[i], this->chess_board));
@@ -27,14 +28,15 @@ void Interface::position() {
         this->chess_board = Board(
             std::accumulate(
             std::next(this->args.begin()+2), 
-            this->args.begin()+7, 
+            this->args.begin()+8, 
             this->args[2], 
             [](std::string a, std::string b) {
                 return a + " " + b;
             }
             ));
-        if (N > 7) {
-            for (int i = 7; i < this->N; i++) {
+        this->chess_board.state = RUNNING;
+        if (N > 8) {
+            for (int i = 8; i < this->N; i++) {
                 this->chess_board.play_move(uci_to_move(this->args[i], this->chess_board));
             }
         }
@@ -63,7 +65,7 @@ void Interface::go() {
             2147483647,
             std::stoi(this->args[2])
         );
-        std::printf("bestmove %s ponder h1h1\n", move_to_uci(this->searcher.best_move).c_str());
+        std::printf("bestmove %s ponder h1h1 nodes %lu eval %i\n", move_to_uci(this->searcher.best_move).c_str(), this->searcher.nodes, get_perspective_eval(this->searcher.best_eval, chess_board.turn));
     }
 }
 
@@ -71,7 +73,11 @@ void Interface::eval() {
     std::printf("static evaluation of position: %i\n ", evaluate(this->chess_board));
 }
 
-void Interface::run_arguments(std::string arguments) {
+void Interface::show() {
+    this->chess_board.print_square_data();
+}
+
+void Interface::run_arguments(const std::string &arguments) {
     this->args = split(arguments, ' ');
     this->N = args.size();
     if (this->args[0] == "quit") {
@@ -100,6 +106,10 @@ void Interface::run_arguments(std::string arguments) {
     // just for debug, not part of uci
     else if (this->args[0] == "eval") {
         this->eval();
+    }
+
+    else if (this->args[0] == "show") {
+        this->show();
     }
 }
 

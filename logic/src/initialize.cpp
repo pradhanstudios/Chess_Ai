@@ -1,6 +1,6 @@
 #include "initialize.hpp"
 
-BB _in_between(const int &sq1, const int &sq2) { // I copied from https://www.chessprogramming.org/Square_Attacked_By#Pure_Calculation
+BB _in_between(const int sq1, const int sq2) { // I copied from https://www.chessprogramming.org/Square_Attacked_By#Pure_Calculation
    const BB a2a7 = BB(0x0001010101010100);
    const BB b2g7 = BB(0x0040201008040200);
    const BB h1b7 = BB(0x0002040810204080); 

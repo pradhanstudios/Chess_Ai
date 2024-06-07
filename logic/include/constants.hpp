@@ -18,7 +18,7 @@ typedef uint64_t BB; // short for Bitboard
 enum MOVE_TYPES {
     NORMAL_MOVE = 0b0000,
     PROMOTION = 0b0001,
-    CASTLE = 0b0010, // 0 for queenside and 1 for kingside
+    CASTLE = 0b0010,
     EN_PESSANT = 0b0100,
 };
 
@@ -42,7 +42,7 @@ extern const unsigned int FIRST_SIX;
 // bitboards
 
 extern const BB MAX_VALUE;
-extern const BB A_FILE; // represent a file
+extern const BB A_FILE; // represent first file
 extern const BB B_FILE;
 extern const BB C_FILE;
 extern const BB D_FILE;

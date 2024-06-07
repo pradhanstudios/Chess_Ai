@@ -28,7 +28,7 @@ void init_moveboards(std::array<BB, 64> &rook_masks, std::array<BB, 64> &bishop_
         // }
         // print_BB(bishop_blockerboards[2]);
 
-        for (j = 0; j < (1 << real_count(rook_masks[i])) && j < 4096; j++) {
+        for (j = 0; j < (1 << count_bits(rook_masks[i])) && j < 4096; j++) {
             rook_moves[i][j] = moveboard_rook(rook_blockerboards[j], i);
         }
         // if (i == 5) {
@@ -44,7 +44,7 @@ void init_moveboards(std::array<BB, 64> &rook_masks, std::array<BB, 64> &bishop_
         // }
         // std::cout << "\tFirst loop passed" << std::endl;
 
-        for (j = 0; j < (1 << real_count(bishop_masks[i])) && j < 4096; j++) {
+        for (j = 0; j < (1 << count_bits(bishop_masks[i])) && j < 4096; j++) {
             bishop_moves[i][j] = moveboard_bishop(bishop_blockerboards[j], i);
         }
         // print_BB(bishop_moves[i][3]);

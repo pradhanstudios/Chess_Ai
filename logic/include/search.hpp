@@ -24,8 +24,8 @@ const inline std::array<int, 23> TEST_SUITE_NODE_COUNT = {8, 8, 19, 5, 44, 39, 9
 
 void run_test_suite() noexcept;
 
-uint64_t perft(Board &chess_board, const int &depth) noexcept;
-uint64_t perft(Board &chess_board, const int &depth, const int &original_depth) noexcept;
+uint64_t perft(Board &chess_board, const int depth) noexcept;
+uint64_t perft(Board &chess_board, const int depth, const int original_depth) noexcept;
 
 class Searcher {
     public:
@@ -44,10 +44,10 @@ class Searcher {
 
         void order_moves(std::vector<Move> &moves, const Board &chess_board) noexcept;
         void order_captures(std::vector<Move> &moves, const Board &chess_board) noexcept;
-        int quiescence_search(Board &chess_board, int alpha, int beta, const bool &promotion = false) noexcept;
-        int negamax_search(Board &chess_board, int depth, const int &depth_from_start, int alpha, int beta, const bool &is_pvs_node = false) noexcept;
-        int run_negamax_search(Board &chess_board, const int &depth, const int &depth_from_start, int alpha, int beta) noexcept;
-        void run_iterative_deepening(Board &chess_board, const int &time, const int &max_depth=255) noexcept;
+        int quiescence_search(Board &chess_board, int alpha, int beta, const bool promotion = false) noexcept;
+        int negamax_search(Board &chess_board, int depth, const int depth_from_start, int alpha, int beta, const bool is_pvs_node = false) noexcept;
+        int run_negamax_search(Board &chess_board, const int depth, const int depth_from_start, int alpha, int beta) noexcept;
+        void run_iterative_deepening(Board &chess_board, const int time, const int max_depth=255) noexcept;
 };
 
 #endif // SEARCH_HPP

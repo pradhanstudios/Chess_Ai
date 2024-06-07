@@ -1,7 +1,8 @@
 TODO:
-    there are still some issues in move generation
-    work on updating zobrist hashing in play_move and undo_move functions
+    on this fen: rnbqkbnr/pppp1ppp/8/4p3/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 0 2, when you search (iterative deepening/negamax) to depth >=3, both normal search and quiscence search are part of the issue
     add insufficient material draw
+    remove debugging comments ex. std::cout << "here" << std::endl;
+    work on updating zobrist hashing in play_move and undo_move functions
     on this fen: K7/b7/r7/8/8/8/8/8 b - - 0 1 there is a ghost rook on h1
 
 
@@ -19,8 +20,8 @@ if it has parameters:
             type &x
 this is to stop c++ from creating a copy of the variable every single time our function runs
 ex.
-void function(const int &unchanged_variable, int &changing_variable)
-
+void function(const (type size >= 8 bytes) &unchanged_variable, (type size >= 8 bytes) &changing_variable, const (type size < 8) small_unchanged_variable, (type size < 8) small_normal_variable)
+note: if a type size is smaller than 8 bytes, it is better to not use & because a pointer is 8 bytes long
 
 IDEA:
 what if we had two piece square tables for each piece

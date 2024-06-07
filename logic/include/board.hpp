@@ -6,7 +6,7 @@
 #include "move.hpp"
 #include "non_sliding_moves.hpp"
 
-enum PIECE {
+enum PIECE { // for pieces, white is implied
     EMPTY = 0,
     PAWN = 1,
     KNIGHT = 2,
@@ -17,7 +17,13 @@ enum PIECE {
     WHITE = 7,
     BLACK = 8,
     OTHER_TEAM_ATTACKS = 9,
-    FULL = 10
+    FULL = 10,
+    BLACK_PAWN = BLACK | PAWN,
+    BLACK_KNIGHT = BLACK | KNIGHT,
+    BLACK_BISHOP = BLACK | BISHOP,
+    BLACK_ROOK = BLACK | ROOK,
+    BLACK_QUEEN = BLACK | QUEEN,
+    BLACK_KING = BLACK | KING,
 };
 
 enum CASTLE_TYPE {
@@ -36,11 +42,7 @@ extern const std::map<char, int> col_letter_to_num;
 
 inline std::array<PIECE, 2> turn_to_index = {BLACK, WHITE};
 
-// inline int turn_to_index(bool turn) { // turn 1 or 0 into 7 (WHITE) or 8 (BLACK)
-//     return BLACK - turn;
-// }
-
-constexpr int no_color(const int &piece) noexcept {
+constexpr int no_color(const int piece) noexcept {
     return piece & 7;
 }
 
@@ -48,7 +50,7 @@ uint64_t prandom();
 void print_vector(const std::vector<int> &v) noexcept;
 void print_vector(const std::vector<std::string> &v) noexcept;
 
-std::vector<std::string> split(const std::string &s, const char &delim) noexcept;
+std::vector<std::string> split(const std::string &s, const char delim) noexcept;
 
 #pragma pack(1)
 
@@ -58,7 +60,7 @@ struct History {
     unsigned int en_pessant : 6;
     unsigned int fifty_move_rule : 6;
 
-    History(const unsigned int &en_pessant=0u, const unsigned int &castle=0b0000u, const unsigned int &capture=0u, const unsigned int &fifty_move_rule=0u);
+    History(const unsigned int en_pessant=0u, const unsigned int castle=0b0000u, const unsigned int capture=0u, const unsigned int fifty_move_rule=0u);
 };
 
 #pragma pack()
@@ -85,25 +87,31 @@ class Board {
         // unsigned int cur_en_pessant;
         // int castles;
         std::vector<History> history;
-        bool turn; // true for white false for black
+        bool turn; // true for white, false for black
         Board(const std::string &fen) noexcept;
-        // void change_fen(const std::string &fen) noexcept;
         void print_square_data() noexcept;
-        void play_move(const Move &move) noexcept;
-        void undo_move(const Move &move) noexcept;
+        void play_move(const Move move) noexcept;
+        void undo_move(const Move move) noexcept;
 
-        // Board &operator=(Board &b2) {
-        //     std::swap(*this, b);
-        // }
-
-        constexpr bool is_in_check() noexcept {
-            return (this->pieces[KING] & this->pieces[turn_to_index[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
+        inline bool is_open_file(const int file_) const noexcept {
+            return !(this->pieces[PAWN] & (H_FILE << file_));
         }
+
+        inline bool is_semi_open_file(const int file_, const PIECE color, const PIECE other_color) const noexcept {
+            BB cur_file = H_FILE << file_;
+            return !((this->pieces[color] & this->pieces[PAWN]) & cur_file) && ((this->pieces[other_color] & this->pieces[PAWN]) & cur_file);
+        }
+
+        inline bool is_in_check() const noexcept {
+            return (this->pieces[KING] & this->pieces[turn_to_index[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
+        };
+
         inline void next_turn() noexcept {
             this->zobrist_key ^= zobrist.black_turn;
             this->turn = !this->turn;
         };
-        constexpr void update_bitboards() noexcept {
+        
+        inline void update_bitboards() noexcept {
             this->pieces[FULL] = (this->pieces[WHITE] | this->pieces[BLACK]);
             this->pieces[EMPTY] = ~this->pieces[FULL];
         };

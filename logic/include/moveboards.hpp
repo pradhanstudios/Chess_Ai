@@ -4,6 +4,8 @@
 #include "constants.hpp"
 #include "sliding_moves.hpp"
 
+void init_moveboards(std::array<BB, 64> &rook_masks, std::array<BB, 64> &bishop_masks, std::array<std::array<BB, 4096>, 64> &rook_moves, std::array<std::array<BB, 4096>, 64> &bishop_moves);
+
 // struct _Moves {
 //     std::array<BB, 64> ROOK_MASKS;
 //     std::array<BB, 64> BISHOP_MASKS;
@@ -14,7 +16,6 @@
 // std::array<std::array<BB, 4096>, 64> rook_moves, bishop_moves;
 // std::array<BB, 64> &rook_masks, std::array<BB, 64> &bishop_masks, std::array<std::array<BB, 4096>, 64> &rook_moves, std::array<std::array<BB, 4096>, 64> &bishop_moves
 
-void init_moveboards(std::array<BB, 64> &rook_masks, std::array<BB, 64> &bishop_masks, std::array<std::array<BB, 4096>, 64> &rook_moves, std::array<std::array<BB, 4096>, 64> &bishop_moves);
 
 // std::array<BB, 64> ROOK_MASKS;
 // std::array<BB, 64> BISHOP_MASKS;

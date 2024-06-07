@@ -15,7 +15,6 @@ class Interface {
     std::string args_str;
     int N;
     bool running = true;
-    // int cur_move_number;
     public:
         void quit();
         void uci();
@@ -24,10 +23,9 @@ class Interface {
         void position();
         void go();
         void eval();
-        void run_arguments(std::string arguments);
+        void show();
+        void run_arguments(const std::string &arguments);
         void run();
 };
-// deprecated
-// void interface();
 
 #endif // INTERFACE_HPP

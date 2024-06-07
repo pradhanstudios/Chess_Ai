@@ -120,36 +120,36 @@
 //     return bad;
 // }
 
-// // similar to implementation from https://github.com/Usama-Azad/Pickle-in-Cpp
+// similar to implementation from https://github.com/Usama-Azad/Pickle-in-Cpp
 
-// // void _save(std::array<magic_structure, 64> array, std::string filename) {
+// void _save(std::array<magic_structure, 64> array, std::string filename) {
 
-// //     // Open file for writing
-// //     std::ofstream outfile(filename, std::ios::binary);
+//     // Open file for writing
+//     std::ofstream outfile(filename, std::ios::binary);
 
-// //     // Check if file opened successfully
-// //     // if (!outFile) {
-// //     //     std::cerr << "Error opening file!" << std::endl;
-// //     //     return;
-// //     // }
+//     // Check if file opened successfully
+//     // if (!outFile) {
+//     //     std::cerr << "Error opening file!" << std::endl;
+//     //     return;
+//     // }
 
-// //     // Write array elements to file
-// //     for (int i = 0; i < 64; i++)
-// //         outfile.write((const char *)&array[i], sizeof(array[i]));
+//     // Write array elements to file
+//     for (int i = 0; i < 64; i++)
+//         outfile.write((const char *)&array[i], sizeof(array[i]));
 
-// //     // Close file
-// //     outfile.close();
-// // }
+//     // Close file
+//     outfile.close();
+// }
 
-// // void _write_magic_structure(magic_structure structure, std::ofstream &file) {
-// //     file << structure.mask << "\n";
-// //     file << structure.magic << "\n";
-// //     file << structure.shift << "\n";
-// //     for (int i = 0; i < 4096; i++) {
-// //         file << structure.attacks[i] << " ";
-// //     }
-// //     file << "\n";
-// // }
+// void _write_magic_structure(magic_structure structure, std::ofstream &file) {
+//     file << structure.mask << "\n";
+//     file << structure.magic << "\n";
+//     file << structure.shift << "\n";
+//     for (int i = 0; i < 4096; i++) {
+//         file << structure.attacks[i] << " ";
+//     }
+//     file << "\n";
+// }
 
 // void generate_magics_and_save() {
 //     // std::cout << "here";
