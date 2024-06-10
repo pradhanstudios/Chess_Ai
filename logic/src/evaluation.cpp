@@ -1,18 +1,5 @@
 #include "evaluation.hpp"
 
-constexpr BB _knight_attacks(const BB knights) noexcept {
-    return (
-        ((knights & ~(A_FILE | B_FILE)) >> 6) |
-        ((knights & ~(G_FILE | H_FILE)) >> 10) |
-        ((knights & ~(G_FILE | H_FILE)) << 6) |
-        ((knights & ~(A_FILE | B_FILE)) << 10) | 
-        ((knights & ~(A_FILE)) >> 15) | 
-        ((knights & ~(H_FILE)) >> 17) |
-        ((knights & ~(H_FILE)) << 15) |
-        ((knights & ~(A_FILE)) << 17)
-    );
-}
-
 // uses koggestone for parrelelism
 // https://www.chessprogramming.org/Kogge-Stone_Algorithm#Occluded_Fill
 constexpr BB _south_ray(BB pieces_to_move, BB empties) {
@@ -99,6 +86,33 @@ constexpr BB _north_east_ray(BB pieces_to_move, BB empties) {
     return pieces_to_move | ((pieces_to_move & ~H_FILE) << 7);
 }
 
+constexpr BB _pawn_attacks_white(const BB white_pawns) {
+    return (
+        ((white_pawns & ~(A_FILE)) << 9) |
+        ((white_pawns & ~(H_FILE)) << 7)
+    );
+}
+
+constexpr BB _pawn_attacks_black(const BB black_pawns) {
+    return (
+        ((black_pawns & ~(H_FILE)) >> 9) |
+        ((black_pawns & ~(A_FILE)) >> 7)
+    );
+}
+
+constexpr BB _knight_attacks(const BB knights) {
+    return (
+        ((knights & ~(A_FILE | B_FILE)) >> 6) |
+        ((knights & ~(G_FILE | H_FILE)) >> 10) |
+        ((knights & ~(G_FILE | H_FILE)) << 6) |
+        ((knights & ~(A_FILE | B_FILE)) << 10) | 
+        ((knights & ~(        A_FILE)) >> 15) | 
+        ((knights & ~(        H_FILE)) >> 17) |
+        ((knights & ~(        H_FILE)) << 15) |
+        ((knights & ~(        A_FILE)) << 17)
+        );
+}
+
 constexpr BB _bishop_attacks(const BB bishops, const BB empties) {
     return (
         _north_east_ray(bishops, empties) |
@@ -114,6 +128,32 @@ constexpr BB _rook_attacks(const BB rooks, const BB empties) {
         _south_ray(rooks, empties) |
         _east_ray(rooks, empties) |
         _west_ray(rooks, empties)
+    );
+}
+
+constexpr BB _queen_attacks(const BB queens, const BB empties) {
+    return (
+        _north_ray(queens, empties) |
+        _south_ray(queens, empties) |
+        _east_ray(queens, empties) |
+        _west_ray(queens, empties) |
+        _north_east_ray(queens, empties) |
+        _north_west_ray(queens, empties) |
+        _south_east_ray(queens, empties) |
+        _south_west_ray(queens, empties)
+    );
+} 
+
+constexpr BB _king_attacks(const BB king) {
+    return (
+        (king & ~(A_FILE)) << 9 |
+        (king & ~(A_FILE)) << 1 |
+        (king & ~(A_FILE)) >> 7 |
+        (king & ~(H_FILE)) << 7 |
+        (king & ~(H_FILE)) >> 1 |
+        (king & ~(H_FILE)) >> 9 |
+        (king            ) << 8 |
+        (king            ) >> 8  
     );
 }
 
@@ -212,6 +252,30 @@ int evaluate(const Board &chess_board) noexcept { // neutral evaluation of posit
                 evaluation += PAWN_SHIELDS[1] * (get_bit(white_pawns, pos+8) != 0ULL);
                 evaluation += PAWN_SHIELDS[2] * (get_bit(white_pawns, pos+7) != 0ULL);
             }
+
+            // king ring attacks and defenses
+            BB king_ring = KING_MOVES[pos];
+            BB pawn_attacks_white_ = _pawn_attacks_white(king_ring);
+            BB knight_attacks_white = _knight_attacks(king_ring);
+            BB bishop_attacks_white = _bishop_attacks(king_ring, chess_board.pieces[EMPTY]);
+            BB rook_attacks_white = _rook_attacks(king_ring, chess_board.pieces[EMPTY]);
+            BB queen_attacks_white = _queen_attacks(king_ring, chess_board.pieces[EMPTY]);
+            BB king_attacks_white = _king_attacks(king_ring);
+            
+            // king ring attacks
+            evaluation += KING_RING_ATTACKS[0] * count_bits((chess_board.pieces[BLACK] & chess_board.pieces[PAWN]) & pawn_attacks_white_); 
+            evaluation += KING_RING_ATTACKS[1] * count_bits((chess_board.pieces[BLACK] & chess_board.pieces[KNIGHT]) & knight_attacks_white); 
+            evaluation += KING_RING_ATTACKS[2] * count_bits((chess_board.pieces[BLACK] & chess_board.pieces[BISHOP]) & bishop_attacks_white); 
+            evaluation += KING_RING_ATTACKS[3] * count_bits((chess_board.pieces[BLACK] & chess_board.pieces[ROOK]) & rook_attacks_white); 
+            evaluation += KING_RING_ATTACKS[4] * count_bits((chess_board.pieces[BLACK] & chess_board.pieces[QUEEN]) & queen_attacks_white); 
+            evaluation += KING_RING_ATTACKS[5] * (((chess_board.pieces[BLACK] & chess_board.pieces[KING]) & king_attacks_white) != 0ULL);
+
+            // king ring defenses
+            evaluation += KING_RING_DEFENSES[0] * count_bits((chess_board.pieces[WHITE] & chess_board.pieces[PAWN]) & pawn_attacks_white_);
+            evaluation += KING_RING_DEFENSES[1] * count_bits((chess_board.pieces[WHITE] & chess_board.pieces[KNIGHT]) & knight_attacks_white);
+            evaluation += KING_RING_DEFENSES[2] * count_bits((chess_board.pieces[WHITE] & chess_board.pieces[BISHOP]) & bishop_attacks_white);
+            evaluation += KING_RING_DEFENSES[3] * count_bits((chess_board.pieces[WHITE] & chess_board.pieces[ROOK]) & rook_attacks_white);
+            evaluation += KING_RING_DEFENSES[4] * count_bits((chess_board.pieces[WHITE] & chess_board.pieces[QUEEN]) & queen_attacks_white);
         }
     }
 
@@ -303,13 +367,37 @@ int evaluate(const Board &chess_board) noexcept { // neutral evaluation of posit
                 evaluation -= PAWN_SHIELDS[1] * (get_bit(black_pawns, pos-8) != 0ULL);
                 evaluation -= PAWN_SHIELDS[2] * (get_bit(black_pawns, pos-9) != 0ULL);
             }
+
+            // king ring attacks and defenses
+            BB king_ring = KING_MOVES[pos];
+            BB pawn_attacks_black_ = _pawn_attacks_black(king_ring);
+            BB knight_attacks_black = _knight_attacks(king_ring);
+            BB bishop_attacks_black = _bishop_attacks(king_ring, chess_board.pieces[EMPTY]);
+            BB rook_attacks_black = _rook_attacks(king_ring, chess_board.pieces[EMPTY]);
+            BB queen_attacks_black = _queen_attacks(king_ring, chess_board.pieces[EMPTY]);
+            BB king_attacks_black = _king_attacks(king_ring);
+            
+            // king ring attacks
+            evaluation -= KING_RING_ATTACKS[0] * count_bits((chess_board.pieces[WHITE] & chess_board.pieces[PAWN]) & pawn_attacks_black_); 
+            evaluation -= KING_RING_ATTACKS[1] * count_bits((chess_board.pieces[WHITE] & chess_board.pieces[KNIGHT]) & knight_attacks_black); 
+            evaluation -= KING_RING_ATTACKS[2] * count_bits((chess_board.pieces[WHITE] & chess_board.pieces[BISHOP]) & bishop_attacks_black); 
+            evaluation -= KING_RING_ATTACKS[3] * count_bits((chess_board.pieces[WHITE] & chess_board.pieces[ROOK]) & rook_attacks_black); 
+            evaluation -= KING_RING_ATTACKS[4] * count_bits((chess_board.pieces[WHITE] & chess_board.pieces[QUEEN]) & queen_attacks_black); 
+            evaluation -= KING_RING_ATTACKS[5] * (((chess_board.pieces[WHITE] & chess_board.pieces[KING]) & king_attacks_black) != 0ULL);
+
+            // king ring defenses
+            evaluation -= KING_RING_DEFENSES[0] * count_bits((chess_board.pieces[BLACK] & chess_board.pieces[PAWN]) & pawn_attacks_black_);
+            evaluation -= KING_RING_DEFENSES[1] * count_bits((chess_board.pieces[BLACK] & chess_board.pieces[KNIGHT]) & knight_attacks_black);
+            evaluation -= KING_RING_DEFENSES[2] * count_bits((chess_board.pieces[BLACK] & chess_board.pieces[BISHOP]) & bishop_attacks_black);
+            evaluation -= KING_RING_DEFENSES[3] * count_bits((chess_board.pieces[BLACK] & chess_board.pieces[ROOK]) & rook_attacks_black);
+            evaluation -= KING_RING_DEFENSES[4] * count_bits((chess_board.pieces[BLACK] & chess_board.pieces[QUEEN]) & queen_attacks_black);
         }
     }
 
     evaluation -= BISHOP_PAIR * (bishop_count > 1);
-    
+    // printf("%i %i\n", static_cast<int16_t>(evaluation), static_cast<int16_t>((evaluation + 0x8000) >> 16));
     // linear interpolation based on phase
-    //            (count(queens) * 4                                count(rooks) * 2                             (count(bishop) + count(knight)))
-    float phase = ((count_bits(chess_board.pieces[QUEEN]) << 2) + (count_bits(chess_board.pieces[ROOK]) << 1) + count_bits(chess_board.pieces[BISHOP] | chess_board.pieces[KNIGHT])) / 24.0f;
-    return static_cast<int>(static_cast<float>(evaluation >> 16) * phase + (1.0f - phase) * static_cast<float>(evaluation & 0xFFFF));
+    //            (count(queens) * 4                               count(rooks) * 2                             (count(bishop)                        +  count(knight)))
+    int phase = ((count_bits(chess_board.pieces[QUEEN]) << 2) + (count_bits(chess_board.pieces[ROOK]) << 1) + count_bits(chess_board.pieces[BISHOP] | chess_board.pieces[KNIGHT]));
+    return static_cast<int>(static_cast<float>(static_cast<int16_t>((evaluation + 0x8000) >> 16) * phase + (24 - phase) * static_cast<int16_t>(evaluation)) / 24.0f);
 }

@@ -38,7 +38,7 @@ def print_one():
 
 pawn_score_mg = pawn_score_mg = knight_score_mg = knight_score_eg = bishop_score_mg = bishop_score_eg = rook_score_mg = rook_score_eg = queen_score_mg = queen_score_eg = king_score_mg = king_score_eg = 0
 
-print("#define S(mg, eg) ((mg << 16) | eg)\n\n")
+print("#define S(mg, eg) ((mg * 0x10000) + eg) // compiler complains about bitwise operations on negative values\n\n")
 print("const int PIECE_SQUARE_TABLES[384] = {")
 print_comment("pawn\n")
 print("\t" + "S(0, 0), " * 8, end="")

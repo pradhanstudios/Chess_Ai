@@ -662,28 +662,24 @@ void parse_batch(float *bitboards, float *phases, float *ys) {
             *(bitboards + index + THREAT_BY_ROOK + 5) += (float) (((1ULL << pos) & black_rook_attacks) != 0ULL);
             BB king_ring_white = king_moves(1ULL << pos, 0ULL, 0ULL);
             // king attacks
-            while (king_ring_white) {
-                BB pos = king_ring_white & -king_ring_white;
-                king_ring_white &= king_ring_white - 1;
-                BB pawn_attacks_white_ = pawn_attacks_white(pos);
-                BB knight_attacks_white = knight_moves(pos, 0ULL);
-                BB bishop_attacks_white = bishop_moves(pos, 0ULL, empties);
-                BB rook_attacks_white = rook_moves(pos, 0ULL, empties);
-                BB queen_attacks_white = queen_moves(pos, 0ULL, empties);
-                BB king_attacks_white = king_moves(pos, 0ULL, 0ULL);
-                *(bitboards + index + KING_RING_ATTACKS    ) += (float) bbcount((black & pawns) & pawn_attacks_white_);
-                *(bitboards + index + KING_RING_ATTACKS + 1) += (float) bbcount((black & knights) & knight_attacks_white);
-                *(bitboards + index + KING_RING_ATTACKS + 2) += (float) bbcount((black & bishops) & bishop_attacks_white);
-                *(bitboards + index + KING_RING_ATTACKS + 3) += (float) bbcount((black & rooks) & rook_attacks_white);
-                *(bitboards + index + KING_RING_ATTACKS + 4) += (float) bbcount((black & queens) & queen_attacks_white);
-                *(bitboards + index + KING_RING_ATTACKS + 5) += (float) (((black & kings) & king_attacks_white) != 0ULL);
-                // defense
-                *(bitboards + index + KING_RING_DEFENSES    ) += (float) bbcount((white & pawns) & (pawn_attacks_white(pos & ~RANK_1) | pos));
-                *(bitboards + index + KING_RING_DEFENSES + 1) += (float) bbcount((white & knights) & (knight_attacks_white ^ pos));
-                *(bitboards + index + KING_RING_DEFENSES + 2) += (float) bbcount((white & bishops) & (bishop_attacks_white ^ pos));
-                *(bitboards + index + KING_RING_DEFENSES + 3) += (float) bbcount((white & rooks) & (rook_attacks_white ^ pos));
-                *(bitboards + index + KING_RING_DEFENSES + 4) += (float) bbcount((white & queens) & (queen_attacks_white ^ pos));
-            }
+            BB pawn_attacks_white_ = pawn_attacks_white(king_ring_white) | king_ring_white;
+            BB knight_attacks_white = knight_moves(king_ring_white, 0ULL) | king_ring_white;
+            BB bishop_attacks_white = bishop_moves(king_ring_white, 0ULL, empties);
+            BB rook_attacks_white = rook_moves(king_ring_white, 0ULL, empties);
+            BB queen_attacks_white = queen_moves(king_ring_white, 0ULL, empties);
+            BB king_attacks_white = king_moves(king_ring_white, 0ULL, 0ULL) | king_ring_white;
+            *(bitboards + index + KING_RING_ATTACKS    ) = (float) bbcount((black & pawns) & pawn_attacks_white_);
+            *(bitboards + index + KING_RING_ATTACKS + 1) = (float) bbcount((black & knights) & knight_attacks_white);
+            *(bitboards + index + KING_RING_ATTACKS + 2) = (float) bbcount((black & bishops) & bishop_attacks_white);
+            *(bitboards + index + KING_RING_ATTACKS + 3) = (float) bbcount((black & rooks) & rook_attacks_white);
+            *(bitboards + index + KING_RING_ATTACKS + 4) = (float) bbcount((black & queens) & queen_attacks_white);
+            *(bitboards + index + KING_RING_ATTACKS + 5) = (float) (((black & kings) & king_attacks_white) != 0ULL);
+            // defense
+            *(bitboards + index + KING_RING_DEFENSES    ) = (float) bbcount((white & pawns) & pawn_attacks_white_);
+            *(bitboards + index + KING_RING_DEFENSES + 1) = (float) bbcount((white & knights) & knight_attacks_white);
+            *(bitboards + index + KING_RING_DEFENSES + 2) = (float) bbcount((white & bishops) & bishop_attacks_white);
+            *(bitboards + index + KING_RING_DEFENSES + 3) = (float) bbcount((white & rooks) & rook_attacks_white);
+            *(bitboards + index + KING_RING_DEFENSES + 4) = (float) bbcount((white & queens) & queen_attacks_white);
         }
 
         // black
@@ -701,28 +697,24 @@ void parse_batch(float *bitboards, float *phases, float *ys) {
             *(bitboards + index + THREAT_BY_ROOK + 5 + BLACK) += (float) ((1ULL << pos) & white_rook_attacks);
             BB king_ring_black = king_moves(1ULL << pos, 0ULL, 0ULL);
             // king attacks
-            while (king_ring_black) {
-                BB pos = king_ring_black & -king_ring_black;
-                king_ring_black &= king_ring_black - 1;
-                BB pawn_attacks_black_ = pawn_attacks_black(pos);
-                BB knight_attacks_black = knight_moves(pos, 0ULL);
-                BB bishop_attacks_black = bishop_moves(pos, 0ULL, empties);
-                BB rook_attacks_black = rook_moves(pos, 0ULL, empties);
-                BB queen_attacks_black = queen_moves(pos, 0ULL, empties);
-                BB king_attacks_black = king_moves(pos, 0ULL, 0ULL);
-                *(bitboards + index + KING_RING_ATTACKS     + BLACK) += (float) bbcount((white & pawns) & pawn_attacks_black_);
-                *(bitboards + index + KING_RING_ATTACKS + 1 + BLACK) += (float) bbcount((white & knights) & knight_attacks_black);
-                *(bitboards + index + KING_RING_ATTACKS + 2 + BLACK) += (float) bbcount((white & bishops) & bishop_attacks_black);
-                *(bitboards + index + KING_RING_ATTACKS + 3 + BLACK) += (float) bbcount((white & rooks) & rook_attacks_black);
-                *(bitboards + index + KING_RING_ATTACKS + 4 + BLACK) += (float) bbcount((white & queens) & queen_attacks_black);
-                *(bitboards + index + KING_RING_ATTACKS + 5 + BLACK) +=  (float) (((white & kings) & king_attacks_black) != 0ULL);
-                // defense
-                *(bitboards + index + KING_RING_DEFENSES     + BLACK) += (float) bbcount((black & pawns) & (pawn_attacks_black(pos & ~RANK_8) | pos));
-                *(bitboards + index + KING_RING_DEFENSES + 1 + BLACK) += (float) bbcount((black & knights) & (knight_attacks_black ^ pos));
-                *(bitboards + index + KING_RING_DEFENSES + 2 + BLACK) += (float) bbcount((black & bishops) & (bishop_attacks_black ^ pos));
-                *(bitboards + index + KING_RING_DEFENSES + 3 + BLACK) += (float) bbcount((black & rooks) & (rook_attacks_black ^ pos));
-                *(bitboards + index + KING_RING_DEFENSES + 4 + BLACK) += (float) bbcount((black & queens) & (queen_attacks_black ^ pos));
-            }
+            BB pawn_attacks_black_ = pawn_attacks_white(king_ring_black) | king_ring_black;
+            BB knight_attacks_black = knight_moves(king_ring_black, 0ULL) | king_ring_black;
+            BB bishop_attacks_black = bishop_moves(king_ring_black, 0ULL, empties);
+            BB rook_attacks_black = rook_moves(king_ring_black, 0ULL, empties);
+            BB queen_attacks_black = queen_moves(king_ring_black, 0ULL, empties);
+            BB king_attacks_black = king_moves(king_ring_black, 0ULL, 0ULL) | king_ring_black;
+            *(bitboards + index + KING_RING_ATTACKS     + BLACK) = (float) bbcount((white & pawns) & pawn_attacks_black_);
+            *(bitboards + index + KING_RING_ATTACKS + 1 + BLACK) = (float) bbcount((white & knights) & knight_attacks_black);
+            *(bitboards + index + KING_RING_ATTACKS + 2 + BLACK) = (float) bbcount((white & bishops) & bishop_attacks_black);
+            *(bitboards + index + KING_RING_ATTACKS + 3 + BLACK) = (float) bbcount((white & rooks) & rook_attacks_black);
+            *(bitboards + index + KING_RING_ATTACKS + 4 + BLACK) = (float) bbcount((white & queens) & queen_attacks_black);
+            *(bitboards + index + KING_RING_ATTACKS + 5 + BLACK) = (float) (((white & kings) & king_attacks_black) != 0ULL);
+            // defense
+            *(bitboards + index + KING_RING_DEFENSES     + BLACK) = (float) bbcount((black & pawns) & pawn_attacks_black_);
+            *(bitboards + index + KING_RING_DEFENSES + 1 + BLACK) = (float) bbcount((black & knights) & knight_attacks_black);
+            *(bitboards + index + KING_RING_DEFENSES + 2 + BLACK) = (float) bbcount((black & bishops) & bishop_attacks_black);
+            *(bitboards + index + KING_RING_DEFENSES + 3 + BLACK) = (float) bbcount((black & rooks) & rook_attacks_black);
+            *(bitboards + index + KING_RING_DEFENSES + 4 + BLACK) = (float) bbcount((black & queens) & queen_attacks_black);
         }
 
         // get the tempo
