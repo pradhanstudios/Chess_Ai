@@ -131,8 +131,6 @@ const int BISHOP_PAIR = S(21, 50);
 
 const int TEMPO = S(25, 20);
 
-
-
 #undef S
 
 int evaluate(const Board &chess_board) noexcept;

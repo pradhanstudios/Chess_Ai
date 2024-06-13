@@ -65,7 +65,8 @@ void Interface::go() {
             2147483647,
             std::stoi(this->args[2])
         );
-        std::printf("bestmove %s ponder h1h1 nodes %lu eval %i\n", move_to_uci(this->searcher.best_move).c_str(), this->searcher.nodes, get_perspective_eval(this->searcher.best_eval, chess_board.turn));
+
+        std::printf("bestmove %s ponder h1h1 nodes %lu eval %i\n", move_to_uci(this->searcher.best_move).c_str(), this->searcher.nodes, get_perspective_eval(this->searcher.best_eval, this->chess_board.turn));
     }
 }
 

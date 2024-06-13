@@ -223,7 +223,7 @@ int Searcher::negamax_search(Board &chess_board, int depth, const int depth_from
         int eval = get_perspective_eval(evaluate(chess_board), chess_board.turn);
         // move is too good
         // TODO: tune this so that it doesn't show bad moves, while still maintaining speed because of new eval
-        if (depth < 6 && (eval - 99 * depth) >= beta) {
+        if (depth < 6 && (eval - 98 * depth) >= beta) {
             return beta; // get the average
         }
         // null move pruning is buggy
@@ -235,7 +235,7 @@ int Searcher::negamax_search(Board &chess_board, int depth, const int depth_from
         //     chess_board.next_turn(); // undo null move
 
         //     if (cur_eval >= beta) {
-        //         return cur_eval;
+        //         return cur_eval
         //     }
         // }
     }
@@ -270,9 +270,14 @@ int Searcher::negamax_search(Board &chess_board, int depth, const int depth_from
             return 0;
         }
 
-        if (depth_from_start == 0 && (cur_eval > best_eval || i == 0)) {
-            this->best_eval = cur_eval;
-            this->best_move = moves[i];
+        if (cur_eval > alpha) {
+            if (depth_from_start == 0) {
+                this->best_eval = cur_eval;
+                this->best_move = moves[i];
+            }
+            
+            alpha = cur_eval;
+            search_pv = false;
         }
 
         if (cur_eval >= beta) {
@@ -286,12 +291,8 @@ int Searcher::negamax_search(Board &chess_board, int depth, const int depth_from
         }
         
 
-        if (cur_eval > alpha) {
-            alpha = cur_eval;
-            search_pv = false;
-        }
-
     }
+    
     return alpha;
 }
 
@@ -308,14 +309,14 @@ void Searcher::run_iterative_deepening(Board &chess_board, const int time, const
     this->best_move = NULL_MOVE;
     this->best_eval = NEGINF;
     int m_depth = 0;
-    int soft_time_limit = current_time() + time / 10 /*around how much longer each depth takes*/;
+    // int soft_time_limit = current_time() + time / 10 /*around how much longer each depth takes*/;
 
     this->run_negamax_search(chess_board, 1, 0, NEGINF, INF);
 
     for (int i = 2; i <= max_depth; i++) {
-        if (current_time() > soft_time_limit && i > 1) { // soft time limit reached
-            break;
-        }
+        // if (current_time() > soft_time_limit && i > 1) { // soft time limit reached
+            // break;
+        // }
         this->search_over = false;
         this->previous_best_move = this->best_move;
         this->previous_best_eval = this->best_eval;
