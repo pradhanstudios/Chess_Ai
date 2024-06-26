@@ -175,7 +175,7 @@ Board::Board(const std::string &fen) noexcept {
     this->zobrist_key ^= zobrist.castles[this->history.back().castle];
 }
 
-void Board::print_square_data() noexcept {
+void Board::print_square_data() const noexcept {
     std::string cur;
     int entry, cur_piece;
     for (int i = 63; i > -1; i--) {
@@ -224,8 +224,8 @@ void Board::print_square_data() noexcept {
 void Board::play_move(const Move move) noexcept {
     // variable initialization
     unsigned int cur_en_pessant = 0u;
-    int same_team = turn_to_index[this->turn];
-    int other_team = turn_to_index[!this->turn];
+    int same_team = TURN_TO_INDEX_LOOKUP[this->turn];
+    int other_team = TURN_TO_INDEX_LOOKUP[!this->turn];
     unsigned int from = move.from;
     unsigned int to = move.to;
     unsigned int type = move.type;
@@ -318,9 +318,10 @@ void Board::play_move(const Move move) noexcept {
         toggle_bit(this->pieces[same_team], from);
         toggle_bit(this->pieces[same_team], to); // on
         toggle_bit(this->pieces[piece], to);
-
-        this->pieces[FULL] ^= (from | to);
-        this->pieces[EMPTY] ^= (from | to);
+        toggle_bit(this->pieces[FULL], from);
+        toggle_bit(this->pieces[FULL], to);
+        toggle_bit(this->pieces[EMPTY], from);
+        toggle_bit(this->pieces[EMPTY], to);
 
         if (no_color((this->piece_data[to])) == ROOK) { // rook is captured
             this->zobrist_key ^= zobrist.castles[cur_castle];
@@ -343,11 +344,10 @@ void Board::play_move(const Move move) noexcept {
         }
         if (piece_data[to]) { // capture
             this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[to])-1][to];
-            BB capture = SQUARE_TO_BB[to];
-            this->pieces[EMPTY] ^= capture;
-            this->pieces[FULL] ^= capture;
-            this->pieces[other_team] ^= capture;
-            this->pieces[no_color(piece_data[to])] ^= capture;
+            toggle_bit(this->pieces[EMPTY], to);
+            toggle_bit(this->pieces[FULL], to);
+            toggle_bit(this->pieces[other_team], to);
+            toggle_bit(this->pieces[no_color(piece_data[to])], to);
         }
         
         this->piece_data[to] = piece + (!this->turn * 8);
@@ -397,7 +397,7 @@ void Board::play_move(const Move move) noexcept {
         this->pieces[same_team] ^= t;
         this->pieces[FULL] ^= pawn_mask;
         this->pieces[EMPTY] ^= pawn_mask;
-        toggle_bit(this->pieces[turn_to_index[!turn]], enpessant);
+        toggle_bit(this->pieces[other_team], enpessant);
         this->piece_data[to] = this->piece_data[from];
         this->piece_data[from] = EMPTY;
         this->zobrist_key ^= zobrist.pieces[no_color(this->piece_data[enpessant])-1][enpessant];
@@ -452,8 +452,8 @@ void Board::undo_move(const Move move) noexcept {
     this->zobrist_key ^= zobrist.en_pessants[cur_en_pessant];
     int capture = old_history.capture; 
     this->state = RUNNING;
-    int same_team = turn_to_index[this->turn];
-    int other_team = turn_to_index[!this->turn];
+    int same_team = TURN_TO_INDEX_LOOKUP[this->turn];
+    int other_team = TURN_TO_INDEX_LOOKUP[!this->turn];
     unsigned int from = move.from;
     unsigned int to = move.to;
     unsigned int type = move.type;

@@ -16,16 +16,19 @@ void Interface::isready() {
 
 void Interface::position() {
     if (this->args[1] == "startpos") {
-        this->chess_board = Board(DEFAULT_FEN);
-        this->chess_board.state = RUNNING;
-        if (this->N > 2) {
-            for (int i = 2; i < this->N; i++) {
-                this->chess_board.play_move(uci_to_move(this->args[i], this->chess_board));
+        delete this->chess_board;
+        this->chess_board = new Board(DEFAULT_FEN);
+        this->chess_board->state = RUNNING;
+        if (this->N > 3) {
+            for (int i = 3; i < this->N; i++) {
+                this->chess_board->play_move(uci_to_move(this->args[i], *this->chess_board));
             }
         }
     }
+
     else if (this->args[1] == "fen") {
-        this->chess_board = Board(
+        delete this->chess_board;
+        this->chess_board = new Board(
             std::accumulate(
             std::next(this->args.begin()+2), 
             this->args.begin()+8, 
@@ -34,15 +37,16 @@ void Interface::position() {
                 return a + " " + b;
             }
             ));
-        this->chess_board.state = RUNNING;
-        if (N > 8) {
-            for (int i = 8; i < this->N; i++) {
-                this->chess_board.play_move(uci_to_move(this->args[i], this->chess_board));
+        this->chess_board->state = RUNNING;
+        if (N > 9) {
+            for (int i = 9; i < this->N; i++) {
+                this->chess_board->play_move(uci_to_move(this->args[i], *this->chess_board));
             }
         }
     }
+
     else if (this->args[1] == "show") {
-        this->chess_board.print_square_data();
+        this->chess_board->print_square_data();
     }
 }
 
@@ -52,8 +56,8 @@ void Interface::go() {
         if (this->args[3] == "btime") {
             // TODO: implement winc and binc
             this->searcher.run_iterative_deepening(
-                this->chess_board, 
-                this->chess_board.turn ? std::stoi(this->args[2]) / 10 : std::stoi(this->args[4]) / 10
+                *this->chess_board, 
+                this->chess_board->turn ? std::stoi(this->args[2]) / 10 : std::stoi(this->args[4]) / 10
             );
             // h1h1 is a null move
             std::printf("bestmove %s ponder h1h1\n", move_to_uci(this->searcher.best_move).c_str());
@@ -61,21 +65,21 @@ void Interface::go() {
     }
     if (this->args[1] == "depth") {
         this->searcher.run_iterative_deepening(
-            this->chess_board, 
+            *this->chess_board, 
             2147483647,
             std::stoi(this->args[2])
         );
 
-        std::printf("bestmove %s ponder h1h1 nodes %lu eval %i\n", move_to_uci(this->searcher.best_move).c_str(), this->searcher.nodes, get_perspective_eval(this->searcher.best_eval, this->chess_board.turn));
+        std::printf("bestmove %s ponder h1h1 nodes %lu eval %i\n", move_to_uci(this->searcher.best_move).c_str(), this->searcher.nodes, get_perspective_eval(this->searcher.best_eval, this->chess_board->turn));
     }
 }
 
 void Interface::eval() {
-    std::printf("static evaluation of position: %i\n ", evaluate(this->chess_board));
+    std::printf("static evaluation of position: %i\n ", evaluate(*this->chess_board));
 }
 
 void Interface::show() {
-    this->chess_board.print_square_data();
+    this->chess_board->print_square_data();
 }
 
 void Interface::run_arguments(const std::string &arguments) {

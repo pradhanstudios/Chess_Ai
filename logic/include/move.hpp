@@ -18,8 +18,7 @@ struct Move {
     }
 };
 
-
 const inline Move NULL_MOVE = Move();
-void print_move_fancy(const Move &m);
+void print_move_fancy(const Move m);
 
 #endif // MOVE_HPP

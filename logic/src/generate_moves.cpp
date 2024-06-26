@@ -1,12 +1,129 @@
 #include "generate_moves.hpp"
 
+void generate_psuedo_legal_moves(Board &chess_board, std::vector<Move> &movelist) {
+    if (chess_board.state != RUNNING) {
+        return;
+    }
+
+    History cur_history = chess_board.history.back();
+    int same_team = TURN_TO_INDEX_LOOKUP[chess_board.turn];
+    int other_team = TURN_TO_INDEX_LOOKUP[!chess_board.turn];
+
+    std::vector<Move> moves;
+    moves.reserve(512); // idk what the max psuedo legal moves are in a position
+
+    const BB king = chess_board.pieces[same_team] & chess_board.pieces[KING];
+    const int king_pos = lsb(king);
+    BB king_attackers = chess_board.square_attacks(king_pos, same_team);
+    int num_of_checks = count_bits(king_attackers);
+
+    BB mask = MAX_VALUE;
+    if (num_of_checks > 0) {
+        BB lsb_king_attackers = king_attackers & -king_attackers;
+        mask = in_between(king_pos, lsb(king_attackers));
+        generate_non_pawn_moves<KING>(chess_board, same_team, king, ~mask /*opposite mask for king because it can not get in the way*/, moves);
+        mask |= lsb_king_attackers;
+    }
+
+    else {
+        generate_non_pawn_moves<KING>(chess_board, same_team, king, mask, moves);
+    }
+    // print_BB(mask);
+    // print_BB(KING_MOVES[king_pos] & ~chess_board.pieces[same_team]);
+    // printf("hi\n");
+    // printf("hi\n");
+
+    if (num_of_checks > 1) { // if it is double check then no point in generating other moves
+        goto end;
+    }
+
+{
+    BB not_king = (chess_board.pieces[FULL] ^ (chess_board.pieces[same_team] & chess_board.pieces[KING]));
+    int shift = !chess_board.turn << 1;
+    int color_to_position = !chess_board.turn * 56; 
+    if (!king_attackers && !((0b1110ULL << color_to_position) & not_king) && (cur_history.castle & SQUARE_TO_BB[shift]) && !(chess_board.square_attacks(color_to_position + 2, same_team))) {
+        moves.push_back((Move(3 + color_to_position, 1 + color_to_position, CASTLE, EMPTY, KINGSIDE_CASTLE)));
+    }
+
+    // queenside castle
+    shift++; // because queenside castles are after in the mask
+    
+    if (!king_attackers && !((0b01110000ULL << color_to_position) & not_king) && (cur_history.castle & SQUARE_TO_BB[shift]) && !(chess_board.square_attacks(color_to_position + 4, same_team))) {
+        moves.push_back((Move(3 + color_to_position, 5 + color_to_position, CASTLE, EMPTY, QUEENSIDE_CASTLE)));
+    }
+
+    BB same_team_pieces = chess_board.pieces[PAWN] & chess_board.pieces[same_team];
+    while (same_team_pieces) {
+        int pos = pop_lsb(same_team_pieces);
+        
+        BB piece_moves = pawn_moves(pos, chess_board.pieces[other_team], chess_board.pieces[EMPTY], chess_board.turn) & mask;
+
+        while (piece_moves) {
+            int new_pos = pop_lsb(piece_moves);
+            int rank_ = rank(new_pos);
+            if (rank_ != 0 && rank_ != 7) {
+                moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
+            }
+            else { // then it has to be a promotion
+                // add all possible promotions
+                moves.push_back((Move(pos, new_pos, PROMOTION, QUEEN)));
+                moves.push_back((Move(pos, new_pos, PROMOTION, ROOK)));
+                moves.push_back((Move(pos, new_pos, PROMOTION, KNIGHT)));
+                moves.push_back((Move(pos, new_pos, PROMOTION, BISHOP)));
+            }
+        }
+        // en_pessant
+        if ((chess_board.pieces[FULL] & SQUARE_TO_BB[cur_history.en_pessant]) && (cur_history.en_pessant != 0) && (abs(cur_history.en_pessant - pos) < 2) && (count_bits((SQUARE_TO_BB[cur_history.en_pessant] | SQUARE_TO_BB[pos]) & EDGES) != 2)) { // if it is one off of the en pessant pawn
+            moves.push_back(Move(pos, cur_history.en_pessant + PAWN_DIRECTION_LOOKUP[chess_board.turn], EN_PESSANT));
+        }
+    }
+
+    // all non pawn move generation are all basically the same, so we can all group them together into one function (generate_non_pawn_moves())
+    same_team_pieces = chess_board.pieces[KNIGHT] & chess_board.pieces[same_team];
+    
+    generate_non_pawn_moves<KNIGHT>(chess_board, same_team, same_team_pieces, mask, moves);
+
+    same_team_pieces = chess_board.pieces[BISHOP] & chess_board.pieces[same_team];
+
+    generate_non_pawn_moves<BISHOP>(chess_board, same_team, same_team_pieces, mask, moves);
+
+    same_team_pieces = chess_board.pieces[ROOK] & chess_board.pieces[same_team];
+
+    generate_non_pawn_moves<ROOK>(chess_board, same_team, same_team_pieces, mask, moves);
+
+    same_team_pieces = chess_board.pieces[QUEEN] & chess_board.pieces[same_team];
+
+    generate_non_pawn_moves<QUEEN>(chess_board, same_team, same_team_pieces, mask, moves);
+}
+end:
+    const BB possibly_pinned = chess_board.possibly_pinned_pieces_from_square(king_pos, same_team);
+
+    for (const Move &move : moves) {
+        if (chess_board.is_move_legal(move, possibly_pinned, same_team, king)) {
+            movelist.push_back(move);
+        }
+    }
+
+    if (movelist.size() == 0) {
+
+        if (king_attackers) { // checkmate
+            chess_board.state = CHECKMATE;
+        }
+
+        else { // stalemate
+            chess_board.state = DRAW;
+        }
+    }
+}
+
 void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) noexcept { // should be reserved to size 218
     if (chess_board.state != RUNNING) {
         return;
     }
+
     History cur_history = chess_board.history.back();
-    int same_team = turn_to_index[chess_board.turn];
-    int other_team = turn_to_index[!chess_board.turn];
+    int same_team = TURN_TO_INDEX_LOOKUP[chess_board.turn];
+    int other_team = TURN_TO_INDEX_LOOKUP[!chess_board.turn];
 
     // king
 
@@ -155,6 +272,7 @@ void generate_legal_moves(Board &chess_board, std::vector<Move> &moves) noexcept
             moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
         }
     }
+
     if (moves.size() == 0) {
         if (king & chess_board.pieces[OTHER_TEAM_ATTACKS]) { // checkmate
             chess_board.state = CHECKMATE;
@@ -170,8 +288,8 @@ void generate_captures(Board &chess_board, std::vector<Move> &moves) noexcept {
         return;
     }
     History cur_history = chess_board.history.back();
-    int same_team = turn_to_index[chess_board.turn];
-    int other_team = turn_to_index[!chess_board.turn];
+    int same_team = TURN_TO_INDEX_LOOKUP[chess_board.turn];
+    int other_team = TURN_TO_INDEX_LOOKUP[!chess_board.turn];
     bool is_one_quiet_move = false;
     // king
     chess_board.next_turn(); // skip turn
@@ -322,12 +440,12 @@ void generate_captures(Board &chess_board, std::vector<Move> &moves) noexcept {
 BB generate_attacks(Board &chess_board) noexcept {
     chess_board.check_ray = MAX_VALUE; // so we can and with normal moves to get all legal moves
     int num_of_checks = 0;
-    int other_team = turn_to_index[!chess_board.turn];
+    int other_team = TURN_TO_INDEX_LOOKUP[!chess_board.turn];
     BB other_team_king = chess_board.pieces[KING] & chess_board.pieces[other_team];
     int other_team_king_pos = lsb(other_team_king);
     // if the king is in check, it should not be able to back into check
     chess_board.pieces[FULL] ^= other_team_king;
-    int same_team = turn_to_index[chess_board.turn];
+    int same_team = TURN_TO_INDEX_LOOKUP[chess_board.turn];
     // sliding pieces first because they're easy
     BB same_team_pieces = chess_board.pieces[BISHOP] & chess_board.pieces[same_team];
     BB attacks = 0ULL;
@@ -402,8 +520,8 @@ void set_attack_bitboard(Board &chess_board) noexcept {
 
 BB get_and_set_pins(Board &chess_board) noexcept {
     BB pins = 0ULL;
-    int same_team = turn_to_index[chess_board.turn];
-    int other_team = turn_to_index[!chess_board.turn];
+    int same_team = TURN_TO_INDEX_LOOKUP[chess_board.turn];
+    int other_team = TURN_TO_INDEX_LOOKUP[!chess_board.turn];
     BB other_team_king = chess_board.pieces[KING] & chess_board.pieces[other_team];
     int king_pos = lsb(other_team_king);
     BB no_other_team_pieces = ~(chess_board.pieces[other_team] ^ other_team_king) ^ chess_board.pieces[EMPTY];

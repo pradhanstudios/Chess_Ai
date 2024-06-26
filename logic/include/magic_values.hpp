@@ -19,8 +19,20 @@ inline std::array<magic_structure, 64> ROOK_MAGICS, BISHOP_MAGICS;
 
 void load_magics();
 
-constexpr BB get_sliding_moves(const BB &current_position, const BB &friendlies, const magic_structure &magic) noexcept {
+constexpr BB get_sliding_moves(BB current_position, BB friendlies, const magic_structure &magic) noexcept {
     return magic.attacks[((current_position & magic.mask) * magic.magic) >> magic.shift] & ~friendlies;
+}
+
+constexpr BB bishop_moves(BB current_position, BB friendlies, int pos) noexcept {
+    return get_sliding_moves(current_position, friendlies, BISHOP_MAGICS[pos]);
+}
+
+constexpr BB rook_moves(BB current_position, BB friendlies, int pos) noexcept {
+    return get_sliding_moves(current_position, friendlies, ROOK_MAGICS[pos]);
+}
+
+constexpr BB queen_moves(BB current_position, BB friendlies, int pos) noexcept {
+    return bishop_moves(current_position, friendlies, pos) | rook_moves(current_position, friendlies, pos);
 }
 // extern std::array<magic_structure, 64> ROOK_MAGICS;
 // extern const std::array<BB, 64> ROOK_SHIFTS;

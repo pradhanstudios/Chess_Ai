@@ -8,7 +8,7 @@
 
 class Interface {
     
-    Board chess_board = Board(DEFAULT_FEN);
+    Board *chess_board = new Board(DEFAULT_FEN);
     Searcher searcher = Searcher();
     std::vector<std::string> args;
     std::string last;

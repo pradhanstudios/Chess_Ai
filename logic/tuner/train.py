@@ -52,18 +52,20 @@ parser.open_book()
 # features = np.zeros((BATCH_SIZE, FEATURE_SIZE), dtype=ctypes.c_float)
 # phases = np.zeros((BATCH_SIZE, 1), dtype=ctypes.c_float)
 # y = np.zeros((BATCH_SIZE, 1), dtype=ctypes.c_float)
+avoid_log_by_zero = 1e-12
+def cross_entropy_loss(y_pred, y):
+    return -torch.mean(y * torch.log(y_pred + avoid_log_by_zero) + (1 - y) * torch.log(1 - y_pred + avoid_log_by_zero))
 
-epochs = 50
+epochs = 30
 
 Evaluation_ = Evaluation()
 
 optimizer = torch.optim.Adam(Evaluation_.parameters(), lr=0.01)
-loss_fn = nn.MSELoss()
+# loss_fn = nn.MSELoss()
+loss_fn = cross_entropy_loss
 # print(BATCH_NUM)
 iters = 0
 for epoch in range(epochs):
-    # if epoch == 10 or epoch == 20:
-        # optimizer.param_groups[0]["lr"] /= 10
     epoch_loss = 0
     for features, phases, y in batch_data_loader():
         # print(iters)
@@ -74,11 +76,12 @@ for epoch in range(epochs):
         epoch_loss += loss.item()
         loss.backward()
         optimizer.step()
+
     parser.reread()
 
     print(f"epoch {epoch+1}/{epochs}; averaged squared loss: {epoch_loss / BATCH_NUM}")
 
-with open("tuned_pst_values_done.json", "w") as fh:
+with open("tuned_pst_values_entropy.json", "w") as fh:
     json.dump({
         name: param.detach().cpu().numpy().tolist()
         for name, param in Evaluation_.named_parameters()

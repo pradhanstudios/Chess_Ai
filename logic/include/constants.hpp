@@ -2,15 +2,12 @@
 #define CONSTANTS_HPP
 
 
-/*
 #include <stdint.h>
 #include <string>
 #include <iostream>
 #include <vector>
 #include <bits/stdc++.h>
-*/
 
-#include "precompiled_libs.hpp" // speed up compile time
 
 
 typedef uint64_t BB; // short for Bitboard

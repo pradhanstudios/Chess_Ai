@@ -5,6 +5,7 @@
 #include "bit_operations.hpp"
 #include "move.hpp"
 #include "non_sliding_moves.hpp"
+#include "magic_values.hpp"
 
 enum PIECE { // for pieces, white is implied
     EMPTY = 0,
@@ -40,7 +41,11 @@ enum BOARD_STATE {
 extern const std::string DEFAULT_FEN;
 extern const std::map<char, int> col_letter_to_num;
 
-inline std::array<PIECE, 2> turn_to_index = {BLACK, WHITE};
+inline std::array<PIECE, 2> TURN_TO_INDEX_LOOKUP = {BLACK, WHITE};
+
+constexpr bool _INDEX_TO_TURN(int index) {
+    return index ^ BLACK;
+}
 
 constexpr int no_color(const int piece) noexcept {
     return piece & 7;
@@ -89,9 +94,45 @@ class Board {
         std::vector<History> history;
         bool turn; // true for white, false for black
         Board(const std::string &fen) noexcept;
-        void print_square_data() noexcept;
+        void print_square_data() const noexcept;
         void play_move(const Move move) noexcept;
         void undo_move(const Move move) noexcept;
+
+        inline BB square_attacks(int square, int same_team) noexcept {
+            BB pawn_attacks_from_square = PAWN_MOVES[_INDEX_TO_TURN(same_team) + 2][square] & ~this->pieces[same_team];
+            BB knight_attacks_from_square = KNIGHT_MOVES[square] & ~this->pieces[same_team];
+            BB bishop_attacks_from_square = bishop_moves(this->pieces[FULL], this->pieces[same_team], square);
+            BB rook_attacks_from_square = rook_moves(this->pieces[FULL], this->pieces[same_team], square);
+            BB attacks = 
+                (pawn_attacks_from_square & (this->pieces[PAWN])) |
+                (knight_attacks_from_square & (this->pieces[KNIGHT])) |
+                (bishop_attacks_from_square & ((this->pieces[BISHOP] | this->pieces[QUEEN]))) |
+                (rook_attacks_from_square & ((this->pieces[ROOK]     | this->pieces[QUEEN])));  
+
+            return attacks;
+        }
+
+        inline BB possibly_pinned_pieces_from_square(int square, int same_team) noexcept {
+            return queen_moves(this->pieces[FULL], 0ULL, square) & this->pieces[same_team];
+        }
+
+        inline bool is_move_legal(const Move move, BB possibly_pinned, int same_team, BB same_team_king) noexcept {
+            bool is_legal = true;
+            if (
+                (SQUARE_TO_BB[move.from] & (possibly_pinned | same_team_king)) ||
+                (move.type == EN_PESSANT)
+            ) {
+                this->play_move(move);
+
+                if (square_attacks(lsb(this->pieces[same_team] & this->pieces[KING]), same_team)) {
+                    is_legal = false;
+                }
+                
+                this->undo_move(move);
+            }
+
+            return is_legal;
+        }
 
         inline bool is_open_file(const int file_) const noexcept {
             return !(this->pieces[PAWN] & (H_FILE << file_));
@@ -103,7 +144,7 @@ class Board {
         }
 
         inline bool is_in_check() const noexcept {
-            return (this->pieces[KING] & this->pieces[turn_to_index[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
+            return (this->pieces[KING] & this->pieces[TURN_TO_INDEX_LOOKUP[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
         };
 
         inline void next_turn() noexcept {

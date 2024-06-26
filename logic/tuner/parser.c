@@ -723,6 +723,7 @@ void parse_batch(float *bitboards, float *phases, float *ys) {
 
         // the phase
         *(phases + j) = (float)cur_phase / 24.0f;
+        // *(phases + j) = (((float)((24 - cur_phase) * 256 + 12)) / 6144.0f);
 
         // move pointer to square bracket
         while (buf[++str_ptr] != '[');
