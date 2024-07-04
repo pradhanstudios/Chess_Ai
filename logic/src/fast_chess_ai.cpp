@@ -17,11 +17,11 @@
 int main() {
     initialize_engine();
     assert(ENGINE_INITIALIZED);
-    // run_test_suite();
-    // Board b = Board(TEST_SUITE_FENS[9]);
+    run_test_suite();
+    // Board b = Board("2kr3r/p1ppqpb1/bn2Qnp1/3PN3/1p2P3/2N5/PPPBBPPP/R3K2R b KQ - 3 2");
+    // print_BB(pawn_non_capture_moves(c7, b.pieces[EMPTY], b.turn));
     // std::cout << TEST_SUITE_FENS[9] << std::endl;
     // std::cout << TEST_SUITE_DEPTHS[9] << std::endl;
-    // Board b = Board("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
     // b.play_move(Move(d7, c8, PROMOTION, QUEEN));
 
     // Board b2 = Board("rnQq1k1r/pp2bppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R b KQ - 0 8");
@@ -33,7 +33,8 @@ int main() {
     // std::cout << (b.pieces == b2.pieces) << std::endl;
     // int depth = TEST_SUITE_DEPTHS[9]
     // ;
-    // std::cout << perft(b, 4, 4) << std::endl;
+    // Board b = Board(DEFAULT_FEN);
+    // std::cout << perft(b, 1, 1) << std::endl;
     // std::cout << TEST_SUITE_NODE_COUNT[9] << std::endl;
     // ---------------------
     return 0;

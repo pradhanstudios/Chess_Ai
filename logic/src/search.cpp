@@ -33,7 +33,7 @@ uint64_t perft(Board &chess_board, const int depth) noexcept {
     uint64_t nodes = 0ULL;
 
     // generate_legal_moves(chess_board, moves);
-    generate_psuedo_legal_moves(chess_board, moves);
+    generate_psuedo_legal_moves(chess_board, moves, true);
     for (const Move &move : moves) {
         if (depth != 1) {
         chess_board.play_move(move);
@@ -55,7 +55,7 @@ uint64_t perft(Board &chess_board, const int depth, const int original_depth) no
     uint64_t cur_node_count = 0ULL;
     uint64_t nodes = 0ULL;
 
-    generate_psuedo_legal_moves(chess_board, moves);
+    generate_psuedo_legal_moves(chess_board, moves, true);
 
     for (const Move &move : moves) {
         if (depth > 1 || depth == original_depth) {

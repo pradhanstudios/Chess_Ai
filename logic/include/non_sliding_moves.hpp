@@ -5,13 +5,25 @@
 #include "bit_operations.hpp"
 
 inline std::array<BB, 2> PAWN_DOUBLE_RANK_LOOKUP = {RANK_7, RANK_2};
+inline std::array<BB, 2> PAWN_DOUBLE_CANDIDATE = {RANK_6, RANK_3};
+inline std::array<BB, 2> PAWN_ALMOST_PROMOTION_RANK_LOOKUP = {RANK_2, RANK_7};
 inline std::array<int, 2> PAWN_DIRECTION_LOOKUP = {-8, 8};
 inline std::array<std::array<BB, 64>, 4> PAWN_MOVES;
 inline std::array<BB, 64> KNIGHT_MOVES;
 inline std::array<BB, 64> KING_MOVES;
 
-constexpr BB pawn_moves(const int pos, const BB &opposite_team, const BB &empties, const bool turn) noexcept {
+constexpr BB pawn_moves(const int pos, const BB &opposite_team, const BB empties, const bool turn) noexcept {
     return (PAWN_MOVES[turn][pos] & empties) | (shift_up(shift_up(SQUARE_TO_BB[pos] & (PAWN_DOUBLE_RANK_LOOKUP[turn]), PAWN_DIRECTION_LOOKUP[turn]) & empties, PAWN_DIRECTION_LOOKUP[turn]) & empties) | (PAWN_MOVES[turn+2][pos] & opposite_team);
+}
+
+constexpr BB pawn_non_capture_moves(int pos, BB empties, bool turn) {
+    BB moves = PAWN_MOVES[turn][pos] & empties;
+    moves |= shift_up(moves & PAWN_DOUBLE_CANDIDATE[turn], PAWN_DIRECTION_LOOKUP[turn]) & empties;
+    return moves;
+}
+
+constexpr BB pawn_capture_moves(int pos, BB opposite_team, bool turn) {
+    return PAWN_MOVES[turn + 2][pos] & opposite_team;
 }
 
 constexpr BB knight_moves(const int pos, const BB &same_team) noexcept {

@@ -1,6 +1,6 @@
 #include "generate_moves.hpp"
 
-void generate_psuedo_legal_moves(Board &chess_board, std::vector<Move> &movelist) {
+void generate_psuedo_legal_moves(Board &chess_board, std::vector<Move> &movelist, bool legal) {
     if (chess_board.state != RUNNING) {
         return;
     }
@@ -28,11 +28,7 @@ void generate_psuedo_legal_moves(Board &chess_board, std::vector<Move> &movelist
     else {
         generate_non_pawn_moves<KING>(chess_board, same_team, king, mask, moves);
     }
-    // print_BB(mask);
-    // print_BB(KING_MOVES[king_pos] & ~chess_board.pieces[same_team]);
-    // printf("hi\n");
-    // printf("hi\n");
-
+    
     if (num_of_checks > 1) { // if it is double check then no point in generating other moves
         goto end;
     }
@@ -53,30 +49,12 @@ void generate_psuedo_legal_moves(Board &chess_board, std::vector<Move> &movelist
     }
 
     BB same_team_pieces = chess_board.pieces[PAWN] & chess_board.pieces[same_team];
-    while (same_team_pieces) {
-        int pos = pop_lsb(same_team_pieces);
-        
-        BB piece_moves = pawn_moves(pos, chess_board.pieces[other_team], chess_board.pieces[EMPTY], chess_board.turn) & mask;
-
-        while (piece_moves) {
-            int new_pos = pop_lsb(piece_moves);
-            int rank_ = rank(new_pos);
-            if (rank_ != 0 && rank_ != 7) {
-                moves.push_back((Move(pos, new_pos, NORMAL_MOVE)));
-            }
-            else { // then it has to be a promotion
-                // add all possible promotions
-                moves.push_back((Move(pos, new_pos, PROMOTION, QUEEN)));
-                moves.push_back((Move(pos, new_pos, PROMOTION, ROOK)));
-                moves.push_back((Move(pos, new_pos, PROMOTION, KNIGHT)));
-                moves.push_back((Move(pos, new_pos, PROMOTION, BISHOP)));
-            }
-        }
-        // en_pessant
-        if ((chess_board.pieces[FULL] & SQUARE_TO_BB[cur_history.en_pessant]) && (cur_history.en_pessant != 0) && (abs(cur_history.en_pessant - pos) < 2) && (count_bits((SQUARE_TO_BB[cur_history.en_pessant] | SQUARE_TO_BB[pos]) & EDGES) != 2)) { // if it is one off of the en pessant pawn
-            moves.push_back(Move(pos, cur_history.en_pessant + PAWN_DIRECTION_LOOKUP[chess_board.turn], EN_PESSANT));
-        }
-    }
+    generate_promotions<CAPTURE>(chess_board, same_team_pieces, chess_board.pieces[other_team], mask, moves);
+    generate_promotions<QUIET>(chess_board, same_team_pieces, chess_board.pieces[other_team], mask, moves);
+    generate_normal_pawn_moves<CAPTURE>(chess_board, same_team_pieces, chess_board.pieces[other_team], mask, moves);
+    generate_en_pesssant_moves(chess_board, same_team_pieces, cur_history, moves);
+    generate_normal_pawn_moves<QUIET>(chess_board, same_team_pieces, chess_board.pieces[other_team], mask, moves);
+    
 
     // all non pawn move generation are all basically the same, so we can all group them together into one function (generate_non_pawn_moves())
     same_team_pieces = chess_board.pieces[KNIGHT] & chess_board.pieces[same_team];
@@ -96,22 +74,30 @@ void generate_psuedo_legal_moves(Board &chess_board, std::vector<Move> &movelist
     generate_non_pawn_moves<QUEEN>(chess_board, same_team, same_team_pieces, mask, moves);
 }
 end:
-    const BB possibly_pinned = chess_board.possibly_pinned_pieces_from_square(king_pos, same_team);
+    if (legal) {
+        filter_illegal_moves(chess_board, moves, movelist);
 
-    for (const Move &move : moves) {
-        if (chess_board.is_move_legal(move, possibly_pinned, same_team, king)) {
-            movelist.push_back(move);
+        if (movelist.size() == 0) {
+
+            if (king_attackers) { // checkmate
+                chess_board.state = CHECKMATE;
+            }
+
+            else { // stalemate
+                chess_board.state = DRAW;
+            }
         }
     }
+}
 
-    if (movelist.size() == 0) {
+void filter_illegal_moves(Board &chess_board, std::vector<Move> &psuedo_legal, std::vector<Move> &legal) {
+    int same_team = TURN_TO_INDEX_LOOKUP[chess_board.turn];
+    BB king = chess_board.pieces[same_team] & chess_board.pieces[KING];
+    const BB possibly_pinned = chess_board.possibly_pinned_pieces_from_square(lsb(king), same_team);
 
-        if (king_attackers) { // checkmate
-            chess_board.state = CHECKMATE;
-        }
-
-        else { // stalemate
-            chess_board.state = DRAW;
+    for (const Move &move : psuedo_legal) {
+        if (chess_board.is_move_legal(move, possibly_pinned, same_team, king)) {
+            legal.push_back(move);
         }
     }
 }
