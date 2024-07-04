@@ -105,7 +105,7 @@ constexpr void generate_promotions(Board &chess_board, BB same_team_pawns, BB ot
 }
 
 template <MOVEGEN_TYPE movegen_type>
-void generate_normal_pawn_moves(Board chess_board, BB same_team_pawns, BB other_team, BB mask, std::vector<Move> &moves) {
+constexpr void generate_normal_pawn_moves(Board &chess_board, BB same_team_pawns, BB other_team, BB mask, std::vector<Move> &moves) {
     same_team_pawns &= ~PAWN_ALMOST_PROMOTION_RANK_LOOKUP[chess_board.turn];
     BB attacks;
     while (same_team_pawns) {
@@ -119,6 +119,22 @@ void generate_normal_pawn_moves(Board chess_board, BB same_team_pawns, BB other_
             attacks = pawn_non_capture_moves(pos, chess_board.pieces[EMPTY], chess_board.turn) & mask;
             bitloop(attacks, pos, moves);
         }  
+    }
+}
+
+constexpr void generate_castles(Board &chess_board, BB same_team_king, BB king_attackers, History &cur_history, std::vector<Move> &moves) {
+    BB not_king = (chess_board.pieces[FULL] ^ same_team_king);
+    int shift = !chess_board.turn << 1;
+    int color_to_position = !chess_board.turn * 56; 
+    if (!king_attackers && !((0b1110ULL << color_to_position) & not_king) && (cur_history.castle & SQUARE_TO_BB[shift]) && !(chess_board.square_attacks(color_to_position + 2, TURN_TO_INDEX_LOOKUP[chess_board.turn]))) {
+        moves.push_back((Move(3 + color_to_position, 1 + color_to_position, CASTLE, EMPTY, KINGSIDE_CASTLE)));
+    }
+
+    // queenside castle
+    shift++; // because queenside castles are after in the mask
+    
+    if (!king_attackers && !((0b01110000ULL << color_to_position) & not_king) && (cur_history.castle & SQUARE_TO_BB[shift]) && !(chess_board.square_attacks(color_to_position + 4, TURN_TO_INDEX_LOOKUP[chess_board.turn]))) {
+        moves.push_back((Move(3 + color_to_position, 5 + color_to_position, CASTLE, EMPTY, QUEENSIDE_CASTLE)));
     }
 }
 

@@ -34,19 +34,20 @@ void generate_psuedo_legal_moves(Board &chess_board, std::vector<Move> &movelist
     }
 
 {
-    BB not_king = (chess_board.pieces[FULL] ^ (chess_board.pieces[same_team] & chess_board.pieces[KING]));
-    int shift = !chess_board.turn << 1;
-    int color_to_position = !chess_board.turn * 56; 
-    if (!king_attackers && !((0b1110ULL << color_to_position) & not_king) && (cur_history.castle & SQUARE_TO_BB[shift]) && !(chess_board.square_attacks(color_to_position + 2, same_team))) {
-        moves.push_back((Move(3 + color_to_position, 1 + color_to_position, CASTLE, EMPTY, KINGSIDE_CASTLE)));
-    }
+    generate_castles(chess_board, king, king_attackers, cur_history, moves);
+    // BB not_king = (chess_board.pieces[FULL] ^ (chess_board.pieces[same_team] & chess_board.pieces[KING]));
+    // int shift = !chess_board.turn << 1;
+    // int color_to_position = !chess_board.turn * 56; 
+    // if (!king_attackers && !((0b1110ULL << color_to_position) & not_king) && (cur_history.castle & SQUARE_TO_BB[shift]) && !(chess_board.square_attacks(color_to_position + 2, same_team))) {
+    //     moves.push_back((Move(3 + color_to_position, 1 + color_to_position, CASTLE, EMPTY, KINGSIDE_CASTLE)));
+    // }
 
-    // queenside castle
-    shift++; // because queenside castles are after in the mask
+    // // queenside castle
+    // shift++; // because queenside castles are after in the mask
     
-    if (!king_attackers && !((0b01110000ULL << color_to_position) & not_king) && (cur_history.castle & SQUARE_TO_BB[shift]) && !(chess_board.square_attacks(color_to_position + 4, same_team))) {
-        moves.push_back((Move(3 + color_to_position, 5 + color_to_position, CASTLE, EMPTY, QUEENSIDE_CASTLE)));
-    }
+    // if (!king_attackers && !((0b01110000ULL << color_to_position) & not_king) && (cur_history.castle & SQUARE_TO_BB[shift]) && !(chess_board.square_attacks(color_to_position + 4, same_team))) {
+    //     moves.push_back((Move(3 + color_to_position, 5 + color_to_position, CASTLE, EMPTY, QUEENSIDE_CASTLE)));
+    // }
 
     BB same_team_pieces = chess_board.pieces[PAWN] & chess_board.pieces[same_team];
     generate_promotions<CAPTURE>(chess_board, same_team_pieces, chess_board.pieces[other_team], mask, moves);
