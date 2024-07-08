@@ -98,11 +98,51 @@ class Board {
         void play_move(const Move move) noexcept;
         void undo_move(const Move move) noexcept;
 
-        inline BB square_attacks(int square, int same_team) noexcept {
-            BB pawn_attacks_from_square = PAWN_MOVES[_INDEX_TO_TURN(same_team) + 2][square] & ~this->pieces[same_team];
-            BB knight_attacks_from_square = KNIGHT_MOVES[square] & ~this->pieces[same_team];
-            BB bishop_attacks_from_square = bishop_moves(this->pieces[FULL], this->pieces[same_team], square);
-            BB rook_attacks_from_square = rook_moves(this->pieces[FULL], this->pieces[same_team], square);
+
+        constexpr BB get_color(PIECE color) const noexcept {
+            return this->pieces[color];
+        }
+
+        constexpr BB get_piece_bitboard(PIECE piece) const noexcept {
+            return this->pieces[piece];
+        }
+        constexpr BB get_piece_bitboard(PIECE color, PIECE piece) const noexcept {
+            return this->get_color(color) & this->get_piece_bitboard(piece);
+        }
+
+        constexpr BB get_same_team_color() const noexcept {
+            return this->get_color(TURN_TO_INDEX_LOOKUP[this->turn]);
+        }
+
+        constexpr BB get_same_team_color(PIECE piece) const noexcept {
+            return this->get_color(TURN_TO_INDEX_LOOKUP[this->turn]) & this->get_piece_bitboard(piece);
+        }
+
+        constexpr BB get_other_team_color() const noexcept {
+            return this->get_color(TURN_TO_INDEX_LOOKUP[!this->turn]);
+        }
+
+        constexpr BB get_other_team_color(PIECE piece) const noexcept {
+            return this->get_color(TURN_TO_INDEX_LOOKUP[!this->turn]) & this->get_piece_bitboard(piece);
+        }
+
+        constexpr BB get_full_bitboard() const noexcept {
+            return this->pieces[FULL];
+        }
+
+        constexpr BB get_empty_bitboard() const noexcept {
+            return this->pieces[EMPTY];
+        }
+
+        inline History get_last_history() const noexcept {
+            return this->history.back();
+        }
+
+        inline BB square_attacks(int square, BB same_team, bool other_team=0) const noexcept {
+            BB pawn_attacks_from_square = PAWN_MOVES[(this->turn^other_team) + 2][square] & ~same_team;
+            BB knight_attacks_from_square = KNIGHT_MOVES[square] & ~same_team;
+            BB bishop_attacks_from_square = bishop_moves(this->pieces[FULL], same_team, square);
+            BB rook_attacks_from_square = rook_moves(this->pieces[FULL], same_team, square);
             BB attacks = 
                 (pawn_attacks_from_square & (this->pieces[PAWN])) |
                 (knight_attacks_from_square & (this->pieces[KNIGHT])) |
@@ -112,19 +152,19 @@ class Board {
             return attacks;
         }
 
-        inline BB possibly_pinned_pieces_from_square(int square, int same_team) noexcept {
-            return queen_moves(this->pieces[FULL], 0ULL, square) & this->pieces[same_team];
+        constexpr BB possibly_pinned_pieces_from_square(int square, BB same_team) const noexcept {
+            return queen_moves(this->pieces[FULL], 0ULL, square) & same_team;
         }
 
-        inline bool is_move_legal(const Move move, BB possibly_pinned, int same_team, BB same_team_king) noexcept {
+        inline bool is_move_legal(const Move move, BB possibly_pinned, BB same_team_king) noexcept {
             bool is_legal = true;
             if (
                 (SQUARE_TO_BB[move.from] & (possibly_pinned | same_team_king)) ||
                 (move.type == EN_PESSANT)
             ) {
                 this->play_move(move);
-
-                if (square_attacks(lsb(this->pieces[same_team] & this->pieces[KING]), same_team)) {
+                
+                if (square_attacks(lsb(this->get_other_team_color(KING)), this->get_other_team_color(), 1)) {
                     is_legal = false;
                 }
                 
@@ -134,17 +174,17 @@ class Board {
             return is_legal;
         }
 
-        inline bool is_open_file(const int file_) const noexcept {
+        constexpr bool is_open_file(const int file_) const noexcept {
             return !(this->pieces[PAWN] & (H_FILE << file_));
         }
 
-        inline bool is_semi_open_file(const int file_, const PIECE color, const PIECE other_color) const noexcept {
+        constexpr bool is_semi_open_file(const int file_, const PIECE color, const PIECE other_color) const noexcept {
             BB cur_file = H_FILE << file_;
             return !((this->pieces[color] & this->pieces[PAWN]) & cur_file) && ((this->pieces[other_color] & this->pieces[PAWN]) & cur_file);
         }
 
         inline bool is_in_check() const noexcept {
-            return (this->pieces[KING] & this->pieces[TURN_TO_INDEX_LOOKUP[this->turn]]) & this->pieces[OTHER_TEAM_ATTACKS];
+            return this->square_attacks(lsb(this->get_same_team_color(KING)), this->get_same_team_color());
         };
 
         inline void next_turn() noexcept {
@@ -152,7 +192,7 @@ class Board {
             this->turn = !this->turn;
         };
         
-        inline void update_bitboards() noexcept {
+        constexpr void update_bitboards() noexcept {
             this->pieces[FULL] = (this->pieces[WHITE] | this->pieces[BLACK]);
             this->pieces[EMPTY] = ~this->pieces[FULL];
         };

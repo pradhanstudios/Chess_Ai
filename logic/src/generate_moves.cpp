@@ -5,14 +5,14 @@ void generate_psuedo_legal_moves(Board &chess_board, std::vector<Move> &movelist
         return;
     }
 
-    History cur_history = chess_board.history.back();
-    int same_team = TURN_TO_INDEX_LOOKUP[chess_board.turn];
-    int other_team = TURN_TO_INDEX_LOOKUP[!chess_board.turn];
+    History cur_history = chess_board.get_last_history();
+    BB same_team = chess_board.get_same_team_color();
+    BB other_team = chess_board.get_other_team_color();
 
     std::vector<Move> moves;
     moves.reserve(512); // idk what the max psuedo legal moves are in a position
 
-    const BB king = chess_board.pieces[same_team] & chess_board.pieces[KING];
+    const BB king = chess_board.get_same_team_color(KING);
     const int king_pos = lsb(king);
     BB king_attackers = chess_board.square_attacks(king_pos, same_team);
     int num_of_checks = count_bits(king_attackers);
@@ -34,30 +34,30 @@ void generate_psuedo_legal_moves(Board &chess_board, std::vector<Move> &movelist
     }
 
 {
-    generate_castles(chess_board, king, king_attackers, cur_history, moves);
+    generate_castles(chess_board, king_attackers, cur_history, moves);
 
-    BB same_team_pieces = chess_board.pieces[PAWN] & chess_board.pieces[same_team];
-    generate_promotions<CAPTURE>(chess_board, same_team_pieces, chess_board.pieces[other_team], mask, moves);
-    generate_promotions<QUIET>(chess_board, same_team_pieces, chess_board.pieces[other_team], mask, moves);
-    generate_normal_pawn_moves<CAPTURE>(chess_board, same_team_pieces, chess_board.pieces[other_team], mask, moves);
+    BB same_team_pieces = chess_board.get_same_team_color(PAWN);
+    generate_promotions<CAPTURE>(chess_board, same_team_pieces, other_team, mask, moves);
+    generate_promotions<QUIET>(chess_board, same_team_pieces, other_team, mask, moves);
+    generate_normal_pawn_moves<CAPTURE>(chess_board, same_team_pieces, other_team, mask, moves);
     generate_en_pesssant_moves(chess_board, same_team_pieces, cur_history, moves);
-    generate_normal_pawn_moves<QUIET>(chess_board, same_team_pieces, chess_board.pieces[other_team], mask, moves);
+    generate_normal_pawn_moves<QUIET>(chess_board, same_team_pieces, other_team, mask, moves);
     
 
     // all non pawn move generation are all basically the same, so we can all group them together into one function (generate_non_pawn_moves())
-    same_team_pieces = chess_board.pieces[KNIGHT] & chess_board.pieces[same_team];
+    same_team_pieces = chess_board.get_same_team_color(KNIGHT);
     
     generate_non_pawn_moves<KNIGHT>(chess_board, same_team, same_team_pieces, mask, moves);
 
-    same_team_pieces = chess_board.pieces[BISHOP] & chess_board.pieces[same_team];
+    same_team_pieces = chess_board.get_same_team_color(BISHOP);
 
     generate_non_pawn_moves<BISHOP>(chess_board, same_team, same_team_pieces, mask, moves);
 
-    same_team_pieces = chess_board.pieces[ROOK] & chess_board.pieces[same_team];
+    same_team_pieces = chess_board.get_same_team_color(ROOK);
 
     generate_non_pawn_moves<ROOK>(chess_board, same_team, same_team_pieces, mask, moves);
 
-    same_team_pieces = chess_board.pieces[QUEEN] & chess_board.pieces[same_team];
+    same_team_pieces = chess_board.get_same_team_color(QUEEN);
 
     generate_non_pawn_moves<QUEEN>(chess_board, same_team, same_team_pieces, mask, moves);
 }
@@ -79,12 +79,12 @@ end:
 }
 
 void filter_illegal_moves(Board &chess_board, std::vector<Move> &psuedo_legal, std::vector<Move> &legal) {
-    int same_team = TURN_TO_INDEX_LOOKUP[chess_board.turn];
-    BB king = chess_board.pieces[same_team] & chess_board.pieces[KING];
+    BB same_team = chess_board.get_same_team_color();
+    BB king = chess_board.get_same_team_color(KING);
     const BB possibly_pinned = chess_board.possibly_pinned_pieces_from_square(lsb(king), same_team);
 
     for (const Move &move : psuedo_legal) {
-        if (chess_board.is_move_legal(move, possibly_pinned, same_team, king)) {
+        if (chess_board.is_move_legal(move, possibly_pinned, king)) {
             legal.push_back(move);
         }
     }
